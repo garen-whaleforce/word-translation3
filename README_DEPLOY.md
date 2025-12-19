@@ -51,13 +51,11 @@ git push -u origin main
 
 1. 點擊 "Add Service" > "Git"
 2. 連接您的 GitHub Repository
-3. 選擇 Repository
+3. 選擇 Repository，**服務名稱設為 `api`**（Zeabur 會自動使用 `Dockerfile.api`）
 4. 設定環境變數：
 
 ```
-SERVICE_TYPE=api
-PORT=8000
-REDIS_URL=<從 Redis 服務複製>
+REDIS_URL=<從 Redis 服務複製，格式: redis://<host>:<port>>
 SHARED_PASSWORD=<您的密碼>
 S3_ENDPOINT_URL=<Cloudflare R2 Endpoint>
 S3_ACCESS_KEY=<R2 Access Key>
@@ -66,22 +64,23 @@ S3_BUCKET_NAME=cns-reports
 ```
 
 5. 等待建置和部署完成
-6. 綁定自訂網域或使用 Zeabur 提供的網域
+6. 在 "Networking" 設定中開啟 Public，綁定自訂網域或使用 Zeabur 提供的網域
 
 ### 5. 部署 Worker 服務
 
 1. 再次點擊 "Add Service" > "Git"
-2. 選擇相同的 Repository
+2. 選擇相同的 Repository，**服務名稱設為 `worker`**（Zeabur 會自動使用 `Dockerfile.worker`）
 3. 設定環境變數：
 
 ```
-SERVICE_TYPE=worker
 REDIS_URL=<與 API 相同>
 S3_ENDPOINT_URL=<與 API 相同>
 S3_ACCESS_KEY=<與 API 相同>
 S3_SECRET_KEY=<與 API 相同>
 S3_BUCKET_NAME=<與 API 相同>
 ```
+
+> **提示**：Zeabur 會根據服務名稱自動選擇對應的 Dockerfile。如果服務名稱為 `api`，則使用 `Dockerfile.api`；如果為 `worker`，則使用 `Dockerfile.worker`。
 
 ### 6. 設定 Cloudflare R2（可選但建議）
 
