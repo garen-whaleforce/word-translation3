@@ -16,3 +16,6 @@ redis>=5.0.0
 
 # Utilities
 pydantic>=2.0.0
+
+# LLM Translation (Azure OpenAI)
+openai>=1.0.0

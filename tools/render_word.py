@@ -1,10 +1,25 @@
 import json
 import argparse
 import re
+import sys
 from pathlib import Path
 from copy import deepcopy
 from docxtpl import DocxTemplate
 from docx import Document
+
+# 添加 core 模組路徑
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# 導入 LLM 翻譯器
+try:
+    from core.llm_translator import llm_translate, get_translator
+    HAS_LLM = True
+except ImportError:
+    HAS_LLM = False
+    def llm_translate(text: str) -> str:
+        return text
+    def get_translator():
+        return None
 
 # 載入條款翻譯字典（若存在）
 CLAUSE_TRANSLATIONS = {}
@@ -2257,6 +2272,12 @@ def translate_req(req: str) -> str:
                 return f'{chn} {rest}'
             return chn
 
+    # 字典未匹配，嘗試 LLM 翻譯
+    if HAS_LLM:
+        translated = llm_translate(req_normalized)
+        if translated != req_normalized:
+            return translated
+
     return req_normalized
 
 
@@ -2559,6 +2580,12 @@ def translate_remark(remark: str, clause_id: str) -> str:
         template_remark = CLAUSE_TRANSLATIONS[clause_id].get('remark_cn', '')
         if template_remark:
             return template_remark
+
+    # 字典未匹配，嘗試 LLM 翻譯
+    if HAS_LLM:
+        translated = llm_translate(remark_normalized)
+        if translated != remark_normalized:
+            return translated
 
     return remark_normalized
 
@@ -3375,6 +3402,41 @@ def main():
 
     # 條款表格重建後，再次翻譯所有表格中的通用英文短語
     translate_all_tables(docx)
+
+    # LLM 最終審查：掃描所有表格，翻譯剩餘的英文內容（使用併發）
+    if HAS_LLM:
+        translator = get_translator()
+        if translator and translator.enabled:
+            print("[LLM] 開始最終審查（收集需翻譯的欄位）...")
+
+            # 收集所有需要翻譯的欄位
+            cells_to_translate = []  # [(table_idx, row_idx, cell_idx, text)]
+            for tbl_idx, tbl in enumerate(docx.tables):
+                for row_idx, row in enumerate(tbl.rows):
+                    for cell_idx, cell in enumerate(row.cells):
+                        text = cell.text.strip()
+                        if text and len(text) >= 5:
+                            cells_to_translate.append((tbl_idx, row_idx, cell_idx, text))
+
+            if cells_to_translate:
+                # 批次翻譯（併發處理）
+                texts_only = [item[3] for item in cells_to_translate]
+                translated_texts = translator.translate_batch(texts_only)
+
+                # 回寫翻譯結果
+                llm_translated_count = 0
+                for i, (tbl_idx, row_idx, cell_idx, original_text) in enumerate(cells_to_translate):
+                    translated = translated_texts[i]
+                    if translated != original_text:
+                        docx.tables[tbl_idx].rows[row_idx].cells[cell_idx].text = translated
+                        llm_translated_count += 1
+
+                if llm_translated_count > 0:
+                    print(f"[LLM] 最終審查完成：翻譯了 {llm_translated_count} 個欄位")
+                else:
+                    print("[LLM] 最終審查完成：無需額外翻譯")
+            else:
+                print("[LLM] 最終審查完成：無需額外翻譯")
 
     # 刪除模板末尾的多餘範例表格（含 Jinja2 標記）
     remove_template_example_tables(docx)
