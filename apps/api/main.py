@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Query
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -25,7 +25,6 @@ from core.storage import get_storage
 
 # ===== 配置 =====
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "cns2024")
 ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
 # ===== App =====
@@ -71,16 +70,9 @@ class JobDetailResponse(JobResponse):
     qa_report_download_url: Optional[str] = None
 
 
-# ===== Auth =====
-def verify_password(password: str = Query(..., alias="p")):
-    if password != SHARED_PASSWORD:
-        raise HTTPException(status_code=401, detail="Invalid password")
-    return password
-
-
 # ===== Routes =====
-@app.get("/")
-async def root():
+@app.get("/api")
+async def api_root():
     return {"status": "ok", "service": "CNS Report Generator API"}
 
 
@@ -110,7 +102,6 @@ async def create_job(
     report_no: Optional[str] = Form(None),
     applicant_name: Optional[str] = Form(None),
     applicant_address: Optional[str] = Form(None),
-    password: str = Depends(verify_password)
 ):
     """
     上傳 CB PDF 並建立轉換任務
@@ -160,10 +151,7 @@ async def create_job(
 
 
 @app.get("/api/jobs/{job_id}", response_model=JobDetailResponse)
-async def get_job(
-    job_id: str,
-    password: str = Depends(verify_password)
-):
+async def get_job(job_id: str):
     """
     查詢任務狀態
     """
@@ -201,10 +189,7 @@ async def get_job(
 
 
 @app.get("/api/jobs/{job_id}/download/docx")
-async def download_docx(
-    job_id: str,
-    password: str = Depends(verify_password)
-):
+async def download_docx(job_id: str):
     """
     下載 DOCX 檔案
     """
@@ -232,10 +217,7 @@ async def download_docx(
 
 
 @app.get("/api/jobs/{job_id}/download/qa")
-async def download_qa_report(
-    job_id: str,
-    password: str = Depends(verify_password)
-):
+async def download_qa_report(job_id: str):
     """
     下載 QA 報告
     """
@@ -261,10 +243,7 @@ async def download_qa_report(
 
 
 @app.get("/api/jobs")
-async def list_jobs(
-    password: str = Depends(verify_password),
-    limit: int = Query(default=20, le=100)
-):
+async def list_jobs(limit: int = Query(default=20, le=100)):
     """
     列出最近的任務
     """

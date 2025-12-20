@@ -88,14 +88,25 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
             if m:
                 meta['ratings_input'] = m.group(1).strip()
 
-    # Ratings Output
-    m = re.search(r'Output:\s*([^\n]+)', first_pages_text, re.IGNORECASE)
+    # Ratings Output - 抓取多行直到遇到下一個欄位標題或空行
+    # Output 可能跨多行，例如：
+    # Output: 5.0V 3.0A 15.0W or 9.0V 3.0A 27.0W or 15.0V
+    # 3.0A 45.0W or 20.0V 3.0A 60.0W or 5.0-20.0V 3.0A
+    # 60.0W MAX
+    m = re.search(r'Output[:\s]*(.*?)(?=\n[A-Z][a-z]+[:\s]|\n\n|\nTest|\nNotes)', first_pages_text, re.IGNORECASE | re.DOTALL)
     if m:
-        meta['ratings_output'] = m.group(1).strip()
+        # 將多行合併為單行，去除多餘空白
+        output_text = m.group(1).strip()
+        output_text = re.sub(r'\s*\n\s*', ' ', output_text)  # 換行轉空格
+        output_text = re.sub(r'\s+', ' ', output_text)  # 多空格合併
+        meta['ratings_output'] = output_text
     else:
-        m = re.search(r'Rated\s*output[:\s]*([^\n]+)', first_pages_text, re.IGNORECASE)
+        m = re.search(r'Rated\s*output[:\s]*(.*?)(?=\n[A-Z][a-z]+[:\s]|\n\n)', first_pages_text, re.IGNORECASE | re.DOTALL)
         if m:
-            meta['ratings_output'] = m.group(1).strip()
+            output_text = m.group(1).strip()
+            output_text = re.sub(r'\s*\n\s*', ' ', output_text)
+            output_text = re.sub(r'\s+', ' ', output_text)
+            meta['ratings_output'] = output_text
 
     return meta
 

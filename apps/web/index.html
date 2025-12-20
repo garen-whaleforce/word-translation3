@@ -320,11 +320,6 @@
             <p class="subtitle">上傳 CB PDF，自動產生 CNS 合規報告</p>
 
             <div class="form-group">
-                <label for="password">存取密碼</label>
-                <input type="password" id="password" placeholder="請輸入密碼">
-            </div>
-
-            <div class="form-group">
                 <label>上傳 CB PDF</label>
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">📄</div>
@@ -406,7 +401,6 @@
         const fileInput = document.getElementById('fileInput');
         const fileName = document.getElementById('fileName');
         const submitBtn = document.getElementById('submitBtn');
-        const password = document.getElementById('password');
 
         // Upload area events
         uploadArea.addEventListener('click', () => fileInput.click());
@@ -434,22 +428,15 @@
         function updateFileName() {
             if (fileInput.files.length) {
                 fileName.textContent = fileInput.files[0].name;
-                checkSubmitEnabled();
+                submitBtn.disabled = false;
             }
-        }
-
-        password.addEventListener('input', checkSubmitEnabled);
-
-        function checkSubmitEnabled() {
-            submitBtn.disabled = !(fileInput.files.length && password.value);
         }
 
         // Submit
         submitBtn.addEventListener('click', async () => {
             const file = fileInput.files[0];
-            const pwd = password.value;
 
-            if (!file || !pwd) return;
+            if (!file) return;
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span> 上傳中...';
@@ -467,7 +454,7 @@
                 if (applicantName) formData.append('applicant_name', applicantName);
                 if (applicantAddress) formData.append('applicant_address', applicantAddress);
 
-                const response = await fetch(`${API_BASE}/api/jobs?p=${encodeURIComponent(pwd)}`, {
+                const response = await fetch(`${API_BASE}/api/jobs`, {
                     method: 'POST',
                     body: formData
                 });
@@ -499,9 +486,8 @@
             if (!currentJobId) return;
 
             try {
-                const pwd = password.value;
                 const response = await fetch(
-                    `${API_BASE}/api/jobs/${currentJobId}?p=${encodeURIComponent(pwd)}`
+                    `${API_BASE}/api/jobs/${currentJobId}`
                 );
 
                 if (!response.ok) return;
@@ -564,9 +550,8 @@
                 const docxBtn = document.getElementById('docxDownload');
                 const qaBtn = document.getElementById('qaDownload');
 
-                const pwd = password.value;
-                docxBtn.href = `${API_BASE}/api/jobs/${job.job_id}/download/docx?p=${encodeURIComponent(pwd)}`;
-                qaBtn.href = `${API_BASE}/api/jobs/${job.job_id}/download/qa?p=${encodeURIComponent(pwd)}`;
+                docxBtn.href = `${API_BASE}/api/jobs/${job.job_id}/download/docx`;
+                qaBtn.href = `${API_BASE}/api/jobs/${job.job_id}/download/qa`;
 
                 if (job.status === 'PASS') {
                     docxBtn.textContent = '📥 下載 FINAL 報告';
@@ -605,15 +590,9 @@
         // Load recent jobs
         async function loadRecentJobs() {
             const container = document.getElementById('jobsList');
-            const pwd = password.value;
-
-            if (!pwd) {
-                container.innerHTML = '<p style="color: #666;">請先輸入密碼</p>';
-                return;
-            }
 
             try {
-                const response = await fetch(`${API_BASE}/api/jobs?p=${encodeURIComponent(pwd)}`);
+                const response = await fetch(`${API_BASE}/api/jobs`);
                 if (!response.ok) {
                     container.innerHTML = '<p style="color: #666;">無法載入</p>';
                     return;
@@ -643,11 +622,10 @@
 
         async function viewJob(jobId) {
             currentJobId = jobId;
-            const pwd = password.value;
 
             try {
                 const response = await fetch(
-                    `${API_BASE}/api/jobs/${jobId}?p=${encodeURIComponent(pwd)}`
+                    `${API_BASE}/api/jobs/${jobId}`
                 );
 
                 if (!response.ok) return;
@@ -668,10 +646,8 @@
             }
         }
 
-        // Init
-        password.addEventListener('input', () => {
-            setTimeout(loadRecentJobs, 500);
-        });
+        // Init - 頁面載入時自動載入最近任務
+        loadRecentJobs();
     </script>
 </body>
 </html>

@@ -23,7 +23,21 @@ def normalize_context(data: dict) -> dict:
     """
     meta = data.get("meta", {})
     meta.setdefault("model_type_references", [])
-    meta["model_type_references_str"] = ", ".join(meta.get("model_type_references") or [])
+
+    # 拆分主型號和系列型號
+    # 第一個型號為主型號，其餘為系列型號
+    all_models = meta.get("model_type_references") or []
+    if all_models:
+        meta["main_model"] = all_models[0]  # 主型號
+        meta["series_models"] = all_models[1:] if len(all_models) > 1 else []  # 系列型號
+    else:
+        meta["main_model"] = ""
+        meta["series_models"] = []
+
+    # 主型號欄位使用第一個型號
+    meta["model_type_references_str"] = meta["main_model"]
+    # 系列型號欄位使用其餘型號（逗號分隔）
+    meta["series_models_str"] = ", ".join(meta["series_models"])
 
     # overview / clauses / attachments 若不存在，保證為 list
     data.setdefault("overview_energy_sources_and_safeguards", [])
@@ -3245,15 +3259,19 @@ def main():
     data = load_json(json_path)
     ctx = normalize_context(data)
 
-    # 如果用戶有填入封面欄位，覆蓋 meta 資料
+    # 封面欄位處理：
+    # - 如果用戶有填入封面欄位 → 使用用戶填入的值
+    # - 如果用戶沒有填入封面欄位 → 保持空白（不使用 PDF 抽取的值）
+    # 這三個欄位永遠使用用戶提供的值（即使是空字串）
+    ctx['meta']['cb_report_no'] = args.cover_report_no  # 覆蓋報告編號
+    ctx['meta']['applicant'] = args.cover_applicant_name  # 覆蓋申請者名稱
+    ctx['meta']['applicant_address'] = args.cover_applicant_address  # 覆蓋申請者地址
+
     if args.cover_report_no:
-        ctx['meta']['cb_report_no'] = args.cover_report_no
         print(f"封面報告編號: {args.cover_report_no}")
     if args.cover_applicant_name:
-        ctx['meta']['applicant'] = args.cover_applicant_name
         print(f"封面申請者名稱: {args.cover_applicant_name}")
     if args.cover_applicant_address:
-        ctx['meta']['applicant_address'] = args.cover_applicant_address
         print(f"封面申請者地址: {args.cover_applicant_address}")
 
     # 第一階段：docxtpl 渲染
