@@ -3219,6 +3219,24 @@ def fill_table_b25(doc: Document, table_b25_data: dict, special_tables: dict):
                     print(f"已修正 I rated: 1.7 -> {correct_i_rated}")
 
 
+def translate_paragraph_placeholders(doc):
+    """
+    替換段落中的佔位符文字
+    """
+    replacements = {
+        '自動生成：安全防護總攬表（由 CB TRF Overview 匯入）': '安全防護總攬表',
+        '自動生成：條款判定清單（Clause / Verdict / Remark）': '條款判定清單',
+    }
+
+    for para in doc.paragraphs:
+        for old_text, new_text in replacements.items():
+            if old_text in para.text:
+                # 替換文字但保留格式
+                for run in para.runs:
+                    if old_text in run.text:
+                        run.text = run.text.replace(old_text, new_text)
+
+
 def remove_template_example_tables(doc):
     """
     刪除模板末尾的多餘範例表格
@@ -3355,6 +3373,9 @@ def main():
 
     # 翻譯所有表格中的通用英文短語
     translate_all_tables(docx)
+
+    # 替換段落佔位符文字
+    translate_paragraph_placeholders(docx)
 
     # 動態更新主條款表格
     # 優先使用 pdf_clause_rows（完全動態生成），否則使用舊版 clauses（只更新）
