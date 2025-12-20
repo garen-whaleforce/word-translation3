@@ -1036,7 +1036,7 @@ def translate_req(req: str) -> str:
         'ELECTRICALLY-CAUSED INJURY': '電氣導致之傷害',
         'ELECTRICALLY- CAUSED FIRE': '電氣導致之火災',
         'EQUIPMENT CONTAINING BATTERIES AND THEIR PROTECTION CIRCUITS': '含電池及其保護電路之設備',
-        'EQUIPMENT MARKINGS, INSTRUCTIONS, AND INSTRUCTIONAL SAFEGUARDS': '設備標示、說明及指導性安全防護',
+        'EQUIPMENT MARKINGS, INSTRUCTIONS, AND INSTRUCTIONAL SAFEGUARDS': '設備標示、說明及指示型安全防護',
         'ALTERNATIVE METHOD FOR DETERMINING CLEARANCES FOR INSULATION': '絕緣間隙測定之替代方法',
 
         # 更多技術術語
@@ -1101,7 +1101,7 @@ def translate_req(req: str) -> str:
         'INSULATED WINDING WIRES FOR USE WITHOUT INTERLEAVED INSULATION': '不使用層間絕緣之絕緣繞線',
         'Impulse test generators': '脈衝試驗產生器',
         'Inadvertent change of operating mode': '操作模式意外改變',
-        'Instructional safeguards': '指導性安全防護',
+        'Instructional safeguards': '指示型安全防護',
         'Instructions': '說明',
         'Instructions to prevent reasonably foreseeable': '防止合理可預見之說明',
         'Insulating compound forming cemented joints': '形成膠合接合之絕緣化合物',
@@ -1157,8 +1157,8 @@ def translate_req(req: str) -> str:
         'Prospective touch voltage and touch current associated with external circuits': '與外部電路相關之預期觸電電壓及觸電電流',
 
         # 7.x 化學危害
-        'Instructional safeguard': '指導性安全防護',
-        'Instructional Safeguard': '指導性安全防護',
+        'Instructional safeguard': '指示型安全防護',
+        'Instructional Safeguard': '指示型安全防護',
 
         # 8.x 機械危害
         'Maximum stopping distance from the point of activation (mm)': '從啟動點到停止的最大距離 (mm)',
@@ -1177,9 +1177,9 @@ def translate_req(req: str) -> str:
         # 10.x 輻射危害
         'The standard(s) equipment containing laser(s) complies with': '含雷射設備符合之標準',
         'The standard(s) equipment containing laser(s) comply': '含雷射設備符合之標準',
-        'Instructional safeguard provided for accessible radiation': '針對可接觸輻射提供指導性安全防護',
-        'Instructional safeguard provided for accessible radiation level needs to exceed 1': '針對需超過 1 級之可接觸輻射提供指導性安全防護',
-        'Instructional safeguard for skilled persons': '針對技術人員之指導性安全防護',
+        'Instructional safeguard provided for accessible radiation': '針對可接觸輻射提供指示型安全防護',
+        'Instructional safeguard provided for accessible radiation level needs to exceed 1': '針對需超過 1 級之可接觸輻射提供指示型安全防護',
+        'Instructional safeguard for skilled persons': '針對技術人員之指示型安全防護',
         'Image projectors': '影像投影機',
 
         # B~M 附錄
@@ -1652,7 +1652,7 @@ def translate_req(req: str) -> str:
         'RADIATION': '輻射',
 
         # 附錄標題
-        'EQUIPMENT MARKINGS, INSTRUCTIONS, AND INSTRUCTIONAL SAFEGUARDS': '設備標示、說明及指導性安全防護',
+        'EQUIPMENT MARKINGS, INSTRUCTIONS, AND INSTRUCTIONAL SAFEGUARDS': '設備標示、說明及指示型安全防護',
         'COMPONENTS': '元件',
         'TRANSFORMERS AND INDUCTORS USED AS SAFEGUARDS': '用作安全防護之變壓器及電感器',
         'ADDITIONAL REQUIREMENTS FOR AUDIO/VIDEO EQUIPMENT': '音頻/視頻設備之附加要求',
@@ -1867,7 +1867,7 @@ def translate_req(req: str) -> str:
 
         # 6.4.8.3.4 防火外殼底部可燃性試驗
         'Flammability tests for the bottom of a fire enclosure': '防火外殼底部可燃性試驗',
-        'Instructional Safeguard ........................................... :': '指導性安全防護',
+        'Instructional Safeguard ........................................... :': '指示型安全防護',
 
         # 6.4.8.3.5 側邊開口
         'Side openings and properties': '側邊開口及特性',
@@ -1915,9 +1915,9 @@ def translate_req(req: str) -> str:
         'Use of personal safeguards or personal protective equipment (PPE)': '使用人員安全防護或個人防護裝備 (PPE)',
         'Personal safeguards and instructions .................... :': '人員安全防護及說明',
 
-        # 7.5 使用指導性安全防護及說明
-        'Use of instructional safeguards and instructions': '使用指導性安全防護及說明',
-        'Instructional safeguard (ISO 7010) ........................ :': '指導性安全防護 (ISO 7010)',
+        # 7.5 使用指示型安全防護及說明
+        'Use of instructional safeguards and instructions': '使用指示型安全防護及說明',
+        'Instructional safeguard (ISO 7010) ........................ :': '指示型安全防護 (ISO 7010)',
 
         # 7.6 電池及其保護電路
         # 'Batteries and their protection circuits' 已存在
@@ -1943,8 +1943,8 @@ def translate_req(req: str) -> str:
         # 8.5.1 手指、珠寶、衣物、頭髮等接觸
         'Fingers, jewellery, clothing, hair, etc., contact with MS2 or MS3 parts': '手指、珠寶、衣物、頭髮等接觸 MS2 或 MS3 部件',
 
-        # 8.5.2 指導性安全防護
-        'Instructional safeguard ............................................ :': '指導性安全防護',
+        # 8.5.2 指示型安全防護
+        'Instructional safeguard ............................................ :': '指示型安全防護',
 
         # 8.5.3 含移動部件之特殊類別設備
         'Special categories of equipment containing moving parts': '含移動部件之特殊類別設備',
@@ -1982,8 +1982,8 @@ def translate_req(req: str) -> str:
         # 8.5.4.3.2 設備安全防護
         # 'Equipment safeguards' 已存在
 
-        # 8.5.4.3.3 移動部件之指導性安全防護
-        'Instructional safeguards against moving parts ........ :': '移動部件之指導性安全防護',
+        # 8.5.4.3.3 移動部件之指示型安全防護
+        'Instructional safeguards against moving parts ........ :': '移動部件之指示型安全防護',
 
         # 8.5.4.3.4 與電源斷開
         # 'Disconnection from the supply' 已存在
@@ -2096,7 +2096,7 @@ def translate_req(req: str) -> str:
 
         # 9.4.2 設備安全防護
         'Equipment safeguard': '設備安全防護',
-        'Instructional safeguard ............................................ :': '指導性安全防護',
+        'Instructional safeguard ............................................ :': '指示型安全防護',
 
         # 9.5 無線電力發射器要求
         'Requirements for wireless power transmitters': '無線電力發射器要求',
@@ -2130,9 +2130,9 @@ def translate_req(req: str) -> str:
         # 10.4.1 一般要求
         # 'General requirements' 已存在
 
-        # 10.4.2 超過 1 級輻射之指導性安全防護
-        'Instructional safeguard provided for accessible radiation level needs to exceed': '需超過可接觸輻射水平時提供之指導性安全防護',
-        'Instructional safeguard provided for accessible radiation level needs to exceed 1': '需超過 1 級可接觸輻射水平時提供之指導性安全防護',
+        # 10.4.2 超過 1 級輻射之指示型安全防護
+        'Instructional safeguard provided for accessible radiation level needs to exceed': '需超過可接觸輻射水平時提供之指示型安全防護',
+        'Instructional safeguard provided for accessible radiation level needs to exceed 1': '需超過 1 級可接觸輻射水平時提供之指示型安全防護',
 
         # ===== 附錄 B-M 補充翻譯 =====
 
@@ -2233,8 +2233,8 @@ def translate_req(req: str) -> str:
         (r'^([\d.]+)\s*mm$', r'\1mm'),
         (r'^Max\.?\s*([\d.]+)\s*Nm$', r'最大 \1Nm'),
         # Instructional Safeguard 變體
-        (r'^Instructional\s+[Ss]afeguard\s*\.+\s*:?$', '指導性安全防護'),
-        (r'^Instructional\s+[Ss]afeguard\s+\(ISO\s+7010\)\s*\.+\s*:?$', '指導性安全防護 (ISO 7010)'),
+        (r'^Instructional\s+[Ss]afeguard\s*\.+\s*:?$', '指示型安全防護'),
+        (r'^Instructional\s+[Ss]afeguard\s+\(ISO\s+7010\)\s*\.+\s*:?$', '指示型安全防護 (ISO 7010)'),
     ]
 
     for pattern, replacement in patterns:
@@ -2251,8 +2251,8 @@ def translate_req(req: str) -> str:
 
     # 如果清理後的文字不在字典中，嘗試部分匹配
     partial_translations = {
-        'Instructional Safeguard': '指導性安全防護',
-        'Instructional safeguard': '指導性安全防護',
+        'Instructional Safeguard': '指示型安全防護',
+        'Instructional safeguard': '指示型安全防護',
         'Air gap': '空氣間隙',
         'Electric strength test': '耐電壓試驗',
         'Ball pressure test': '球壓試驗',
@@ -2827,8 +2827,8 @@ def translate_summary_table(doc: Document):
         ('Supplementary insulation', '補充絕緣'),
         ('Double insulation', '雙重絕緣'),
         ('Functional insulation', '功能絕緣'),
-        ('Instructional safeguard', '指導性安全防護'),
-        ('Instructional Safeguard', '指導性安全防護'),
+        ('Instructional safeguard', '指示型安全防護'),
+        ('Instructional Safeguard', '指示型安全防護'),
         ('Steady force test', '穩定力試驗'),
         ('Control of fire spread in PS', 'PS 火災蔓延控制'),
         ('Control of fire spread', '火災蔓延控制'),

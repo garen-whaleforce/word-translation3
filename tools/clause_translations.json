@@ -2,13 +2,22 @@
   "(%)": {
     "title_cn": "(%)"
   },
+  "(300 V RMS)": {
+    "title_cn": "(300 V RMS)"
+  },
   "(V)": {
     "title_cn": "(V)"
+  },
+  "(V); voltage difference during 24 h period (%)": {
+    "title_cn": "(V)；24 小時期間電壓差異 (%)"
   },
   "--": {
     "remark_cn": "--",
     "title_cn": "--",
     "verdict_cn": "--"
+  },
+  "0.9 max": {
+    "title_cn": "0.9 最大"
   },
   "1 s": {
     "title_cn": "1 秒"
@@ -1603,6 +1612,9 @@
   "ASRE": {
     "title_cn": "所有安全防護維持有效"
   },
+  "ASRE: 所有安全防護維持有效": {
+    "title_cn": "ASRE: 所有安全防護維持有效"
+  },
   "All models mass": {
     "title_cn": "所有型號質量"
   },
@@ -1613,6 +1625,9 @@
   },
   "Alternative by electric strength test, tested voltage (V), K": "透過耐電壓試驗替代,測試電壓(V), KR",
   "Alternative test methods": "替代試驗方法",
+  "Ambient": {
+    "title_cn": "環境溫度"
+  },
   "Apk": {
     "title_cn": "Apk"
   },
@@ -1861,6 +1876,9 @@
     "title_cn": "I 類"
   },
   "Class I Class II Class III 未分類": "I類 II類 III類 未分類",
+  "Class I 設備": {
+    "title_cn": "I 類設備"
+  },
   "Class II": {
     "title_cn": "II 類"
   },
@@ -1868,6 +1886,9 @@
   "Class II 設備": "II 類產品",
   "Class III": {
     "title_cn": "III 類"
+  },
+  "Class III 設備": {
+    "title_cn": "III 類設備"
   },
   "Cord/cable used for test": {
     "title_cn": "測試使用之電源線/電纜"
@@ -3065,6 +3086,9 @@
   "LSCT": {
     "title_cn": "最低指定充電溫度"
   },
+  "LTV-10XX": {
+    "title_cn": "LTV-10XX"
+  },
   "Largest capacitance and smallest resistance for ICX tested by itself for 10000 cycles test": "ICX 自身試驗之最大電容與最小電阻（10000 次循環試驗）",
   "Lasers": "雷射",
   "Loading force applied (N)": "施加的負重力(N)",
@@ -3298,6 +3322,9 @@
     "title_cn": "用於防止電解質溢出的托盤",
     "verdict_cn": "不適用"
   },
+  "MEL ≥ 100 dB(A) 警告": {
+    "title_cn": "MEL ≥ 100 dB(A) 警告"
+  },
   "MSCC": {
     "title_cn": "最大規定充電電流"
   },
@@ -3308,6 +3335,9 @@
     "title_cn": "電源端子 ES"
   },
   "Manufacturers' defined drift": "製造商定義之漂移",
+  "Max increase due to ageing U": {
+    "title_cn": "因老化產生之最大增量 U"
+  },
   "Max increase due to ageing U ......................... : sa": "因老化而產生的最大額定操作電壓變動值U sa",
   "Max. acoustic output L , dB(A)": {
     "title_cn": "最大聲輸出 LAeq,T, dB(A)"
@@ -3329,6 +3359,15 @@
   },
   "N.A.": {
     "title_cn": "不適用"
+  },
+  "NB": {
+    "title_cn": "NB"
+  },
+  "NC": {
+    "title_cn": "NC"
+  },
+  "NT": {
+    "title_cn": "NT"
   },
   "No Fire enclosure opening": "無防火外殼開口",
   "No UV radiation in the equipment": {
@@ -3528,6 +3567,9 @@
     "title_cn": "外部電路之試驗−成對導體纜線",
     "verdict_cn": "不適用"
   },
+  "Q1 pin 1 to 3": {
+    "title_cn": "Q1 腳位 1 至 3"
+  },
   "R": {
     "remark_cn": "限制短路試驗",
     "title_cn": "限制短路試驗",
@@ -3555,6 +3597,9 @@
   },
   "R1 open": {
     "title_cn": "R1 開路"
+  },
+  "RCD 額定剩餘動作電流 (mA)": {
+    "title_cn": "RCD 額定剩餘動作電流 (mA)"
   },
   "RS1 classification": {
     "title_cn": "RS1 分類"
@@ -3618,6 +3663,9 @@
   "SAFEGUARDS": "安全防護",
   "SC": {
     "title_cn": "短路"
+  },
+  "SMD": {
+    "title_cn": "SMD"
   },
   "SPD 跨越外部電路與接地間之隔離": "橋接在ES1或ES2外部電路與接地突波保護裝置(SPD)",
   "SRME": {
@@ -3738,8 +3786,14 @@
     "title_cn": "玻璃撞擊試驗:",
     "verdict_cn": "不適用"
   },
+  "T1 pin 3 to 4": {
+    "title_cn": "T1 腳位 3 至 4"
+  },
   "TN": {
     "title_cn": "TN"
+  },
+  "TN  TT  IT": {
+    "title_cn": "TN TT IT"
   },
   "TN TT IT - V L-L not AC mains": "TN TT IT - V L-L 非交流主電源",
   "TT": {
@@ -3749,6 +3803,9 @@
     "title_cn": "環境溫度 (°C)"
   },
   "Tape used in T1": "在 T1 中使用的膠帶",
+  "Tapes": {
+    "title_cn": "膠帶"
+  },
   "Test applied between input terminal and output terminal required by the manufacturer": {
     "title_cn": "依製造商要求於輸入端子與輸出端子之間進行測試"
   },
@@ -3815,6 +3872,12 @@
     "remark_cn": "可觸及部件之決定",
     "title_cn": "可觸及部件之決定",
     "verdict_cn": "符合"
+  },
+  "V L-L": {
+    "title_cn": "V L-L"
+  },
+  "V RMS": {
+    "title_cn": "V RMS"
   },
   "V-0 fire enclosure is used, which comply with 6.4.8.4": {
     "title_cn": "使用 V-0 等級防火外殼，符合 6.4.8.4"
@@ -3883,6 +3946,9 @@
   "Vpeak": {
     "title_cn": "Vpeak"
   },
+  "Vpk": {
+    "title_cn": "Vpk"
+  },
   "Vrms": {
     "title_cn": "Vrms"
   },
@@ -3905,6 +3971,9 @@
     "remark_cn": "表格: 確定最小間隙距離的替代方法",
     "title_cn": "表格: 確定最小間隙距離的替代方法",
     "verdict_cn": "表格: 確定最小間隙距離的替代方法"
+  },
+  "X-Ray": {
+    "title_cn": "X 射線"
   },
   "X.": {
     "remark_cn": "連接至不超過峰值420 V (300 V RMS)之交流主電源之電路中決定絕緣空間距離之替代方法",
@@ -4069,6 +4138,9 @@
   "basic insulation": {
     "title_cn": "基本絕緣"
   },
+  "before and after the test of": {
+    "title_cn": "測試前後"
+  },
   "bleeding resistor": {
     "title_cn": "洩放電阻"
   },
@@ -4080,6 +4152,9 @@
   },
   "bonding": {
     "title_cn": "接合"
+  },
+  "cable": {
+    "title_cn": "電纜"
   },
   "capacitor": {
     "title_cn": "電容器"
@@ -4140,6 +4215,9 @@
   },
   "enclosure": {
     "title_cn": "外殼"
+  },
+  "equipment with a steady state power exceeding": {
+    "title_cn": "穩態功率超過之設備"
   },
   "explosion-proof measures": {
     "title_cn": "防爆措施"
@@ -4208,6 +4286,9 @@
   "mApk": {
     "title_cn": "mApk"
   },
+  "max": {
+    "title_cn": "最大"
+  },
   "maximum output current": {
     "title_cn": "最大輸出電流"
   },
@@ -4217,11 +4298,20 @@
   "mechanical strength": {
     "title_cn": "機械強度"
   },
+  "min": {
+    "title_cn": "最小"
+  },
   "natural rubber, hygroscopic materials or asbestos are not used as insulation": {
     "title_cn": "天然橡膠、吸濕性材料或石棉未用作絕緣"
   },
+  "neutral fuse": {
+    "title_cn": "中性線保險絲"
+  },
   "normal operation": {
     "title_cn": "正常運作"
+  },
+  "not AC mains": {
+    "title_cn": "非交流電源"
   },
   "oC": {
     "title_cn": "°C"
@@ -4241,6 +4331,9 @@
   "optocoupler": {
     "title_cn": "光耦合器"
   },
+  "other remarks": {
+    "title_cn": "其他備註"
+  },
   "output": {
     "title_cn": "輸出"
   },
@@ -4253,8 +4346,17 @@
   "peak voltage": {
     "title_cn": "峰值電壓"
   },
+  "pin": {
+    "title_cn": "腳位"
+  },
   "primary": {
     "title_cn": "一次側"
+  },
+  "probes": {
+    "title_cn": "探針"
+  },
+  "product information": {
+    "title_cn": "產品資訊"
   },
   "protective earth": {
     "title_cn": "保護接地"
@@ -4282,6 +4384,9 @@
   },
   "routine test voltage": {
     "title_cn": "例行試驗電壓"
+  },
+  "s for neutral fuse": {
+    "title_cn": "（中性線保險絲）"
   },
   "secondary": {
     "title_cn": "二次側"
@@ -4316,6 +4421,9 @@
   },
   "tested voltage (V)": {
     "title_cn": "測試電壓 (V)"
+  },
+  "to": {
+    "title_cn": "至"
   },
   "transformer": {
     "title_cn": "變壓器"
@@ -4363,6 +4471,9 @@
   },
   "三相": "三相",
   "人員安全防護及說明": "人員安全防護及其使用方法",
+  "例行試驗電壓 Vini,b": {
+    "title_cn": "例行試驗電壓 Vini,b"
+  },
   "保護接地導體作為強化安全防護": "保護性接地導體作為加固的防護裝置",
   "保護接地導體截面積 (mm²)": "保護性接地導體大小(mm2)",
   "保護連接導體截面積 (mm²)": "保護搭接導體應大小(mm2)",
@@ -4370,6 +4481,9 @@
     "remark_cn": "備註:",
     "title_cn": "備註:",
     "verdict_cn": "備註:"
+  },
+  "備註:\nASRE: 所有安全防護維持有效. (所有安全防護維持有效)": {
+    "title_cn": "備註:\nASRE: 所有安全防護維持有效"
   },
   "允許Tmax (C)": "允許 Tmax (°C)",
   "允許壓痕直徑(mm)": "允許壓痕直徑 (mm)",
@@ -4381,12 +4495,24 @@
   "厚度(mm)": {
     "title_cn": "厚度 (mm)"
   },
+  "可恢復": {
+    "title_cn": "可恢復"
+  },
   "含雷射設備符合之標準": "含雷射之設備應符合標準指定之要求",
   "單相": "單相",
   "因老化產生之最大增量 ΔUsa": "因老化而產生的最大額定操作電壓變動值U sa",
   "因變動產生之最大增量 ΔUsp": "為生產差異產生的額定操作電壓負容許差Usp",
+  "型式試驗電壓 Vini,a": {
+    "title_cn": "型式試驗電壓 Vini,a"
+  },
+  "塑膠外殼對地": {
+    "title_cn": "塑膠外殼對地"
+  },
   "壁厚 (mm)": {
     "title_cn": "壁厚 (mm)"
+  },
+  "外殼外部近": {
+    "title_cn": "外殼外部近"
   },
   "室外設備裸露部位之可接觸性": "可訪問戶外設備裸露部件",
   "室溫": {
@@ -4401,19 +4527,37 @@
   "峰值(Vpeak)": {
     "title_cn": "峰值 (Vpeak)"
   },
-  "指導性安全防護": "指示型安全防護",
-  "指導性安全防護 s for neutral fuse": "中性保險絲的指示型安全防護",
+  "指示型安全防護": "指示型安全防護",
+  "指示型安全防護 (ISO 7010)": {
+    "title_cn": "指示型安全防護 (ISO 7010)"
+  },
+  "指示型安全防護 s for neutral fuse": "中性保險絲的指示型安全防護",
+  "接觸電流": {
+    "title_cn": "接觸電流"
+  },
   "插頭刃片極型檢查及尺度量測": "插頭刃片極型檢查及尺寸量測",
+  "插頭座外部": {
+    "title_cn": "插頭座外部"
+  },
   "收聽設備(耳機、耳機等)的要求": "收聽設備(耳機、耳機等)的要求",
   "放電電流 (A)": "放電電流 (A)",
   "數位輸出訊號 (dBFS)": "數位輸出訊號(dBFS)",
   "最低規定充電溫度(oC)": "最低規定充電溫度 (°C)",
+  "最大 Vpeak": {
+    "title_cn": "最大 Vpeak"
+  },
+  "最大 Vrms": {
+    "title_cn": "最大 Vrms"
+  },
   "最大無削峰輸出功率 (W)": "最大非箝制式輸出功率(W)",
   "最大聲輸出 LAeq,T, dB(A)": "最大量測聲音輸出LAeq,T, dB(A)",
   "最大規定充電電壓(V)": "最大規定充電電壓 (V)",
   "最大規定充電電流(A)": "最大規定充電電流 (A)",
   "最高 發射器發射功率(W)": "最高發射器發射功率 (W)",
   "最高規定充電溫度(oC)": "最高規定充電溫度 (°C)",
+  "最高量測溫度": {
+    "title_cn": "最高量測溫度"
+  },
   "有效值 (Vrms)": "有效值 (Vrms)",
   "標稱電壓 Upeak (V)": "標稱電壓 U峰值(V)",
   "機械系統經受 100,000 次操作循環": "機械系統可承受100 000個迴圈操作",
@@ -4435,10 +4579,25 @@
     "title_cn": "空間距離介於:",
     "verdict_cn": "要求空間距離 \n(mm)"
   },
+  "立即熔斷": {
+    "title_cn": "立即熔斷"
+  },
+  "立即關機": {
+    "title_cn": "立即關機"
+  },
   "符合性以試驗檢查": "通過試驗檢查符合性性",
   "耐電壓試驗 before and after the test of": "耐電壓試驗（試驗前後）",
   "聆聽裝置輸入電壓 (mV)": "收聽裝置輸入電壓(mV)",
+  "聲輸出 L , dB(A)": {
+    "title_cn": "聲輸出 LAeq,T, dB(A)"
+  },
   "脈衝試驗產生器": "電子脈衝產生器",
+  "自動生成：安全防護總攬表（由 CB TRF Overview 匯入）": {
+    "title_cn": "安全防護總攬表"
+  },
+  "自動生成：條款判定清單（Clause / Verdict / Remark）": {
+    "title_cn": "條款判定清單"
+  },
   "表格: 包含二次鋰電池的設備的充電保護措施": "表格: 含二次鋰電池設備之充電保護措施",
   "表格: 應力釋放試驗": "表格: 應力釋放試驗",
   "表格: 接地導電部件": "表格: 接地導電部件",
@@ -4503,6 +4662,9 @@
   "音頻訊號源類型": "音頻信號來源類型",
   "音頻輸出功率 (W)": "音頻輸出功率(W)",
   "音頻輸出電壓 (V)": "音頻輸出電壓(V)",
+  "預期接觸電壓": {
+    "title_cn": "預期接觸電壓"
+  },
   "額定工作電壓 Uop (V)": "交流主電源系統標稱電壓(V)",
   "額定負載阻抗 (Ω)": "額定負載阻抗(Ω)",
   "風險群組標示及位置": "風險類別標示與位置"
