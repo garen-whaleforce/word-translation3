@@ -36,14 +36,20 @@ def clean_field_text(text: str) -> str:
     # 統一撇號格式（彎撇號 → 直撇號）
     # \u2018 = '（左單引號），\u2019 = '（右單引號）
     cleaned = text.replace('\u2018', "'").replace('\u2019', "'")
-    # 處理特殊字元：\uf0b0 是 Wingdings 字體的度數符號，轉換為標準格式
-    # (\uf0b0C) → (C) 或 (°C)
+    # 處理 Wingdings/Symbol 字體的特殊字元
+    # \uf0b0 是度數符號 °
+    # \uf044 是 Delta 符號 Δ（在 ΔU 中，移除 Δ 以匹配字典鍵）
+    # \uf0be 是大於等於符號 ≥
     cleaned = re.sub(r'\(\s*\uf0b0\s*C\s*\)', '(C)', cleaned)
     cleaned = cleaned.replace('\uf0b0', '°')  # 其他位置的度數符號
-    # 移除填充用的點號序列（如 "... :" 或 " ..... :"）
-    cleaned = re.sub(r'\s*\.{2,}\s*:?\s*$', '', cleaned)
+    cleaned = cleaned.replace('\uf044', '')   # 移除 Delta 符號
+    cleaned = cleaned.replace('\uf0be', '≥')  # 大於等於符號
+    # 移除填充用的點號序列及其後的值（如 " ..... : R" 或 " ..... : ini, b"）
+    cleaned = re.sub(r'\.?\s*\.{3,}\s*:\s*.*$', '', cleaned)
     # 移除末尾的冒號和空格
     cleaned = re.sub(r'\s*:\s*$', '', cleaned)
+    # 移除末尾的單個句點（如果有）
+    cleaned = re.sub(r'\.\s*$', '', cleaned)
     # 移除多餘空格
     cleaned = ' '.join(cleaned.split())
     return cleaned
@@ -52,18 +58,29 @@ def clean_field_text(text: str) -> str:
 def translate_field_title(text: str) -> str:
     """
     智能翻譯欄位標題：
-    1. 先清理文字（移除填充符號）
-    2. 查詢翻譯字典
-    3. 保留原有格式（填充符號和冒號）
+    1. 先嘗試完全匹配原始文字
+    2. 再嘗試清理後的文字（移除填充符號）
+    3. 查詢翻譯字典
+    4. 移除填充符號，只保留末尾冒號（符合人工輸出格式）
     """
     if not text or not re.search(r'[a-zA-Z]{2,}', text):
         return text
 
-    # 提取結尾的填充符號（如 " ..... :"）
-    suffix_match = re.search(r'(\s*\.{2,}\s*:?\s*)$', text)
-    suffix = suffix_match.group(1) if suffix_match else ''
+    # 檢查是否有冒號（末尾冒號或填充點號後的冒號）
+    has_colon = bool(re.search(r':\s*$', text) or re.search(r'\.{2,}\s*:', text))
 
-    # 清理後的文字用於字典查詢
+    # 1. 先嘗試完全匹配原始文字
+    lookup_key = text.strip()
+    if lookup_key in CLAUSE_TRANSLATIONS:
+        entry = CLAUSE_TRANSLATIONS[lookup_key]
+        if isinstance(entry, dict):
+            title_cn = entry.get('title_cn', '')
+        else:
+            title_cn = str(entry) if entry else ''
+        if title_cn:
+            return title_cn
+
+    # 2. 清理後的文字用於字典查詢
     cleaned = clean_field_text(text)
 
     # 查詢翻譯字典
@@ -76,11 +93,19 @@ def translate_field_title(text: str) -> str:
             title_cn = str(entry) if entry else ''
 
         if title_cn:
-            # 保留原有的填充符號格式
-            if suffix:
-                return title_cn + suffix
+            # 移除填充符號，只保留末尾冒號（符合人工輸出格式）
+            if has_colon:
+                return title_cn + ':'
             return title_cn
 
+    return text
+
+
+def normalize_text_format(text: str) -> str:
+    """
+    正規化文字格式 - 暫時禁用，因為人工輸出格式不一致
+    直接返回原文字，避免引入新的差異
+    """
     return text
 
 
@@ -2933,6 +2958,131 @@ def translate_summary_table(doc: Document):
         print(f"總覽表格 (Table {target_table_idx + 1})：已翻譯 {translated_count} 個儲存格")
 
 
+def _needs_llm_translation(text: str) -> bool:
+    """
+    判斷文本是否需要 LLM 翻譯
+    條件：
+    1. 包含連續 3 個以上的英文字母（非專有名詞）
+    2. 不是純數字/符號
+    3. 不是標準編號（如 IEC 60950-1）
+    4. 不是型號/認證編號（如 VDE 40050440, UL E538923）
+    5. 不是公司名稱
+    6. 不是已經以中文為主的文本
+    """
+    if not text or len(text.strip()) < 5:
+        return False
+
+    # 計算中文字符比例 - 如果超過 30% 是中文，則不需要翻譯
+    chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text))
+    total_chars = len(re.sub(r'\s+', '', text))
+    if total_chars > 0 and chinese_chars / total_chars > 0.3:
+        return False
+
+    # 排除純數字/符號/技術參數格式
+    if re.match(r'^[\d\s\.\-\+\/%°℃Ω\(\)\[\],;:>=<≧≦]+$', text):
+        return False
+
+    # 排除技術參數格式（如 Dti>0.4 mm, Ext.dcr≧8.0 mm）
+    if re.search(r'Dti|Ext\.dcr|Vini|Vpeak|mm,|°C', text):
+        return False
+
+    # 排除標準編號（IEC/EN/UL/VDE 等）
+    if re.match(r'^(IEC|EN|UL|VDE|TUV|CCC|CSA|CB|CNS)\s*[\d\-\.]+', text.strip()):
+        return False
+
+    # 排除認證編號格式
+    if re.match(r'^[A-Z]{2,4}\s+[A-Z]?\d{5,}', text.strip()):
+        return False
+
+    # 排除電氣參數（如 264 Vac, 50Hz）
+    if re.match(r'^[\d\.]+\s*(V|A|W|Hz|kHz|MHz|mA|mV|Vac|Vdc|Vpk|Arms|Apk)', text.strip()):
+        return False
+
+    # 排除公司名稱模式（包含 Ltd, Co., Corp, Inc 等）
+    if re.search(r'\b(Co\.?\s*,?\s*Ltd|Corp|Inc|GmbH|AG|Pte|B\.?V\.?|S\.?A\.?|LLC)\b', text, re.IGNORECASE):
+        return False
+
+    # 排除地名+公司模式（如 ChongQing JinLai Technology）
+    if re.search(r'(Technology|Electronics|Electric|Plastics|Chemical|Industrial)\s*(Co|Corp|Ltd|Inc)?', text, re.IGNORECASE):
+        return False
+
+    # 檢查是否有需要翻譯的英文（連續 3 個以上英文字母的單詞）
+    english_words = re.findall(r'\b[a-zA-Z]{3,}\b', text)
+
+    # 過濾掉常見不需翻譯的專有名詞
+    skip_words = {'PCB', 'LED', 'USB', 'AC', 'DC', 'RMS', 'PIN', 'PIS', 'ICX', 'FIW', 'TIW',
+                  'SMD', 'MOV', 'NTC', 'PTC', 'EMC', 'ESD', 'LPS', 'RCD', 'CRT', 'AWG',
+                  'VDE', 'TUV', 'CSA', 'CCC', 'ENEC', 'CB', 'UL', 'IEC', 'EN', 'CNS', 'JIS',
+                  'Vac', 'Vdc', 'Vpk', 'mApk', 'kHz', 'MHz', 'mm', 'kg', 'Co', 'Ltd', 'Inc',
+                  'CORP', 'LTD', 'INC', 'CO', 'AG', 'GMBH', 'PTE', 'BV', 'SA', 'SPA',
+                  'ELECTRONICS', 'ELECTRONIC', 'TECHNOLOGY', 'PLASTICS', 'CHEMICAL',
+                  'INNOVATIVE', 'INDUSTRIAL', 'MATERIALS', 'COMPONENTS', 'INDUSTRY',
+                  'Dti', 'Ext', 'dcr', 'Vini', 'Vpeak', 'MAX', 'MIN', 'See', 'pages', 'model',
+                  'list', 'details', 'mains', 'Delta', 'Wye'}
+
+    # 過濾掉型號相關的字母組合
+    meaningful_words = [w for w in english_words
+                        if w.upper() not in skip_words
+                        and w.lower() not in {s.lower() for s in skip_words}
+                        and not re.match(r'^[A-Z]+\d+', w)  # 排除如 T1, U3, BD1 等
+                        and not w.isupper()  # 排除全大寫單詞（通常是公司名/縮寫）
+                        and len(w) > 2]  # 排除太短的單詞
+
+    # 如果有 3 個以上有意義的英文單詞，才需要翻譯
+    return len(meaningful_words) >= 3
+
+
+def _apply_llm_translations(doc: Document, candidates: list):
+    """
+    使用 LLM 批次翻譯候選文本
+
+    Args:
+        doc: Word 文件
+        candidates: [(tbl_idx, row_idx, cell_idx, text), ...]
+    """
+    if not candidates:
+        return
+
+    translator = get_translator()
+    if not translator or not translator.enabled:
+        print("[LLM] 翻譯器未啟用，跳過 LLM 翻譯")
+        return
+
+    print(f"[LLM] 收集到 {len(candidates)} 個需要智能翻譯的欄位")
+
+    # 批次翻譯
+    texts = [item[3] for item in candidates]
+    translated = translator.translate_batch(texts)
+
+    # 回寫翻譯結果
+    llm_count = 0
+    new_translations = {}  # 收集新翻譯，可用於更新字典
+
+    for i, (tbl_idx, row_idx, cell_idx, original_text) in enumerate(candidates):
+        if translated[i] != original_text:
+            doc.tables[tbl_idx].rows[row_idx].cells[cell_idx].text = translated[i]
+            llm_count += 1
+            # 記錄新翻譯
+            new_translations[original_text.strip()] = translated[i].strip()
+
+    if llm_count > 0:
+        print(f"[LLM] 智能翻譯完成：翻譯了 {llm_count} 個欄位")
+
+        # 可選：將新翻譯保存到檔案，以便未來加入字典
+        new_trans_path = Path(__file__).parent / 'new_llm_translations.json'
+        existing = {}
+        if new_trans_path.exists():
+            try:
+                with open(new_trans_path, 'r', encoding='utf-8') as f:
+                    existing = json.load(f)
+            except:
+                pass
+        existing.update(new_translations)
+        with open(new_trans_path, 'w', encoding='utf-8') as f:
+            json.dump(existing, f, ensure_ascii=False, indent=2)
+        print(f"[LLM] 新翻譯已保存至: {new_trans_path}")
+
+
 def translate_all_tables(doc: Document):
     """翻譯所有表格中的通用英文短語"""
     # 通用英文短語翻譯（適用於所有表格）
@@ -3011,10 +3161,11 @@ def translate_all_tables(doc: Document):
 
     translated_count = 0
     field_translated_count = 0
+    llm_candidates = []  # 收集需要 LLM 翻譯的候選項 [(tbl_idx, row_idx, cell_idx, text)]
 
     for tbl_idx, table in enumerate(doc.tables):
-        for row in table.rows:
-            for cell in row.cells:
+        for row_idx, row in enumerate(table.rows):
+            for cell_idx, cell in enumerate(row.cells):
                 original_text = cell.text
                 if not original_text or len(original_text) < 3:
                     continue
@@ -3036,12 +3187,23 @@ def translate_all_tables(doc: Document):
                 if 'Conditioning (\uf0b0C)' in modified_text:
                     modified_text = re.sub(r'Conditioning \(\uf0b0C\)\s*\.+\s*:?', '調節 (°C) :', modified_text)
 
+                # 3. 格式正規化
+                modified_text = normalize_text_format(modified_text)
+
                 if modified_text != original_text:
                     cell.text = modified_text
                     translated_count += 1
 
+                # 4. 檢查是否仍有大量英文（需要 LLM 翻譯）
+                if HAS_LLM and _needs_llm_translation(modified_text):
+                    llm_candidates.append((tbl_idx, row_idx, cell_idx, modified_text))
+
     if translated_count > 0:
         print(f"全文件表格：已翻譯 {translated_count} 個儲存格（含 {field_translated_count} 個欄位標題）")
+
+    # 5. 使用 LLM 批次翻譯剩餘英文內容
+    if HAS_LLM and llm_candidates:
+        _apply_llm_translations(doc, llm_candidates)
 
 
 def fill_table_412(doc: Document, table_412_data: list):
@@ -3488,42 +3650,8 @@ def main():
             print("警告：clauses 為空，跳過條款表格更新")
 
     # 條款表格重建後，再次翻譯所有表格中的通用英文短語
+    # 此函數已整合 LLM 智能翻譯功能（當字典無法匹配時自動調用 LLM）
     translate_all_tables(docx)
-
-    # LLM 最終審查：掃描所有表格，翻譯剩餘的英文內容（使用併發）
-    if HAS_LLM:
-        translator = get_translator()
-        if translator and translator.enabled:
-            print("[LLM] 開始最終審查（收集需翻譯的欄位）...")
-
-            # 收集所有需要翻譯的欄位
-            cells_to_translate = []  # [(table_idx, row_idx, cell_idx, text)]
-            for tbl_idx, tbl in enumerate(docx.tables):
-                for row_idx, row in enumerate(tbl.rows):
-                    for cell_idx, cell in enumerate(row.cells):
-                        text = cell.text.strip()
-                        if text and len(text) >= 5:
-                            cells_to_translate.append((tbl_idx, row_idx, cell_idx, text))
-
-            if cells_to_translate:
-                # 批次翻譯（併發處理）
-                texts_only = [item[3] for item in cells_to_translate]
-                translated_texts = translator.translate_batch(texts_only)
-
-                # 回寫翻譯結果
-                llm_translated_count = 0
-                for i, (tbl_idx, row_idx, cell_idx, original_text) in enumerate(cells_to_translate):
-                    translated = translated_texts[i]
-                    if translated != original_text:
-                        docx.tables[tbl_idx].rows[row_idx].cells[cell_idx].text = translated
-                        llm_translated_count += 1
-
-                if llm_translated_count > 0:
-                    print(f"[LLM] 最終審查完成：翻譯了 {llm_translated_count} 個欄位")
-                else:
-                    print("[LLM] 最終審查完成：無需額外翻譯")
-            else:
-                print("[LLM] 最終審查完成：無需額外翻譯")
 
     # 刪除模板末尾的多餘範例表格（含 Jinja2 標記）
     remove_template_example_tables(docx)

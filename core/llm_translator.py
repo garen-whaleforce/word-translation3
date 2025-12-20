@@ -143,7 +143,7 @@ class LLMTranslator:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"翻譯以下內容：\n{text}"}
                 ],
-                max_tokens=500,
+                max_completion_tokens=500,
                 temperature=0.1,  # 低溫度確保一致性
             )
             result = response.choices[0].message.content.strip()

@@ -2044,7 +2044,7 @@
     "title_cn": "ES1"
   },
   "ES1: 輸出電路(輸出連接器)": {
-    "title_cn": "ES1：輸出電路（輸出連接器）"
+    "title_cn": "ES1:輸出電路（輸出連接器）"
   },
   "ES2": {
     "title_cn": "ES2"
@@ -2053,10 +2053,10 @@
     "title_cn": "ES3"
   },
   "ES3: X電容(於L與N之間)": {
-    "title_cn": "ES3：X 電容（於 L 與 N 之間）"
+    "title_cn": "ES3: X電容(於L與N之間)"
   },
   "ES3: 所有連接到AC主電源的線路": {
-    "title_cn": "ES3：所有連接至 AC 主電源之線路"
+    "title_cn": "ES3:所有連接至AC主電源之線路"
   },
   "ES分類": {
     "title_cn": "ES 分類"
@@ -3021,10 +3021,10 @@
     "title_cn": "ICX"
   },
   "ICX 單獨測試": {
-    "title_cn": "ICX 單獨試驗"
+    "title_cn": "ICX單獨試驗"
   },
   "ICX 與相關電路在設備中測試": {
-    "title_cn": "ICX 與相關電路在設備中試驗"
+    "title_cn": "ICX與設備中試驗的關聯電路"
   },
   "IEC": {
     "title_cn": "IEC"
@@ -3219,7 +3219,7 @@
     "title_cn": "LTV-10XX"
   },
   "Largest capacitance and smallest resistance for ICX tested by itself for 10000 cycles test": {
-    "title_cn": "ICX 自身試驗之最大電容與最小電阻（10000 次循環試驗）"
+    "title_cn": "ICX的最大電容和最小的電阻自行試驗 10000次循環試驗:"
   },
   "Lasers": {
     "title_cn": "雷射"
@@ -3467,7 +3467,7 @@
     "title_cn": "MS1 分類"
   },
   "MS1: 邊與角": {
-    "title_cn": "MS1：邊與角"
+    "title_cn": "MS1:邊與角"
   },
   "MSCC": {
     "title_cn": "最大規定充電電流"
@@ -3482,9 +3482,6 @@
     "title_cn": "製造商定義之漂移"
   },
   "Max increase due to ageing U": {
-    "title_cn": "因老化產生之最大增量 U"
-  },
-  "Max increase due to ageing U ......................... : sa": {
     "title_cn": "因老化而產生的最大額定操作電壓變動值U sa"
   },
   "Max. acoustic output L , dB(A)": {
@@ -3734,19 +3731,19 @@
     "title_cn": "PCB 靠近 U4"
   },
   "PS2: 二次側電路": {
-    "title_cn": "PS2：二次側電路"
+    "title_cn": "PS2:二次側電路"
   },
   "PS2: 輸出電路(輸出連接器)": {
-    "title_cn": "PS2：輸出電路（輸出連接器）"
+    "title_cn": "PS2:輸出電路（輸出連接器）"
   },
   "PS3: 所有電路": {
-    "title_cn": "PS3：所有電路"
+    "title_cn": "PS3:所有電路"
   },
   "PS3: 設備外殼內所有的主線路": {
-    "title_cn": "PS3：設備外殼內所有主線路"
+    "title_cn": "PS3:設備外殼內所有主線路"
   },
   "PS3: 除輸出電路外所有電路": {
-    "title_cn": "PS3：除輸出電路外所有電路"
+    "title_cn": "PS3:除輸出電路外所有電路"
   },
   "Personal music player": {
     "title_cn": "個人音樂播放器"
@@ -3838,7 +3835,7 @@
     "title_cn": "風險類別標示與位置"
   },
   "Routine test voltage, V": {
-    "title_cn": "例行試驗電壓, V"
+    "title_cn": "例行試驗電壓，V"
   },
   "S": {
     "remark_cn": "耐熱及耐燃試驗",
@@ -4032,10 +4029,10 @@
     "title_cn": "TN TT IT - V L-L 非交流主電源"
   },
   "TS1: 塑膠外殼": {
-    "title_cn": "TS1：塑膠外殼"
+    "title_cn": "TS1:塑膠外殼"
   },
   "TS1: 外殼可觸及部位": {
-    "title_cn": "TS1：外殼可觸及部位"
+    "title_cn": "TS1:外殼可觸及部位"
   },
   "TT": {
     "title_cn": "TT"
@@ -4797,7 +4794,7 @@
     "title_cn": "備註:\nASRE: 所有安全防護維持有效"
   },
   "備註: 用於測試的X電容器": {
-    "title_cn": "備註：用於測試的 X 電容器"
+    "title_cn": "備註:用於測試的 X 電容器"
   },
   "允許Tmax (C)": {
     "title_cn": "允許 Tmax (°C)"
@@ -5075,13 +5072,13 @@
     "title_cn": "表格: 最小間隙/沿面距離"
   },
   "表格: 決定電弧PIS": {
-    "title_cn": "表格: 決定電弧 PIS"
+    "title_cn": "表格: 決定電弧PIS"
   },
   "表格: 決定電阻性 PIS": {
-    "title_cn": "表格：決定電阻性 PIS"
+    "title_cn": "表格: 決定電阻性PIS"
   },
   "表格: 決定電阻性PIS": {
-    "title_cn": "表格: 決定電阻性 PIS"
+    "title_cn": "表格: 決定電阻性PIS"
   },
   "表格: 無線功率發射器的溫度測量": {
     "title_cn": "表格: 無線功率發射器溫度量測"
@@ -5114,10 +5111,10 @@
     "title_cn": "表格: 電容器儲存放電"
   },
   "表格: 電氣功率源 (PS) 之分級": {
-    "title_cn": "表格：電氣功率源 (PS) 之分級"
+    "title_cn": "表格: 電氣功率源(PS) 之分級"
   },
   "表格: 電氣功率源(PS) 之分級": {
-    "title_cn": "表格: 電氣功率源 (PS) 之分級"
+    "title_cn": "表格: 電氣功率源(PS) 之分級"
   },
   "表格: 預定與建築物配線互連之電路 (LPS)": {
     "title_cn": "表格: 預定與建築物配線互連之電路 (LPS)"
@@ -5138,7 +5135,7 @@
     "title_cn": "表格: 電池備用電源之反饋安全防護"
   },
   "表格:頻率超過30 kHz 之固體絕緣": {
-    "title_cn": "表格: 頻率超過 30 kHz 之固體絕緣"
+    "title_cn": "表格:頻率超過30 kHz 之固體絕緣"
   },
   "規定電池溫度(oC)": {
     "title_cn": "規定電池溫度 (°C)"
@@ -5159,7 +5156,7 @@
     "title_cn": "試驗後曲率半徑 (mm)"
   },
   "變壓器 T1：一次側繞線對 USB-C輸出埠": {
-    "title_cn": "變壓器 T1：一次側繞線對 USB-C 輸出埠"
+    "title_cn": "變壓器 T1:一次側繞線對 USB-C 輸出埠"
   },
   "負載": {
     "title_cn": "負載"
@@ -5180,7 +5177,7 @@
     "title_cn": "輸入"
   },
   "輸入: 100-240V~, 50/60Hz": {
-    "title_cn": "輸入：100-240V~, 50/60Hz"
+    "title_cn": "輸入:100-240V~, 50/60Hz"
   },
   "輸出": {
     "title_cn": "輸出"
@@ -5198,7 +5195,7 @@
     "title_cn": "輸出端子"
   },
   "輸出 terminal: ES1": {
-    "title_cn": "輸出端子：ES1"
+    "title_cn": "輸出端子:ES1"
   },
   "輸出電流 Isc (A)": {
     "title_cn": "輸出電流 Isc (A)"
@@ -5273,7 +5270,7 @@
     "title_cn": "頻率 (Hz)"
   },
   "頻率: 60Hz": {
-    "title_cn": "頻率：60Hz"
+    "title_cn": "頻率:60Hz"
   },
   "額定工作電壓 Uop (V)": {
     "title_cn": "交流主電源系統標稱電壓(V)"
@@ -5288,7 +5285,7 @@
     "title_cn": "提供英文及德文說明書。"
   },
   "No insulation compound forming solid insulation other than optical isolator, see table 4.1.2 for detail.": {
-    "title_cn": "除光耦合器外，無形成固體絕緣的絕緣化合物，詳見附表 4.1.2。"
+    "title_cn": "除光耦合器外，無絕緣化合物形成固體絕緣，詳見表 4.1.2。"
   },
   "All models mass <7Kg, classed as MS1.": {
     "title_cn": "所有型號重量 <7Kg，歸類為 MS1。"
@@ -5297,7 +5294,7 @@
     "title_cn": "無開口。"
   },
   "Triple insulated wires winding used as reinforced safeguard in the isolating transformer. See table 4.1.2.": {
-    "title_cn": "隔離變壓器使用三重絕緣導線繞組作為強化安全防護。詳見附表 4.1.2。"
+    "title_cn": "隔離變壓器中使用三重絕緣線繞組作為加強性安全防護。見表 4.1.2。"
   },
   "IN CIRCUITS CONNECTED TO AN AC MAINS NOT EXCEEDING 420 V PEAK (300": {
     "title_cn": "連接至交流電源且不超過 420 V 峰值之電路 (300"
@@ -5338,9 +5335,6 @@
   "IPX0    IP___": {
     "title_cn": "IPX0    IP___"
   },
-  "Routine test voltage, V": {
-    "title_cn": "例行試驗電壓，V"
-  },
   "(silkscreen printing on approval appliance inlet body)": {
     "title_cn": "（器具插座本體絲印）"
   },
@@ -5350,9 +5344,6 @@
   "No such components.": {
     "title_cn": "無此類元件。"
   },
-  "Type test voltage V": {
-    "title_cn": "型式試驗電壓 V"
-  },
   "LED types)": {
     "title_cn": "LED 類型)"
   },
@@ -5361,5 +5352,1826 @@
   },
   "No connection to external circuits with transient voltage.": {
     "title_cn": "無連接至具有暫態電壓之外部電路。"
+  },
+  "ES3: Primary circuits supplied by a.c. mains supply": {
+    "title_cn": "ES3：由交流市電供電的一次電路"
+  },
+  "ES3: Capacitor connected between L and N": {
+    "title_cn": "ES3：連接於 L 與 N 之間的電容器"
+  },
+  "ES1: Secondary output connector": {
+    "title_cn": "ES1：次級輸出連接器"
+  },
+  "PS3: All primary circuits inside the equipment enclosure": {
+    "title_cn": "PS3：設備外殼內所有一次電路"
+  },
+  "PS2: Secondary output connector": {
+    "title_cn": "PS2：次級輸出連接器"
+  },
+  "MS1: Mass of the unit": {
+    "title_cn": "MS1：裝置的質量"
+  },
+  "MS1: Edges and corners": {
+    "title_cn": "MS1：邊緣與角落"
+  },
+  "Acceptance of materials, components and\nsubassemblies": {
+    "title_cn": "材料、元件及子組件的接受規定"
+  },
+  "Components which are\ncertified to IEC/EN and/or\nnational standards are used\ncorrectly within their ratings.\nComponents not covered by\nIEC/EN standards are tested\nunder the conditions present\nin the equipment. See also\nAnnex G.4.1.3": {
+    "title_cn": "依據 IEC/EN 及（或）國家標準認證之元件，均在其額定範圍內正確使用。  \n未受 IEC/EN 標準涵蓋之元件，已在設備實際條件下進行試驗。另見附錄 G.4.1.3。"
+  },
+  "Equipment design and construction": {
+    "title_cn": "設備設計與構造"
+  },
+  "Evaluation of safeguards\nregarding preventing access\nto ES3 parts, limiting the\nsource supplying outputs to\nfulfill ES1, and protection in\nregard to risk of ignition,\nmechanical-caused injury and\nthermal burn considered.4.1.4": {
+    "title_cn": "對安全防護的評估，已考量防止接觸 ES3 部位、限制供應輸出之能量來源以符合 ES1，以及與點燃風險、機械造成傷害及熱灼傷相關之防護。4.1.4"
+  },
+  "Specified ambient temperature for outdoor use (oC)\n.................................................................................... :": {
+    "title_cn": "戶外使用之規定環境溫度 (oC)\n.................................................................................... :"
+  },
+  "Constructions and components not specifically\ncovered": {
+    "title_cn": "未具體涵蓋之構造與元件"
+  },
+  "Liquids and liquid filled components (LFC)": {
+    "title_cn": "液體與充液元件 (LFC)"
+  },
+  "Markings and instructions": {
+    "title_cn": "標示與說明書"
+  },
+  "Internal accessible safeguard tests": {
+    "title_cn": "內部可接觸安全防護試驗"
+  },
+  "Glass impact tests": {
+    "title_cn": "玻璃衝擊試驗"
+  },
+  "Glass fixation tests": {
+    "title_cn": "玻璃固定測試"
+  },
+  "Thermoplastic material tests": {
+    "title_cn": "熱塑性材料試驗"
+  },
+  "Air comprising a safeguard": {
+    "title_cn": "包含安全防護的空氣"
+  },
+  "Accessibility, glass, safeguard effectiveness": {
+    "title_cn": "可接觸性、玻璃、安全防護有效性"
+  },
+  "Displacement of a safeguard by an insulating liquid": {
+    "title_cn": "由於絕緣液體而造成安全防護的位移"
+  },
+  "No explosion during normal/abnormal operating\ncondition": {
+    "title_cn": "在正常／異常操作條件下無爆炸"
+  },
+  "Equipment for direct insertion into mains socket–outlets": {
+    "title_cn": "可直接插入市電插座的設備"
+  },
+  "Mains plug part complies with relevant standard .. :": {
+    "title_cn": "電源插頭部分符合相關標準 .. :"
+  },
+  "For EU, UK, AU, JP plug, see\nattached plug test report.4.7.3": {
+    "title_cn": "對於 EU、UK、AU、JP 插頭，請參閱附件之插頭測試報告。4.7.3"
+  },
+  "Equipment containing coin/button cell batteries": {
+    "title_cn": "含有硬幣／鈕扣電池之設備"
+  },
+  "Battery compartment door/cover construction": {
+    "title_cn": "電池槽門／蓋之構造"
+  },
+  "Battery replacement test": {
+    "title_cn": "電池更換試驗"
+  },
+  "Likelihood of fire or shock due to entry of conductive object": {
+    "title_cn": "因導電物體進入而導致起火或觸電的可能性"
+  },
+  "Switches and relays": {
+    "title_cn": "開關與繼電器"
+  },
+  "Steady-state voltage and current limits .................... :": {
+    "title_cn": "穩態電壓與電流限制 .................... :"
+  },
+  "Single pulse limits ..................................................... :": {
+    "title_cn": "單次脈衝限制 ..................................................... :"
+  },
+  "Limits for repetitive pulses ........................................ :": {
+    "title_cn": "重複脈衝的限制 ........................................ :"
+  },
+  "一般 要求 for accessible parts to\nordinary, instructed and skilled persons": {
+    "title_cn": "一般人員、受指導人員及熟練人員可接觸部位之一般要求"
+  },
+  "無開口 on enclosures as\nreceived and after mechanical\ntest.5.3.2.3": {
+    "title_cn": "外殼在收到時及經機械試驗後無開口。5.3.2.3"
+  },
+  "Terminals for connecting stripped wire": {
+    "title_cn": "用於連接去皮導線的端子"
+  },
+  "Insulation materials and requirements": {
+    "title_cn": "絕緣材料與要求"
+  },
+  "Properties of insulating material": {
+    "title_cn": "絕緣材料的特性"
+  },
+  "The choice and application\nhave taken into account as\nspecified in this Clause 5 and\nAnnex T and natural rubber,\nhygroscopic materials or\nasbestos are not used as\ninsulation.5.4.1.3": {
+    "title_cn": "選擇與應用已依本條款 5 及附錄 T 的規定予以考量，且未使用天然橡膠、吸濕性材料或石棉作為絕緣。5.4.1.3"
+  },
+  "Material is non-hygroscopic": {
+    "title_cn": "材料為非吸濕性"
+  },
+  "(See sub-clause 5.4.8)\nAll source of insulation\nmaterials and plastic\nenclosure listed table 4.1.2\nwere considered.5.4.1.4": {
+    "title_cn": "(見 5.4.8 款)\n表 4.1.2 中列出的所有絕緣材料來源及塑膠外殼均已考慮。5.4.1.4"
+  },
+  "Maximum operating temperature for insulating\nmaterials .................................................................... :": {
+    "title_cn": "絕緣材料的最高工作溫度 ............................................................ :"
+  },
+  "Test for pollution degree 1 environment and for an\ninsulating compound": {
+    "title_cn": "污染等級 1 環境及絕緣化合物之試驗"
+  },
+  "Insulation in transformers with varying dimensions": {
+    "title_cn": "具有可變尺寸之變壓器中的絕緣"
+  },
+  "Insulation in circuits generating starting pulses": {
+    "title_cn": "產生啟動脈衝電路中的絕緣"
+  },
+  "Determination of working voltage ............................. :": {
+    "title_cn": "工作電壓之判定 ............................. :"
+  },
+  "Thermoplastic parts on which conductive metallic\nparts are directly mounted": {
+    "title_cn": "直接安裝導電金屬部件之熱塑性部件"
+  },
+  "Ball pressure test ...................................................... :": {
+    "title_cn": "球壓試驗 ...................................................... :"
+  },
+  "External circuit transient voltage ............................... :": {
+    "title_cn": "外部電路暫態電壓 ............................... :"
+  },
+  "Transient voltage determined by measurement ...... :": {
+    "title_cn": "暫態電壓由量測決定 ...... :"
+  },
+  "Multiplication factors for clearances and test voltages\n................................................................................... :": {
+    "title_cn": "電氣間隙與測試電壓的乘數係數\n................................................................................... :"
+  },
+  "Creepage distances measurement .......................... :": {
+    "title_cn": "沿面距離量測 .......................... :"
+  },
+  "Minimum distance through insulation ...................... :": {
+    "title_cn": "絕緣穿越的最小距離 ...................... :"
+  },
+  "Insulating compound forming solid insulation": {
+    "title_cn": "形成固體絕緣的絕緣化合物"
+  },
+  "No insulation compound\nforming solid insulation other\nthan optical isolator.5.4.4.4": {
+    "title_cn": "無絕緣化合物形成固體絕緣，光隔離器除外。5.4.4.4"
+  },
+  "Solid insulation in semiconductor devices": {
+    "title_cn": "半導體元件內的固體絕緣"
+  },
+  "No insulation compound\nforming solid insulation other\nthan optical isolator, see table\n4.1.2 for detail.5.4.4.5": {
+    "title_cn": "無絕緣化合物形成固體絕緣（光隔離器除外），詳見表 4.1.2。5.4.4.5"
+  },
+  "Insulating compound forming cemented joints": {
+    "title_cn": "形成黏結接合的絕緣化合物"
+  },
+  "Thin sheet material": {
+    "title_cn": "薄片材料"
+  },
+  "Two layers of insulation tape\nprovided on core as reinforce\ninsulation5.4.4.6.1": {
+    "title_cn": "在鐵芯上提供兩層絕緣膠帶作為加強絕緣 5.4.4.6.1"
+  },
+  "Separable thin sheet material": {
+    "title_cn": "可分離之薄片材料"
+  },
+  "Non-separable thin sheet material": {
+    "title_cn": "不可分離之薄片材料"
+  },
+  "Standard test procedure for non-separable thin\nsheet material ........................................................ :": {
+    "title_cn": "不可分離薄片材料的標準試驗程序 ........................................................ :"
+  },
+  "Solid insulation in wound components": {
+    "title_cn": "繞組元件中的固體絕緣"
+  },
+  "Solid insulation at frequencies >30 kHz, E , K , d,\nP R\nV (V) ................................................................... :\nPW": {
+    "title_cn": "頻率 >30 kHz 時之固體絕緣，E、K、d，  \nP R  \nV (V) ................................................................... :  \nPW"
+  },
+  "Antenna terminal insulation": {
+    "title_cn": "天線端子絕緣"
+  },
+  "Input circuit to output circuit5.4.5.3": {
+    "title_cn": "輸入電路對輸出電路 5.4.5.3"
+  },
+  "Insulation of internal wire as part of supplementary\nsafeguard": {
+    "title_cn": "作為補充安全防護一部分的內部導線絕緣"
+  },
+  "試驗 for semiconductor components and for\ncemented joints": {
+    "title_cn": "半導體元件與膠合接合部之試驗"
+  },
+  "All source of transformer and\ninsulation materials listed in\ntable 4.1.2. were considered5.4.9": {
+    "title_cn": "所有變壓器的來源及表 4.1.2 中列出的絕緣材料均已考慮 5.4.9"
+  },
+  "Test procedure for type test of solid insulation ....... :": {
+    "title_cn": "固體絕緣型式試驗之試驗程序 ....... :"
+  },
+  "Test procedure for routine test": {
+    "title_cn": "例行試驗之試驗程序"
+  },
+  "Safeguards against transient voltages from external\ncircuits": {
+    "title_cn": "防止來自外部電路暫態電壓的安全防護"
+  },
+  "No connection to external\ncircuits with transient voltage.5.4.10.1": {
+    "title_cn": "無與具有暫態電壓的外部電路連接。5.4.10.1"
+  },
+  "Parts and circuits separated from external circuits": {
+    "title_cn": "與外部電路隔離的零件與電路"
+  },
+  "Steady-state test .................................................... :": {
+    "title_cn": "穩態測試 .................................................... :"
+  },
+  "Verification for insulation breakdown for impulse\ntest ......................................................................... :": {
+    "title_cn": "衝擊測試絕緣擊穿驗證 ......................................................................... :"
+  },
+  "Separation between external circuits and earth": {
+    "title_cn": "外部電路與接地之間的隔離"
+  },
+  "Exceptions to separation between external circuits\nand earth": {
+    "title_cn": "外部電路與地之間分隔的例外情形"
+  },
+  "No connection to external\ncircuits with transient voltage.5.4.11.2": {
+    "title_cn": "無與具有暫態電壓的外部電路連接。5.4.11.2"
+  },
+  "Compatibility of an insulating liquid ....................... :": {
+    "title_cn": "絕緣液體的相容性 ....................... :"
+  },
+  "Container for insulating liquid ................................ :": {
+    "title_cn": "絕緣液體容器 ................................ :"
+  },
+  "Approved X and Y capacitors\nused.5.5.2.1": {
+    "title_cn": "使用已核准之 X 與 Y 電容器。5.5.2.1"
+  },
+  "Safeguards against capacitor discharge after\ndisconnection of a connector ................................. :": {
+    "title_cn": "連接器斷開後針對電容放電之安全防護 ................................. :"
+  },
+  "Insulation between the mains and an external\ncircuit consisting of a coaxial cable ....................... :": {
+    "title_cn": "市電與由同軸電纜構成之外部電路之間的絕緣 ....................... :"
+  },
+  "Safeguards for socket-outlets in outdoor equipment": {
+    "title_cn": "戶外設備中插座的安全防護"
+  },
+  "Requirement for protective conductors": {
+    "title_cn": "保護導體之要求"
+  },
+  "Requirement for protective earthing conductors": {
+    "title_cn": "保護接地導體之要求"
+  },
+  "要求 for protective bonding conductors": {
+    "title_cn": "保護連接導體之要求"
+  },
+  "Protective bonding conductors": {
+    "title_cn": "保護連接導體"
+  },
+  "Protective current rating (A) .................................... :": {
+    "title_cn": "保護電流額定值 (A) .................................... :"
+  },
+  "Terminals for protective conductors": {
+    "title_cn": "保護導體端子"
+  },
+  "Terminal size for connecting protective earthing\nconductors (mm) .................................................... :": {
+    "title_cn": "用於連接保護接地導體之端子尺寸 (mm) .................................................... :"
+  },
+  "Resistance of the protective bonding system": {
+    "title_cn": "保護連接系統的電阻"
+  },
+  "Resistance () or voltage drop .............................. :": {
+    "title_cn": "電阻 () 或電壓降 .............................. :"
+  },
+  "Reliable connection of a protective earthing\nconductor": {
+    "title_cn": "保護接地導體的可靠連接"
+  },
+  "Prospective touch voltage, touch current and protective conductor current": {
+    "title_cn": "預期接觸電壓、接觸電流與保護導體電流"
+  },
+  "Measuring devices and networks": {
+    "title_cn": "測量裝置與網路"
+  },
+  "Measurement of touch current": {
+    "title_cn": "接觸電流之測量"
+  },
+  "Equipment set-up, supply connections and earth\nconnections": {
+    "title_cn": "設備安裝、電源連接與接地連接"
+  },
+  "Unearthed accessible parts ................................... :": {
+    "title_cn": "未接地之可接觸部位 ................................... :"
+  },
+  "Earthed accessible conductive parts ..................... :": {
+    "title_cn": "可接觸之接地導電部件 ..................... :"
+  },
+  "要求 when touch current exceeds ES2\nlimits": {
+    "title_cn": "當接觸電流超過 ES2 限值時的要求"
+  },
+  "預期接觸電壓及接觸電流\nassociated with external circuits": {
+    "title_cn": "與外部電路相關之預期接觸電壓及接觸電流"
+  },
+  "Touch current from coaxial cables": {
+    "title_cn": "同軸電纜之接觸電流"
+  },
+  "預期接觸電壓及接觸電流\nassociated with paired conductor cables": {
+    "title_cn": "與成對導體電纜相關的預期接觸電壓及接觸電流"
+  },
+  "Summation of touch currents from external circuits": {
+    "title_cn": "外部電路接觸電流的總和"
+  },
+  "Backfeed safeguard in battery backed up supplies": {
+    "title_cn": "具有電池備援電源之反送電安全防護"
+  },
+  "Power source circuit classifications .......................... :": {
+    "title_cn": "電源電路分類 .......................... :"
+  },
+  "PS (power source)\nclassification determined by\nmeasuring the maximum\npower in Figures 34 and 35 for\nload and power source circuits.6.2.3": {
+    "title_cn": "PS（電源）\n依據圖 34 和圖 35 中\n對負載與電源電路之\n最大功率測量結果\n判定分類。6.2.3"
+  },
+  "Classification of potential ignition sources": {
+    "title_cn": "潛在點燃來源之分類"
+  },
+  "All circuit inside enclosure is\nclaimed as Arcing PIS6.2.3.2": {
+    "title_cn": "外殼內所有電路宣稱為電弧 PIS，依 6.2.3.2 條款"
+  },
+  "All circuit inside enclosure is\nclaimed as Resistive PIS6.3": {
+    "title_cn": "外殼內所有電路宣稱為電阻性 PIS6.3"
+  },
+  "Safeguards against fire under normal operating and abnormal operating\nconditions": {
+    "title_cn": "在正常運轉與異常運轉條件下之防火安全防護"
+  },
+  "No ignition and attainable temperature value less\nthan 90 % defined by ISO 871 or less than 300 C\nfor unknown materials ........................................... :": {
+    "title_cn": "無起燃，且可達到的溫度值小於 ISO 871 所規定值的 90 %，或對於未知材料小於 300 C ........................................... :"
+  },
+  "Safeguards against fire under single fault conditions": {
+    "title_cn": "單一故障條件下之防火安全防護"
+  },
+  "Method of “control of fire\nspread” is used.6.4.2": {
+    "title_cn": "採用「火焰蔓延控制」方法。6.4.2"
+  },
+  "降低點火可能性 under single\nfault conditions in PS1 circuits": {
+    "title_cn": "在單一故障條件下降低 PS1 電路的點火可能性"
+  },
+  "降低點火可能性 under single\nfault conditions in PS2 and PS3 circuits": {
+    "title_cn": "在 PS2 與 PS3 電路之單一故障條件下降低點火可能性"
+  },
+  "Single Fault Conditions .......................................... :": {
+    "title_cn": "單一故障狀態 .......................................... :"
+  },
+  "符合性 detailed as\nfollows:\n− 印刷電路板: rated min. V-\n1\n− Wire insulation (tubing):\ncomplying with Clause 6\n(See Table 4.1.2 for wiring\nused).\n− All other components: at\nleast V-2 except for mounted\non min. V-1 material or small\nparts of combustible\nmaterial.\nIsolating transformer:\ncomplying with G.5.3.6.4.7": {
+    "title_cn": "符合性詳述如下：\n− 印刷電路板：額定至少為 V-1\n− 導線絕緣（套管）：符合第 6 章（所使用導線見表 4.1.2）。\n− 所有其他元件：至少為 V-2，安裝於至少 V-1 材料上者或可燃材料之小零件除外。\n隔離變壓器：符合 G.5.3.6.4.7"
+  },
+  "Separation of combustible materials from a PIS": {
+    "title_cn": "可燃材料與 PIS 之間的分隔"
+  },
+  "Fire enclosures and 防火屏障s": {
+    "title_cn": "防火外殼與防火屏障"
+  },
+  "Fire enclosure and 防火屏障 material properties": {
+    "title_cn": "防火外殼與防火屏障材料特性"
+  },
+  "Constructional requirements for a 防火外殼\nand a 防火屏障": {
+    "title_cn": "防火外殼與防火屏障之結構要求"
+  },
+  "Fire enclosure and 防火屏障 openings": {
+    "title_cn": "防火外殼與防火屏障之開口"
+  },
+  "Fire barrier dimensions": {
+    "title_cn": "防火阻隔尺寸"
+  },
+  "Top openings and properties": {
+    "title_cn": "頂部開口與特性"
+  },
+  "Bottom openings and properties": {
+    "title_cn": "底部開口及特性"
+  },
+  "Side openings and properties": {
+    "title_cn": "側面開口與特性"
+  },
+  "Integrity of a 防火外殼, condition met: a), b) or\nc) ............................................................................ :": {
+    "title_cn": "防火外殼之完整性，符合條件：a)、b) 或 c) .................................................... :"
+  },
+  "Separation of a PIS from a 防火外殼 and a fire\nbarrier distance (mm) or flammability rating .......... :": {
+    "title_cn": "PIS 與防火外殼及防火障板之間的分隔距離 (mm) 或可燃性等級 .......... :"
+  },
+  "Fire enclosure is made of V-0\nmaterial.6.4.9": {
+    "title_cn": "防火外殼由 V-0 材料製成。6.4.9"
+  },
+  "Flammability of insulating liquid............................... :": {
+    "title_cn": "絕緣液體之可燃性............................... :"
+  },
+  "Internal and external wiring": {
+    "title_cn": "內部與外部配線"
+  },
+  "Internal wire and output wire\nprovided.6.5.2": {
+    "title_cn": "內部導線與輸出導線已提供。6.5.2"
+  },
+  "要求 for interconnection to building wiring\n............................................................................... :": {
+    "title_cn": "建築物配線互連之要求\n............................................................................... :"
+  },
+  "Internal wiring size (mm2) for socket-outlets .......... :": {
+    "title_cn": "插座之內部配線線徑 (mm2) .......... :"
+  },
+  "Safeguards against fire due to the connection to additional equipment": {
+    "title_cn": "由於連接至附加設備所採取的防火安全防護"
+  },
+  "Reduction of exposure to hazardous substances": {
+    "title_cn": "降低暴露於有害物質"
+  },
+  "Use of personal safeguards or personal protective equipment (PPE)": {
+    "title_cn": "使用個人安全防護或個人防護裝備 (PPE)"
+  },
+  "Use of instructional safeguards and instructions": {
+    "title_cn": "使用說明性安全防護與使用說明"
+  },
+  "Batteries and their protection circuits": {
+    "title_cn": "電池及其保護電路"
+  },
+  "Mechanical energy source classifications": {
+    "title_cn": "機械能量來源分類"
+  },
+  "Safeguards against mechanical energy sources": {
+    "title_cn": "對機械能量來源的安全防護"
+  },
+  "Safeguards against parts with sharp edges and corners": {
+    "title_cn": "防止具有銳利邊緣和銳角部件的安全防護"
+  },
+  "Sharp edges or corners": {
+    "title_cn": "銳利邊緣或角部"
+  },
+  "Safeguards against moving parts": {
+    "title_cn": "對可動部件之安全防護"
+  },
+  "Fingers, jewellery, clothing, hair, etc., contact with\nMS2 or MS3 parts": {
+    "title_cn": "手指、首飾、衣物、頭髮等與 MS2 或 MS3 部件接觸"
+  },
+  "All models mass 7Kg, classed\nas MS1.8.5.2": {
+    "title_cn": "所有型號質量為 7Kg，歸類為 MS1。8.5.2"
+  },
+  "Special categories of equipment containing moving\nparts": {
+    "title_cn": "含有運動部件之特殊類別設備"
+  },
+  "Equipment containing work cells with MS3 parts": {
+    "title_cn": "含有帶有 MS3 部件之工作單元的設備"
+  },
+  "Protection of persons in the work cell": {
+    "title_cn": "工作單元內人員之防護"
+  },
+  "Access protection override": {
+    "title_cn": "防止接觸防護覆寫"
+  },
+  "Emergency stop system": {
+    "title_cn": "緊急停止系統"
+  },
+  "Equipment having electromechanical device for\ndestruction of media": {
+    "title_cn": "具有用於銷毀媒體之機電裝置的設備"
+  },
+  "指示型安全防護s against moving parts ........ :": {
+    "title_cn": "對運動部件的指示型安全防護 ........ :"
+  },
+  "Disconnection from the supply": {
+    "title_cn": "與電源斷開"
+  },
+  "Cut type and test force (N) ........................................ :": {
+    "title_cn": "切割類型與測試力 (N) ........................................ :"
+  },
+  "High pressure lamps": {
+    "title_cn": "高壓燈泡"
+  },
+  "Glass particles dimensions (mm) ............................. :": {
+    "title_cn": "玻璃顆粒尺寸 (mm) ........................................... :"
+  },
+  "Static stability test ..................................................... :": {
+    "title_cn": "靜態穩定性試驗 ..................................................... :"
+  },
+  "Downward force test": {
+    "title_cn": "向下施力試驗"
+  },
+  "Glass slide test": {
+    "title_cn": "玻璃片試驗"
+  },
+  "Horizontal force test .................................................. :": {
+    "title_cn": "水平力測試 .................................................. :"
+  },
+  "Equipment mounted to wall, ceiling or other structure": {
+    "title_cn": "設備安裝於牆壁、天花板或其他結構上"
+  },
+  "Mount means type .................................................... :": {
+    "title_cn": "安裝方式類型 .................................................... :"
+  },
+  "Handle strength test": {
+    "title_cn": "把手強度試驗"
+  },
+  "Wheels or casters attachment requirements": {
+    "title_cn": "腳輪或滑輪固定要求"
+  },
+  "Carts, stands and similar carriers": {
+    "title_cn": "手推車、支架及類似承載裝置"
+  },
+  "Marking and instructions ........................................... :": {
+    "title_cn": "標示與使用說明 ........................................... :"
+  },
+  "Cart, stand or carrier loading test": {
+    "title_cn": "手推車、支架或載具承載試驗"
+  },
+  "Cart, stand or carrier impact test": {
+    "title_cn": "推車、支架或載具衝擊試驗"
+  },
+  "Thermoplastic temperature stability": {
+    "title_cn": "熱塑性材料耐溫穩定性"
+  },
+  "Mounting means for slide-rail mounted equipment (SRME)": {
+    "title_cn": "滑軌安裝設備（SRME）的固定方式"
+  },
+  "要求 for slide rails": {
+    "title_cn": "滑軌之要求"
+  },
+  "Mechanical strength test": {
+    "title_cn": "機械強度試驗"
+  },
+  "Downward force test, force (N) applied .................... :": {
+    "title_cn": "向下施力試驗，施加之力 (N) .................... :"
+  },
+  "Lateral push force test": {
+    "title_cn": "側向推力測試"
+  },
+  "Integrity of slide rail end stops": {
+    "title_cn": "滑軌端部止擋的完整性"
+  },
+  "Telescoping or rod antennas": {
+    "title_cn": "伸縮式或桿狀天線"
+  },
+  "Thermal energy source classifications": {
+    "title_cn": "熱能能量來源分類"
+  },
+  "Touch temperature limits": {
+    "title_cn": "接觸溫度限值"
+  },
+  "Touch temperatures of accessible parts .................. :": {
+    "title_cn": "可接觸部位之接觸溫度 .................. :"
+  },
+  "Safeguards against thermal energy sources": {
+    "title_cn": "針對熱能能量來源之安全防護"
+  },
+  "要求 for wireless power transmitters": {
+    "title_cn": "無線電力傳輸器之要求"
+  },
+  "Specification of the foreign objects": {
+    "title_cn": "異物規格"
+  },
+  "Radiation energy source classification": {
+    "title_cn": "輻射能量來源分類"
+  },
+  "Safeguards against laser radiation": {
+    "title_cn": "雷射輻射之安全防護"
+  },
+  "Safeguards against optical radiation from lamps and lamp systems (including\nLED types)": {
+    "title_cn": "防護燈與燈系統（包括 LED 類型）光輻射之安全防護措施"
+  },
+  "Safeguards against X-radiation": {
+    "title_cn": "防止 X 射線的安全防護"
+  },
+  "Safeguards against acoustic energy sources": {
+    "title_cn": "針對聲學能量來源之安全防護"
+  },
+  "要求 for dose-based systems": {
+    "title_cn": "劑量基準系統之要求"
+  },
+  "Dose-based warning and automatic decrease": {
+    "title_cn": "基於劑量的警告與自動降低"
+  },
+  "Exposure-based warning and requirements": {
+    "title_cn": "基於暴露之警告與要求"
+  },
+  "要求 for listening devices (headphones,\nearphones, etc.)": {
+    "title_cn": "聆聽裝置（耳機、耳塞式耳機等）的要求"
+  },
+  "Corded listening devices with analogue input": {
+    "title_cn": "具有類比輸入的有線聆聽裝置"
+  },
+  "Corded listening devices with digital input": {
+    "title_cn": "具有數位輸入的有線聆聽裝置"
+  },
+  "Cordless listening devices": {
+    "title_cn": "無線聆聽裝置"
+  },
+  "Temperature measurement conditions": {
+    "title_cn": "溫度測量條件"
+  },
+  "Normal operating conditions": {
+    "title_cn": "正常操作條件"
+  },
+  "(See Test Item Particulars and\nappended test tables)B.2.3": {
+    "title_cn": "(見測試項目詳細資料及\n附加測試表格)B.2.3"
+  },
+  "Supply voltage and tolerances": {
+    "title_cn": "供電電壓及允許偏差"
+  },
+  "Simulated abnormal operating conditions": {
+    "title_cn": "模擬異常操作條件"
+  },
+  "Covering of ventilation openings": {
+    "title_cn": "通風開口之覆蓋"
+  },
+  "Setting of voltage selector": {
+    "title_cn": "電壓選擇器的設定"
+  },
+  "Maximum load at output terminals": {
+    "title_cn": "輸出端子之最大負載"
+  },
+  "Reverse battery polarity": {
+    "title_cn": "電池反接極性"
+  },
+  "Safeguards functional during and after abnormal\noperating conditions ............................................... :": {
+    "title_cn": "在異常運轉條件期間及之後仍維持功能之安全防護 ............................................... :"
+  },
+  "All safeguards remained\neffective.B.4": {
+    "title_cn": "所有安全防護仍然有效。B.4"
+  },
+  "Simulated single fault conditions": {
+    "title_cn": "模擬單一故障條件"
+  },
+  "Temperature controlling device": {
+    "title_cn": "溫度控制裝置"
+  },
+  "Blocked motor test": {
+    "title_cn": "堵轉馬達試驗"
+  },
+  "Short circuit of clearances for functional insulation": {
+    "title_cn": "功能絕緣之電氣間隙短路"
+  },
+  "Short circuit of creepage distances for functional\ninsulation": {
+    "title_cn": "功能絕緣之沿面距離短路"
+  },
+  "Short circuit of functional insulation on coated\nprinted boards": {
+    "title_cn": "塗覆印刷電路板上功能絕緣之短路"
+  },
+  "Short-circuit and interruption of electrodes in tubes\nand semiconductors": {
+    "title_cn": "管內電極及半導體之短路與開路"
+  },
+  "Short circuit or disconnection of passive\ncomponents": {
+    "title_cn": "被動元件的短路或斷路"
+  },
+  "符合性 during and after single fault conditions\n............................................................................... :": {
+    "title_cn": "在單一故障條件期間及之後之符合性\n............................................................................... :"
+  },
+  "Battery charging and discharging under single fault\nconditions": {
+    "title_cn": "單一故障條件下的電池充電與放電"
+  },
+  "Protection of materials in equipment from UV radiation": {
+    "title_cn": "設備中材料的紫外線輻射防護"
+  },
+  "UV light conditioning test": {
+    "title_cn": "紫外線光調節試驗"
+  },
+  "Mounting of test samples": {
+    "title_cn": "試驗樣品的安裝"
+  },
+  "Carbon-arc light-exposure test": {
+    "title_cn": "碳弧光照射試驗"
+  },
+  "Xenon-arc light-exposure test": {
+    "title_cn": "氙弧光照射試驗"
+  },
+  "Impulse test generators": {
+    "title_cn": "衝擊測試產生器"
+  },
+  "Antenna interface test generator": {
+    "title_cn": "天線介面測試產生器"
+  },
+  "Audio amplifier normal operating conditions": {
+    "title_cn": "音頻放大器正常工作條件"
+  },
+  "Letter symbols and graphical symbols": {
+    "title_cn": "文字符號與圖形符號"
+  },
+  "Letter symbols according to IEC60027-1": {
+    "title_cn": "依 IEC60027-1 之文字符號"
+  },
+  "Graphic symbols according to IEC, ISO or\nmanufacturer specific": {
+    "title_cn": "依 IEC、ISO 或製造商特定之圖形符號"
+  },
+  "Equipment marking locations": {
+    "title_cn": "設備標示位置"
+  },
+  "Equipment identification markings": {
+    "title_cn": "設備識別標示"
+  },
+  "Equipment rating markings": {
+    "title_cn": "設備額定標示"
+  },
+  "Equipment with direct connection to mains": {
+    "title_cn": "直接連接至市電之設備"
+  },
+  "Equipment without direct connection to mains": {
+    "title_cn": "無直接連接市電之設備"
+  },
+  "Nature of the supply voltage .................................. :": {
+    "title_cn": "電源電壓的性質 .................................. :"
+  },
+  "Rated current or rated power ................................. :": {
+    "title_cn": "額定電流或額定功率 ................................. :"
+  },
+  "Equipment with multiple supply connections": {
+    "title_cn": "具有多重電源連接的設備"
+  },
+  "Voltage setting device": {
+    "title_cn": "電壓設定裝置"
+  },
+  "Terminals and operating devices": {
+    "title_cn": "端子與操作裝置"
+  },
+  "Mains appliance outlet and socket-outlet markings\n............................................................................... :": {
+    "title_cn": "市電器具插座與插座之標示  \n............................................................................... :"
+  },
+  "No such devices on the\nequipment.F.3.5.2": {
+    "title_cn": "設備上無此類裝置。F.3.5.2"
+  },
+  "Switch position identification marking .................... :": {
+    "title_cn": "開關位置識別標示 .................... :"
+  },
+  "No such switch on the\nequipment.F.3.5.3": {
+    "title_cn": "設備上無此類開關。F.3.5.3"
+  },
+  "Replacement fuse identification and rating markings\n............................................................................... :": {
+    "title_cn": "替換用熔斷器之識別與額定標誌"
+  },
+  "The fuse is located within the\nequipment and not replaceable\nby an ordinary person or an\ninstructed person.\nThe fuse is anyway marked\nwith:\nF1: T2AL or T3.15AL / 250VF.3.5.4": {
+    "title_cn": "熔斷器位於設備內部，一般人員或受指導人員無法更換。  \n熔斷器仍以以下方式標示：  \nF1：T2AL 或 T3.15AL / 250V"
+  },
+  "Replacement battery identification marking ........... :": {
+    "title_cn": "更換電池識別標示 ........... :"
+  },
+  "Neutral conductor terminal": {
+    "title_cn": "中性導體端子"
+  },
+  "Terminal marking location": {
+    "title_cn": "端子標示位置"
+  },
+  "Equipment markings related to equipment\nclassification": {
+    "title_cn": "與設備分類相關的設備標示"
+  },
+  "Protective earthing conductor terminal .................. :": {
+    "title_cn": "保護接地導體端子 .................. :"
+  },
+  "Protective bonding conductor terminals ................ :": {
+    "title_cn": "保護連接導體端子 ................ :"
+  },
+  "Equipment class marking ....................................... :": {
+    "title_cn": "設備類別標示 ............................................... :"
+  },
+  "Functional earthing terminal marking ..................... :": {
+    "title_cn": "功能接地端子標誌 ..................... :"
+  },
+  "Equipment IP rating marking .................................. :": {
+    "title_cn": "設備 IP 等級標示 .................................. :"
+  },
+  "External power supply output marking ................... :": {
+    "title_cn": "外部電源供應器輸出標示 ................... :"
+  },
+  "Durability, legibility and permanence of marking": {
+    "title_cn": "標示的耐久性、可辨識性與永久性"
+  },
+  "Test for permanence of markings": {
+    "title_cn": "標示永久性試驗"
+  },
+  "The label was subjected to the\npermanence of marking test.\nThe label was rubbed with\ncloth soaked with water for 15\nsec. And then again for 15 sec.\nWith the cloth soaked with\npetroleum spirit.\nAfter this test there was no\ndamage to the label. The\nmarking on the label did not\nfade. There was no curling and\nlifting of the label edge.F.4": {
+    "title_cn": "銘牌已進行標示耐久性試驗。  \n先以浸水布擦拭 15 秒，接著以浸潤石油精之布再擦拭 15 秒。  \n試驗後銘牌無損壞，銘牌上的標示未褪色，且銘牌邊緣無翹起或剝離。F.4"
+  },
+  "Ratings, endurance, spacing, maximum load": {
+    "title_cn": "額定值、耐久性、間距、最大負載"
+  },
+  "Relay controlling connectors supplying power to\nother equipment": {
+    "title_cn": "控制向其他設備供電之連接器的繼電器"
+  },
+  "Thermal cut-offs": {
+    "title_cn": "熱切斷器"
+  },
+  "a) Thermal links tested separately according to IEC\n60691 with specifics": {
+    "title_cn": "a) 依據 IEC 60691 及其規定單獨進行測試之熱熔斷器"
+  },
+  "Overcurrent protection devices": {
+    "title_cn": "過電流保護裝置"
+  },
+  "Current fuse is complying IEC\n60127-1, IEC 60127-3.G.3.5": {
+    "title_cn": "電流保險絲符合 IEC 60127-1、IEC 60127-3。G.3.5"
+  },
+  "Safeguards components not mentioned in G.3.1 to\nG.3.4": {
+    "title_cn": "未在 G.3.1 至 G.3.4 中提及之安全防護元件"
+  },
+  "Non-resettable devices suitably rated and marking\nprovided": {
+    "title_cn": "不可復歸裝置具有適當額定值並已提供標示"
+  },
+  "Single faults conditions .......................................... :": {
+    "title_cn": "單一故障狀態 .......................................... :"
+  },
+  "Plug is shaped that insertion into mains socket-\noutlets or appliance coupler is unlikely": {
+    "title_cn": "插頭之形狀設計成不太可能插入市電插座或器具連接器"
+  },
+  "Wire insulation in wound components": {
+    "title_cn": "繞組元件中的導線絕緣"
+  },
+  "Approved TIW used for\nsecondary winding of T1.G.5.1.2": {
+    "title_cn": "核准之 TIW 用於 T1 的次級繞組。G.5.1.2"
+  },
+  "Protection against mechanical stress": {
+    "title_cn": "防止機械應力"
+  },
+  "Insulation margin tape used\nprimary winding and\nsecondary winding where they\nare crossing.G.5.2": {
+    "title_cn": "在初級繞組與次級繞組交叉處使用絕緣邊緣膠帶。G.5.2"
+  },
+  "Heat run test": {
+    "title_cn": "溫升試驗"
+  },
+  "Wound components supplied from the mains": {
+    "title_cn": "由市電供電的繞組元件"
+  },
+  "The transformer meets the\nrequirements given in G.5.3.2\nand G.5.3.3.G.5.3.2": {
+    "title_cn": "該變壓器符合 G.5.3.2 和 G.5.3.3 中給出的要求。G.5.3.2"
+  },
+  "Primary windings and\nsecondary windings are\nseparated by 強化\n絕緣G.5.3.3": {
+    "title_cn": "初級繞組與次級繞組之間以加強絕緣隔離 G.5.3.3"
+  },
+  "Transformer overload tests": {
+    "title_cn": "變壓器過載試驗"
+  },
+  "Transformer is tested in the\ncomplete unit.G.5.3.3.2": {
+    "title_cn": "變壓器於完整機組中進行測試。G.5.3.3.2"
+  },
+  "Winding temperatures - alternative test method": {
+    "title_cn": "繞組溫度－替代試驗方法"
+  },
+  "變壓器 with basic insulation only": {
+    "title_cn": "僅具有基本絕緣之變壓器"
+  },
+  "變壓器 with double insulation or reinforced\ninsulation ................................................................ :": {
+    "title_cn": "具有雙重絕緣或加強絕緣的變壓器 ............................................................... :"
+  },
+  "變壓器 with FIW wound on metal or ferrite\ncore": {
+    "title_cn": "繞組使用 FIW 並繞製於金屬或鐵氧體磁芯上的變壓器"
+  },
+  "Partial discharge test": {
+    "title_cn": "局部放電試驗"
+  },
+  "Motor overload test conditions": {
+    "title_cn": "馬達過載試驗條件"
+  },
+  "Running overload test": {
+    "title_cn": "運轉過載試驗"
+  },
+  "Locked-rotor overload test": {
+    "title_cn": "鎖轉子過載試驗"
+  },
+  "Running overload test for DC motors": {
+    "title_cn": "直流馬達過載運轉試驗"
+  },
+  "Locked-rotor overload test for DC motors": {
+    "title_cn": "直流馬達鎖轉過載試驗"
+  },
+  "Motors with capacitors": {
+    "title_cn": "帶電容器的馬達"
+  },
+  "Three-phase motors": {
+    "title_cn": "三相馬達"
+  },
+  "TIW used in the isolating\ntransformer that has\nseparately complied with\nAnnex J.G.6.2": {
+    "title_cn": "用於隔離變壓器中的 TIW，已單獨符合附錄 J.G.6.2 的要求"
+  },
+  "Enamelled winding wire insulation": {
+    "title_cn": "漆包繞組線絕緣"
+  },
+  "Cross sectional area (mm2 or AWG) ...................... :": {
+    "title_cn": "截面積 (mm2 或 AWG) ................................. :"
+  },
+  "Cord anchorages and strain relief for non-\ndetachable power supply cords": {
+    "title_cn": "非可拆式電源供應軟線之軟線固定裝置與拉力緩解裝置"
+  },
+  "Cord strain relief": {
+    "title_cn": "電源線抗張力裝置"
+  },
+  "Strain relief mechanism failure": {
+    "title_cn": "拉線保護機構失效"
+  },
+  "Cord sheath or jacket position, distance (mm) ...... :": {
+    "title_cn": "電源線護套或外被位置，距離 (mm) ...... :"
+  },
+  "Strain relief and cord anchorage material": {
+    "title_cn": "拉力消除與電源線固定材料"
+  },
+  "Non-detachable cord bend protection": {
+    "title_cn": "不可拆卸電源線彎折保護"
+  },
+  "Supply wiring space": {
+    "title_cn": "供電配線空間"
+  },
+  "Test with 8 mm strand": {
+    "title_cn": "以 8 mm 線股進行測試"
+  },
+  "Approved varistor used. (See\nappended table 4.1.2)G.8.2": {
+    "title_cn": "使用已核准的壓敏電阻。（見附錄表 4.1.2）G.8.2"
+  },
+  "Safeguards against fire": {
+    "title_cn": "防火安全防護"
+  },
+  "Varistor overload test": {
+    "title_cn": "壓敏電阻過載試驗"
+  },
+  "Temporary overvoltage test": {
+    "title_cn": "暫時過電壓試驗"
+  },
+  "Integrated circuit (IC) current limiters": {
+    "title_cn": "積體電路 (IC) 限流器"
+  },
+  "Capacitor used in accordance\nwith their rating and complied\nwith subclasses of IEC 60384-\n14. (see appended table 4.1.2)G.11.2": {
+    "title_cn": "電容器依其額定值使用，並符合 IEC 60384-14 之各子類別要求。（見附錄表 4.1.2）G.11.2"
+  },
+  "調節 of capacitors and RC units": {
+    "title_cn": "電容器與 RC 元件的調整"
+  },
+  "Rules for selecting capacitors": {
+    "title_cn": "選用電容器的規則"
+  },
+  "Approved Printed board usedG.13.2": {
+    "title_cn": "使用已核准之印刷電路板 G.13.2"
+  },
+  "Uncoated printed boards": {
+    "title_cn": "未塗覆印刷電路板"
+  },
+  "Coated printed boards": {
+    "title_cn": "塗覆印刷電路板"
+  },
+  "Insulation between conductors on the same inner\nsurface": {
+    "title_cn": "同一內表面上導體之間的絕緣"
+  },
+  "Insulation between conductors on different surfaces": {
+    "title_cn": "不同表面的導體之間的絕緣"
+  },
+  "試驗 on coated printed boards": {
+    "title_cn": "塗覆印刷電路板之試驗"
+  },
+  "Sample preparation and preliminary inspection": {
+    "title_cn": "樣品準備與初步檢查"
+  },
+  "Pressurized liquid filled components": {
+    "title_cn": "加壓液體填充元件"
+  },
+  "Hydrostatic pressure test": {
+    "title_cn": "耐水壓試驗"
+  },
+  "Creep resistance test": {
+    "title_cn": "耐爬電試驗"
+  },
+  "Tubing and fittings compatibility test": {
+    "title_cn": "管材與配件相容性試驗"
+  },
+  "IC including capacitor discharge function (ICX)": {
+    "title_cn": "含電容放電功能的 IC（ICX）"
+  },
+  "Condition for fault tested is not required": {
+    "title_cn": "無需進行故障條件測試"
+  },
+  "Capacitor discharge test ........................................ :": {
+    "title_cn": "電容放電試驗 ........................................ :"
+  },
+  "Cadence; time (s) and voltage (V) ........................ :": {
+    "title_cn": "節奏；時間 (s) 與電壓 (V) ........................ :"
+  },
+  "Single fault current (mA): ....................................... :": {
+    "title_cn": "單一故障電流 (mA)： ....................................... :"
+  },
+  "Tripping device and monitoring voltage": {
+    "title_cn": "跳脫裝置與監控電壓"
+  },
+  "Conditions for use of a tripping device or a\nmonitoring voltage": {
+    "title_cn": "跳脫裝置或監視電壓之使用條件"
+  },
+  "Components of safety interlock safeguard mechanism": {
+    "title_cn": "安全連鎖安全防護機構的元件"
+  },
+  "Inadvertent change of operating mode": {
+    "title_cn": "操作模式的非預期變更"
+  },
+  "Interlock safeguard override": {
+    "title_cn": "連鎖安全防護覆越"
+  },
+  "Under single fault condition": {
+    "title_cn": "在單一故障條件下"
+  },
+  "Mechanically operated safety interlocks": {
+    "title_cn": "機械操作式安全連鎖裝置"
+  },
+  "Interlock circuit isolation": {
+    "title_cn": "連鎖電路絕緣"
+  },
+  "Separation distance for contact gaps  interlock": {
+    "title_cn": "連鎖裝置接觸間隙的分離距離"
+  },
+  "The plug or AC inlet isL.2": {
+    "title_cn": "插頭或 AC 插座為 L.2"
+  },
+  "Permanently connected equipment": {
+    "title_cn": "永久連接式設備"
+  },
+  "Parts that remain energized": {
+    "title_cn": "保持帶電的部件"
+  },
+  "When plug is disconnected noL.4": {
+    "title_cn": "當插頭被拔除時無電壓 L.4"
+  },
+  "Single-phase equipment": {
+    "title_cn": "單相設備"
+  },
+  "Disconnect device disconnectsL.5": {
+    "title_cn": "斷開裝置可斷開"
+  },
+  "Three-phase equipment": {
+    "title_cn": "三相設備"
+  },
+  "Switches as disconnect devices": {
+    "title_cn": "作為斷開裝置的開關"
+  },
+  "Plugs as disconnect devices": {
+    "title_cn": "作為斷開裝置的插頭"
+  },
+  "Multiple power sources": {
+    "title_cn": "多重電源來源"
+  },
+  "Safety of batteries and their cells": {
+    "title_cn": "電池及其電池單體之安全性"
+  },
+  "Batteries and their cells comply with relevant IEC": {
+    "title_cn": "電池及其電池芯符合相關 IEC 標準"
+  },
+  "Protection circuits for batteries provided within\nthe equipment": {
+    "title_cn": "設備內提供之電池保護電路"
+  },
+  "Additional safeguards for equipment containing a portable secondary lithium": {
+    "title_cn": "含有可攜式二次鋰電池之設備的附加安全防護"
+  },
+  "Drop test of equipment containing a secondary\nlithium battery": {
+    "title_cn": "含有二次鋰電池之設備的跌落試驗"
+  },
+  "Preparation and procedure for the drop test": {
+    "title_cn": "跌落試驗的準備與程序"
+  },
+  "Drop, Voltage on reference and dropped batteries": {
+    "title_cn": "跌落、參考電池與跌落後電池的電壓"
+  },
+  "Check of the charge/discharge function": {
+    "title_cn": "充電／放電功能檢查"
+  },
+  "Charge / discharge cycle test": {
+    "title_cn": "充放電循環測試"
+  },
+  "Risk of burn due to short-circuit during carrying": {
+    "title_cn": "搬運過程中因短路導致灼傷之風險"
+  },
+  "Safeguards against short-circuits": {
+    "title_cn": "防止短路之安全防護"
+  },
+  "External and internal faults": {
+    "title_cn": "外部與內部故障"
+  },
+  "Risk of explosion from lead acid and NiCd batteries": {
+    "title_cn": "鉛酸電池與鎳鎘電池之爆炸風險"
+  },
+  "Ventilation preventing explosive gas concentration": {
+    "title_cn": "防止爆炸性氣體濃度之通風"
+  },
+  "Ventilation test – alternative 1": {
+    "title_cn": "通風試驗－替代方案 1"
+  },
+  "Ventilation test – alternative 2": {
+    "title_cn": "通風試驗－替代方案 2"
+  },
+  "Ventilation test – alternative 3": {
+    "title_cn": "通風試驗－替代方案 3"
+  },
+  "Protection against internal ignition from external spark sources of batteries\nwith aqueous electrolyte": {
+    "title_cn": "對具有水溶液電解質之電池，防止外部火花來源引燃其內部"
+  },
+  "Estimation of hypothetical volume V (m3/s) .......... :\nZ": {
+    "title_cn": "假設體積 V (m3/s) 的估算 .......... ：  \nZ"
+  },
+  "Preventing electrolyte spillage": {
+    "title_cn": "防止電解液溢出"
+  },
+  "Protection from electrolyte spillage": {
+    "title_cn": "防止電解液溢出"
+  },
+  "Tray for preventing electrolyte spillage": {
+    "title_cn": "防止電解液溢漏之托盤"
+  },
+  "Instructions to prevent reasonably foreseeable": {
+    "title_cn": "防止合理可預見之情況的說明"
+  },
+  "Safeguards against entry or consequences of entry of a foreign object": {
+    "title_cn": "防止異物進入或異物進入後後果之安全防護"
+  },
+  "Safeguards against entry of a foreign object": {
+    "title_cn": "防止異物進入之安全防護"
+  },
+  "Safeguards against the consequences of entry of a\nforeign object": {
+    "title_cn": "防止異物進入後果之安全防護"
+  },
+  "Consequence of entry test ..................................... :": {
+    "title_cn": "進入試驗結果 ............................................... :"
+  },
+  "Safeguards against spillage of internal liquids": {
+    "title_cn": "防止內部液體溢出的安全防護"
+  },
+  "Determination of spillage consequences": {
+    "title_cn": "溢出後果之判定"
+  },
+  "Metallized coatings and adhesives securing parts": {
+    "title_cn": "金屬化塗層與用於固定部件的黏著劑"
+  },
+  "Limited power sources": {
+    "title_cn": "有限電源來源"
+  },
+  "Test for external circuits – paired conductor": {
+    "title_cn": "外部電路試驗－成對導體"
+  },
+  "Enclosure impact test": {
+    "title_cn": "外殼衝擊試驗"
+  },
+  "Glass Impact Test ................................................... :": {
+    "title_cn": "玻璃衝擊試驗 ................................................... :"
+  },
+  "Glass fragmentation test": {
+    "title_cn": "玻璃破碎試驗"
+  },
+  "Test for telescoping or rod antennas": {
+    "title_cn": "伸縮式或桿式天線之試驗"
+  },
+  "試驗方法及符合性 for non-intrinsically protected CRTs": {
+    "title_cn": "非本質保護型 CRT 的試驗方法及符合性"
+  },
+  "Accessible parts of equipment": {
+    "title_cn": "設備之可接觸部位"
+  },
+  "Surfaces and openings tested with jointed test": {
+    "title_cn": "使用關節式試驗探棒測試之表面與開口"
+  },
+  "Openings tested with straight unjointed test probes": {
+    "title_cn": "以直線無關節試驗探棒進行開口測試"
+  },
+  "Plugs, jacks, connectors tested with blunt probe": {
+    "title_cn": "使用鈍探棒測試插頭、插孔、連接器"
+  },
+  "Slot openings tested with wedge probe": {
+    "title_cn": "使用楔形探棒測試的狹縫開口"
+  },
+  "Terminals tested with rigid test wire": {
+    "title_cn": "以剛性測試導線進行端子測試"
+  },
+  "Accessible part criterion": {
+    "title_cn": "可接觸部位判定準則"
+  },
+  "Metallic parts of outdoor enclosures are resistant to": {
+    "title_cn": "戶外外殼之金屬部件具有抗…能力"
+  },
+  "Water – saturated sulphur dioxide atmosphere": {
+    "title_cn": "水飽和二氧化硫氣氛"
+  },
+  "Tensile strength and elongation tests": {
+    "title_cn": "拉伸強度與伸長率試驗"
+  },
+  "Protection of equipment within an outdoor enclosure": {
+    "title_cn": "戶外外殼內設備之防護"
+  },
+  "Protection from moisture": {
+    "title_cn": "防潮保護"
+  },
+  "Water spray test": {
+    "title_cn": "噴水試驗"
+  },
+  "Protection from plants and vermin": {
+    "title_cn": "防止植物與害獸侵入"
+  },
+  "Protection from excessive dust": {
+    "title_cn": "防止過量粉塵侵入"
+  },
+  "Mechanical strength of enclosures": {
+    "title_cn": "外殼之機械強度"
+  },
+  "No such part in this equipment10.6.1.2": {
+    "title_cn": "本設備中無此部件 10.6.1.2"
+  },
+  "Added. The equipment is a\nlow power AC Adapter, it does\nincorporate only non-\nintentional radiators, but does\nnot contain radio transmitters;\nthe typical usage, installation\nand physical characteristics\nmake the equipment\ninherently compliant with all\napplicable EMF exposure\nlevels (EN 62479:2010 clause\n4.1 Route A).10.6.2.1": {
+    "title_cn": "已新增。本設備為低功率 AC Adapter，其僅包含非故意輻射器，且不含無線電發射器；其典型使用方式、安裝方式及物理特性使本設備本質上符合所有適用之電磁場暴露限值（EN 62479:2010 條款 4.1 Route A）。10.6.2.1"
+  },
+  "一般\nThis standard is transitioning from short-term\nbased (30 s) requirements to long-term based (40\nhour) requirements. These clauses remain in effect\nonly for devices that do not comply with sound\ndose estimation as stipulated in EN 50332-3.\nFor classifying the acoustic output LAeq,T ,\nmeasurements are based on the A-weighted\nequivalent sound pressure level over a 30 s period.\nFor music where the average sound pressure (long\nterm LAeq,T) measured over the duration of the\nsong is lower than the average produced by the\nprogramme simulation noise, measurements may": {
+    "title_cn": "一般\n本標準正由短期基礎（30 s）要求轉換為長期基礎（40 h）要求。這些條款僅適用於不符合 EN 50332-3 所規定之聲劑量估算的裝置。\n對於聲學輸出 LAeq,T 的分類，量測係基於 30 s 期間之 A 加權等效聲壓級。\n對於音樂，如在歌曲全長期間量測之平均聲壓（長期 LAeq,T）低於由節目模擬噪聲所產生之平均值，則量測可…"
+  },
+  "No such part in this equipment10.6.2.2": {
+    "title_cn": "本設備中無此部件 10.6.2.2"
+  },
+  "RS1 limits (to be superseded, see 10.6.3.2)\nRS1 is a class 1 acoustic energy source that does\nnot exceed the following:\n– for equipment provided as a package (player with\nits listening device), and with a proprietary\nconnector between the player and its listening\ndevice, or where the combination of player and\nlistening device is known by other means such as\nsetting or automatic detection, the LAeq,T acoustic\noutput shall be ≤ 85 dB when playing the fixed\n“programme simulation noise” described in EN\n50332-1.\n– for equipment provided with a standardized\nconnector (for example, a 3,5 phone jack) that\nallows connection to a listening device for general\nuse, the unweighted r.m.s. output voltage shall be\n≤ 27 mV (analogue interface) or -25 dBFS (digital\ninterface) when playing the fixed “programme\nsimulation noise” described in EN 50332-1.\n– The RS1 limits will be updated for all devices as\nper 10.6.3.2.": {
+    "title_cn": "RS1 限值（將被取代，見 10.6.3.2）  \nRS1 為 1 類聲學能量來源，其不應超過下列限值：  \n– 對於以套裝形式提供之設備（播放器及其聽音裝置），且播放器與其聽音裝置之間採用專用連接器，或播放器與聽音裝置之組合可透過其他方式（例如設定或自動偵測）得知者，當播放 EN 50332-1 中所述固定的「programme simulation noise」時，其 LAeq,T 聲學輸出應 ≤ 85 dB。  \n– 對於配備標準化連接器（例如 3,5 phone jack），可連接一般用途聽音裝置之設備，當播放 EN 50332-1 中所述固定的「programme simulation noise」時，其未加權 r.m.s. 輸出電壓應 ≤ 27 mV（類比介面）或 -25 dBFS（數位介面）。  \n– RS1 限值將依 10.6.3.2 之規定更新適用於所有裝置。"
+  },
+  "RS2 limits (to be superseded, see 10.6.3.3)\nRS2 is a class 2 acoustic energy source that does\nnot exceed the following:\n– for equipment provided as a package (player with\nits listening device), and with a proprietary\nconnector between the player and its listening\ndevice, or when the combination of player and\nlistening device is known by other means such as\nsetting or automatic 130 detection, the LAeq,T\nacoustic output shall be ≤ 100 dB(A) when playing\nthe fixed “programme simulation noise” as\ndescribed in EN 50332-1.\n– for equipment provided with a standardized": {
+    "title_cn": "RS2 限值（將被取代，見 10.6.3.3）  \nRS2 為 2 類聲學能量來源，其不超過下列限值：  \n– 對於以套裝形式提供的設備（播放器及其聆聽裝置），且播放器與其聆聽裝置之間使用專用連接器，或播放器與聆聽裝置的組合可透過其他方式（例如設定或自動偵測）得知時，其在播放 EN 50332-1 所述固定「節目模擬噪聲」時，LAeq,T 聲學輸出應 ≤ 100 dB(A)。  \n– 對於配備標準化"
+  },
+  "RS3 limits\nRS3 is a class 3 acoustic energy source that\nexceeds RS2 limits.": {
+    "title_cn": "RS3 限值  \nRS3 為超過 RS2 限值的 3 類聲學能量來源。"
+  },
+  "Measurement methods\nAll volume controls shall be turned to maximum\nduring tests.\nMeasurements shall be made in accordance with\nEN 50332-1 or EN 50332-2 as applicable.": {
+    "title_cn": "量測方法  \n所有音量控制在試驗期間均應調至最大。  \n量測應依適用情況依照 EN 50332-1 或 EN 50332-2 進行。"
+  },
+  "Protection of persons\nExcept as given below, protection requirements for\nparts accessible to ordinary persons, instructed\npersons and skilled persons are given in 4.3.\nNOTE 1 Volume control is not considered a\nsafeguard.\nBetween RS2 and an ordinary person, the basic\nsafeguard may be replaced by an instructional\nsafeguard in accordance with Clause F.5, except\nthat the instructional safeguard shall be placed\non the equipment, or on the packaging, or in the\ninstruction manual.\nAlternatively, the instructional safeguard may be\ngiven through the equipment display during use.\nThe elements of the instructional safeguard shall\nbe as follows:\n– element 1a: the symbol , IEC 60417-6044\n(2011-01)\n– element 2: “High sound pressure” or equivalent\nwording\n– element 3: “Hearing damage risk” or equivalent\nwording\n– element 4: “Do not listen at high volume levels for\nlong periods.” or equivalent wording\nAn equipment safeguard shall prevent exposure\nof an ordinary person to an RS2 source without\nintentional physical action from the ordinary\nperson and shall automatically return to an output\nlevel not exceeding what is specified for an RS1\nsource when the power is switched off.\nThe equipment shall provide a means to actively\ninform the user of the increased sound level when\nthe equipment is operated with an output\nexceeding RS1. Any means used shall be\nacknowledged by the user before activating a": {
+    "title_cn": "人員防護  \n除下列規定外，一般人員、受指導人員及熟練人員可接觸部位之防護要求依 4.3 規定。  \n註 1 音量控制不視為安全防護。  \n\n在 RS2 與一般人員之間，基本安全防護可依 F.5 條之規定，以指示性安全防護取代，但指示性安全防護應標示於設備上、或包裝上、或使用說明書中。  \n\n或者，指示性安全防護可於設備使用期間，透過設備顯示器提供。  \n\n指示性安全防護之要素如下：  \n– 要素 1a：符號 ，IEC 60417-6044 (2011-01)  \n– 要素 2：「High sound pressure」或同等語意之文字  \n– 要素 3：「Hearing damage risk」或同等語意之文字  \n– 要素 4：「Do not listen at high volume levels for long periods.」或同等語意之文字  \n\n設備安全防護應防止一般人員在未有刻意肢體動作之情況下暴露於 RS2 能量來源，且當電源關閉時，應自動恢復至不超過 RS1 能量來源規定之輸出等級。  \n\n當設備以超過 RS1 之輸出運作時，設備應提供一種方式主動告知使用者音量已提高。所採用之任何方式，均應在啟用較高音量前，經由使用者確認。"
+  },
+  "一般要求\nPersonal music players shall give the warnings as\nprovided below when tested according to EN\n50332-3, using the limits from this clause.\nThe manufacturer may offer optional settings to\nallow the users to modify when and how they wish\nto receive the notifications and warnings to\npromote a better user experience without defeating\nthe safeguards. This allows the users to be\ninformed in a method that best meets their physical\ncapabilities and device usage needs. If such\noptional settings are offered, an administrator (for\nexample, parental restrictions,\nbusiness/educational administrators, etc.) shall be\nable to lock any optional settings into a specific\nconfiguration.\nThe personal music player shall be supplied with\neasy to understand explanation to the user of the\ndose management system, the risks involved, and\nhow to use the system safely. The user shall be\nmade aware that other sources may significantly\ncontribute to their sound exposure, for example\nwork, transportation, concerts, clubs, cinema, car\nraces, etc.": {
+    "title_cn": "一般要求  \n個人音樂播放器在依據 EN 50332-3 並使用本條款之限值進行試驗時，應提供下述警告。  \n\n製造商可提供選用設定，使使用者得以依其需求修改接收通知與警告的時間與方式，以在不削弱安全防護的情況下提升使用體驗。此作法可使使用者以最符合其身體能力及裝置使用需求的方法獲得相關資訊。若提供此類選用設定，管理者（例如家長限制、企業／教育機構管理者等）應能將任何選用設定鎖定於特定配置。  \n\n個人音樂播放器應隨附易於理解的說明，向使用者解釋劑量管理系統、相關風險以及如何安全使用該系統。應使使用者知悉，其他聲音來源亦可能顯著增加其聲音暴露量，例如工作、交通運輸、演唱會、俱樂部、電影院、賽車等。"
+  },
+  "Dose-based warning and requirements\nWhen a dose of 100 % CSD is reached, and at\nleast at every 100 % further increase of CSD, the\ndevice shall warn the user and require an\nacknowledgement. In case the user does not\nacknowledge, the output level shall automatically\ndecrease to compliance with class RS1.\nThe warning shall at least clearly indicate that\nlistening above 100 % CSD leads to the risk of": {
+    "title_cn": "基於劑量之警告與要求  \n當達到 100 % CSD 劑量，且之後每增加 100 % CSD 時，裝置應警告使用者並要求確認。若使用者未予確認，輸出等級應自動降低至符合 RS1 類。  \n警告至少應清楚指出，以超過 100 % CSD 之音量收聽會導致風險…"
+  },
+  "Exposure-based requirements\nWith only dose-based requirements, cause and\neffect could be far separated in time, defying the\npurpose of educating users about safe listening\npractice. In addition to dose-based requirements, a\nPMP shall therefore also put a limit to the short-\nterm sound level a user can listen at.\nThe exposure-based limiter (EL) shall automatically\nreduce the sound level not to exceed 100 dB(A) or\n150 mV integrated over the past 180 s, based on\nmethodology defined in EN 50332-3.\nThe EL settling time (time from starting level\nreduction to reaching target output) shall be 10 s or\nfaster.\nTest of EL functionality is conducted according to\nEN 50332-3, using the limits from this clause. For\nequipment provided as a package (player with its\nlistening device), the level integrated over 180 s\nshall be 100 dB or lower. For equipment provided\nwith a standardized connector, the unweighted\nlevel integrated over 180 s shall be no more than\n150 mV for an analogue interface and no more\nthan -10 dBFS for a digital interface.\nNOTE In case the source is known not to be music\n(or test signal), the EL may be disabled.": {
+    "title_cn": "以暴露量為基礎之要求  \n若僅採用劑量為基礎之要求，則原因與結果可能在時間上相隔甚遠，無法達到教育使用者安全聆聽習慣之目的。因此，除劑量為基礎之要求外，PMP 亦應對使用者可聆聽之短期聲級加以限制。  \n\n暴露量限制器（EL）應自動降低聲級，使其在過去 180 s 之整合值不超過 100 dB(A) 或 150 mV，並依據 EN 50332-3 中所定義之方法進行。  \n\nEL 之穩定時間（自開始降低輸出至達到目標輸出之時間）應為 10 s 或更短。  \n\nEL 功能測試應依據 EN 50332-3 並使用本條款之限制值進行。對於以套裝形式提供之設備（播放器及其聆聽裝置），其在 180 s 內之整合聲級應為 100 dB 或更低。對於配備標準化連接器之設備，其在 180 s 內之未加權整合電平，類比介面不得超過 150 mV，數位介面不得超過 -10 dBFS。  \n\n註：若已知訊源並非音樂（或測試訊號），則 EL 得以停用。"
+  },
+  "Measurement method\nMeasurements shall be made in accordance with\nEN 50332-2 as applicable.": {
+    "title_cn": "量測方法  \n量測應依適用情況按照 EN 50332-2 進行。"
+  },
+  "Denmark\nAdd to the end of the subclause\nDue to many existing installations where the\nsocket-outlets can be protected with fuses\nwith higher rating than the rating of the socket-\noutlets the protection for pluggable\nequipment type A shall be an integral part of the\nequipment.\nJustification:\nIn Denmark an existing 13 A socket outlet can be\nprotected by a 20 A fuse.": {
+    "title_cn": "丹麥  \n在本款末尾增加：  \n由於現有許多安裝中，插座可能由額定值高於插座額定值的熔斷器保護，可插式設備 A 類之保護應為設備的組成部分。  \n\n理由：  \n在丹麥，現有的 13 A 插座可能由 20 A 熔斷器保護。"
+  },
+  "Ireland and United Kingdom\nAfter the indent for pluggable equipment type A,\nthe following is added:\n– the protective current rating is taken to be 13\nA, this being the largest rating of fuse used in the\nmains plug.": {
+    "title_cn": "愛爾蘭與英國  \n在可插式設備 A 型的縮排條款之後，增加下列內容：  \n– 保護電流額定值視為 13 A，這是市電插頭中所使用之最大額定保險絲。"
+  },
+  "Denmark\nTo the end of the subclause the following is added:\nThe warning (marking safeguard) for high touch\ncurrent is required if the touch current or the\nprotective current exceed the limits of 3,5 mA.": {
+    "title_cn": "丹麥  \n本款末尾增加以下內容：  \n當接觸電流或保護導體電流超過 3,5 mA 的限值時，必須加貼高接觸電流之警告標示（標示型安全防護）。"
+  },
+  "Germany\nThe following requirement applies:\nFor the operation of any cathode ray tube intended\nfor the display of visual images operating at an\nacceleration voltage exceeding 40 kV, authorization\nis required, or application of type\napproval (Bauartzulassung) and marking.\nJustification:\nGerman ministerial decree against ionizing\nradiation (Röntgenverordnung), in force since\n2002-07-01, implementing the European Directive\n96/29/EURATOM.\nNOTE Contact address:\nPhysikalisch-Technische Bundesanstalt,\nBundesallee 100, D-38116 Braunschweig,\nTel.: Int+49-531-592-6320, Internet:\nhttp://www.ptb.de": {
+    "title_cn": "德國  \n適用下列要求：  \n對於任何用於顯示視覺影像且加速電壓超過 40 kV 的陰極射線管之操作，須取得許可，或申請型式認可 (Bauartzulassung) 並加以標示。  \n\n理由：  \n自 2002-07-01 起生效之德國關於游離輻射的部長級法令 (Röntgenverordnung)，用以實施歐盟指令 96/29/EURATOM。  \n\n註：聯絡地址：  \nPhysikalisch-Technische Bundesanstalt,  \nBundesallee 100, D-38116 Braunschweig,  \n電話：Int+49-531-592-6320, 網址：  \nhttp://www.ptb.de"
+  },
+  "No CRT within the equipment.6.201": {
+    "title_cn": "設備內無 CRT。6.201"
+  },
+  "External power supplies, docking stations and\nother similar devices\nFor external power supplies, docking stations and\nother similar devices, during\nand after abnormal operating conditions and during\nsingle fault conditions the output voltage—\n(a) at all ES1 outlets or connectors shall not\nincrease by more than 10 % of the output\nrated voltage under normal operating\nconditions, measured after 3 s of introducing a\nsinglefault condition and after 3 s of\nintroducing abnormal operating conditions;\nand\n(b) of a USB outlet or connector shall not\nincrease by more than 3 V or 10 % of the\noutput rated voltage under normal operating\nconditions, whichever is higher, measured\nafter3 seconds of introducing a single fault\ncondition and after 3 s of introducing abnormal\noperating conditions\nFor equipment with multiple rated voltages at the\noutput, the requirements apply with the equipment\nconfigured for each output rated voltage in turn\nNOTE: This is intended to reduce the possibility of\nbattery fire or explosion in attached equipment or\naccessories when charging secondary lithium\nbatteries. The 3 s measurement delay is based on IEC\ndocument 108/742/INF, TC 108, Standards\nInterpretation Panel Question 15 — 輸出 voltage, in\nrelation to similar requirements in IEC 62368-3:2017.\nConformity shall be checked by measurement, taking\ninto account the abnormal operating conditions of\nAnnex B.3 and the simulated single fault conditions of\nAnnex B.4.": {
+    "title_cn": "外部電源供應器、擴充基座及其他類似裝置  \n對於外部電源供應器、擴充基座及其他類似裝置，在異常運行條件期間及之後，以及在單一故障條件期間，輸出電壓應符合下列要求：  \n(a) 所有 ES1 插座或連接器的輸出電壓，在正常運行條件下的額定輸出電壓基礎上，不得增加超過 10 %，其測量應在施加單一故障條件 3 s 之後以及施加異常運行條件 3 s 之後進行；且  \n(b) USB 插座或連接器的輸出電壓，在正常運行條件下的額定輸出電壓基礎上，不得增加超過 3 V 或 10 %（取較大者），其測量應在施加單一故障條件 3 s 之後以及施加異常運行條件 3 s 之後進行。  \n\n對於在輸出端具有多個額定電壓的設備，應將設備分別設定為各個輸出額定電壓，逐一檢查其符合性。  \n\n註：此要求旨在降低在為二次鋰電池充電時，連接設備或附件發生電池起火或爆炸的可能性。3 s 的測量延遲係基於 IEC 文件 108/742/INF，TC 108，標準解釋小組問題 15 — 輸出電壓，與 IEC 62368-3:2017 中類似要求相關。  \n\n符合性應透過測量加以確認，並考慮附錄 B.3 的異常運行條件以及附錄 B.4 的模擬單一故障條件。"
+  },
+  "見附表 B.3 and\nB.4 of test report for details.8.6.201": {
+    "title_cn": "詳見測試報告之附表 B.3 和 B.4。8.6.201"
+  },
+  "Restraining device fixing point\nFreestanding-capable MS2 and MS3 television sets\nand display devices shall be provided with a fixing\npoint to facilitate the anchoring of the equipment from\ntoppling\nThe fixing point shall conform to Clause 8.7 where the\nfixing point uses a wall, ceiling or other structure\nmount. Alternatively, the fixing point shall be capable\nof withstanding a pull equal to the mass of the\nequipment in all directions without damage\nInstructions for installation or instructions for use shall\nbe provided to specify correct use of the fixing point": {
+    "title_cn": "固定裝置固定點  \n可獨立放置的 MS2 和 MS3 電視機及顯示裝置，應提供一固定點，以利將設備錨固以防止傾倒。  \n當固定點使用牆壁、天花板或其他結構安裝時，該固定點應符合 8.7 條款的要求。或者，該固定點應能在各個方向承受等於設備質量的拉力而不致損壞。  \n應提供安裝說明或使用說明，以規定正確使用該固定點。"
+  },
+  "Restraining device\nMS2 and MS3 television sets and display devices\nshall be provided with a restraining device and\nassociated hardware to attach to the television set or\ndisplay device.\nThe restraining device shall be capable of\nwithstanding a pull equal to the mass of the equipment\nin all directions.\nInstructions for installation or instructions for use shall\nbe provided to specify correct use of the fixing point\n.": {
+    "title_cn": "固定裝置  \nMS2 和 MS3 電視機及顯示裝置應提供固定裝置及相關硬體，以連接至電視機或顯示裝置。  \n固定裝置應能承受等於該設備質量的拉力，且適用於各個方向。  \n應提供安裝說明或使用說明，以規定固定點的正確使用方式。"
+  },
+  "Live parts of the plug not accessible (standard test\nfinger)": {
+    "title_cn": "插頭之帶電部件不可被接觸（標準試驗指）"
+  },
+  "Incorporated with adaptor.9.1": {
+    "title_cn": "與適配器組合使用。9.1"
+  },
+  "Plugs are not rewirable": {
+    "title_cn": "插頭不可重新配線"
+  },
+  "Incorporated with adaptor.A": {
+    "title_cn": "內建配接器。A"
+  },
+  "Pin bending test\nThe pins of the plug portion of three samples (Samples EFG in Table J1) not subjected\nto any previous tests shall be tested for compliance with the pin bending test of Clause\n2.13.7.2 (AS/NZS 3112:2017/A1:2021)": {
+    "title_cn": "插腳彎曲試驗  \n未經任何先前試驗的三個樣品（表 J1 中的樣品 EFG）之插頭部分的插腳，應依照 2.13.7.2 條款（AS/NZS 3112:2017/A1:2021）的插腳彎曲試驗進行符合性測試。"
+  },
+  "For socket only and movable\nblade plug only5.9": {
+    "title_cn": "僅適用於插座及可移動插片插頭 5.9"
+  },
+  "Strength of blade fixing part": {
+    "title_cn": "刀片固定部位之強度"
+  },
+  "Rotating property of movable plug type": {
+    "title_cn": "可移動插頭型式之旋轉特性"
+  },
+  "Strength of Cord anchorage": {
+    "title_cn": "電源線固定裝置之強度"
+  },
+  "Strength of Cord outlet": {
+    "title_cn": "電源線出口之機械強度"
+  },
+  "Performance of screwless terminals": {
+    "title_cn": "無螺絲端子之性能"
+  },
+  "Endurance to ammonia gas": {
+    "title_cn": "耐氨氣試驗"
+  },
+  "Applied for socket-outlets only5.16": {
+    "title_cn": "僅適用於插座 5.16"
+  },
+  "Dimensions of mounting parts of recessed socket-\noutlets": {
+    "title_cn": "嵌入式插座安裝部件之尺寸"
+  },
+  "Dimensions of cable entry": {
+    "title_cn": "電纜進線尺寸"
+  },
+  "No earth pole or a pole of\nearth side.6.11": {
+    "title_cn": "無接地極或接地側的極。6.11"
+  },
+  "Locking type, slip-check connectors": {
+    "title_cn": "鎖固型、防滑檢查連接器"
+  },
+  "Heat resistance test": {
+    "title_cn": "耐熱試驗"
+  },
+  "Strength test of screw terminal and lead-wire joint": {
+    "title_cn": "螺絲端子與導線接合部的強度試驗"
+  },
+  "For mold on plug pins on\nthermoplastic material, (b) and\n(c) considered.7.11": {
+    "title_cn": "對於熱塑性材料之插頭插銷上的模塑，已考慮 (b) 與 (c)。7.11"
+  },
+  "Enclosure Strength tests": {
+    "title_cn": "外殼強度試驗"
+  },
+  "Strength test of Cord anchorage": {
+    "title_cn": "電源線固定裝置之強度試驗"
+  },
+  "Strength test of Cord outlet": {
+    "title_cn": "電源線出口的強度試驗"
+  },
+  "Tensile strength test of screwless terminals": {
+    "title_cn": "無螺絲端子之抗拉強度試驗"
+  },
+  "Bending test for screwless terminal": {
+    "title_cn": "無螺絲端子之彎曲試驗"
+  },
+  "Cyclic heating test for screwless terminal": {
+    "title_cn": "無螺絲端子之循環加熱試驗"
+  },
+  "Withstand overcurrent test for screwless terminal": {
+    "title_cn": "無螺絲端子耐過電流試驗"
+  },
+  "Ammonia gas durability test": {
+    "title_cn": "氨氣耐久性試驗"
+  },
+  "Rotating test of movable plug-blade type": {
+    "title_cn": "可移動插片型式之旋轉測試"
+  },
+  "Tensile load test": {
+    "title_cn": "拉伸負載試驗"
+  },
+  "Flame retardance test": {
+    "title_cn": "阻燃性試驗"
+  },
+  "輸入: 100-240VAC or 200-240VAC, 50/60Hz or 50-60Hz, 2A or\n輸出: See 一般 product information and other remarks for\n輸入: 100-240VAC or 200-240VAC, 50/60Hz or 50-60Hz, 2A or\n輸出: See 一般 product information and other remarks for": {
+    "title_cn": "輸入：100-240VAC 或 200-240VAC，50/60Hz 或 50-60Hz，2A 或  \n輸出：見一般產品資訊及其他備註  \n\n輸入：100-240VAC 或 200-240VAC，50/60Hz 或 50-60Hz，2A 或  \n輸出：見一般產品資訊及其他備註"
+  },
+  "型號: E135-1BxxxyyyM3 (See 一般 product information and other remarks for)": {
+    "title_cn": "型號：E135-1BxxxyyyM3（參見一般產品資訊及其他備註）"
+  },
+  "備註: 用於測試的X電容器: CX1= 0.33µF\n[ X ] bleeding resistor rating: RX1=RX2=RX3=RX4=3.0MΩ\n[ X ] IC X: U1\n1) Normal operating condition (e.g., normal operation, or open fuse), SC= short circuit, OC= open circuit±10%  洩放電阻額定值: RX1=RX2=RX3=RX4=3.0MΩ\n[ X ] IC X: U1\n1) Normal operating condition (e.g., normal operation, or open fuse), SC= short circuit, OC= open circuit": {
+    "title_cn": "備註：用於測試的 X 電容器：CX1 = 0.33µF  \n[ X ] 洩放電阻額定值：RX1 = RX2 = RX3 = RX4 = 3.0MΩ  \n[ X ] IC X：U1  \n\n1) 正常運行狀態（例如正常運行或熔斷器開路），SC = 短路，OC = 開路"
+  },
+  "ES3: Input terminal (Primary Filter circuit)": {
+    "title_cn": "ES3：輸入端子（一次側濾波電路）"
+  },
+  "ES3: All circuits except for output terminal": {
+    "title_cn": "ES3：除輸出端子外之所有電路"
+  },
+  "PS3: All circuits except for output terminal and output cord": {
+    "title_cn": "PS3：除輸出端子及輸出電源線以外之所有電路"
+  },
+  "PS3: 輸出 terminal or output cord": {
+    "title_cn": "PS3：輸出端子或輸出電源線"
+  },
+  "All safeguards remain\neffective4.4.4": {
+    "title_cn": "所有安全防護保持有效 4.4.4"
+  },
+  "No explosion occurs during\nnormal/abnormal operating\ncondition (See Annex B.2,\nB.3)4.6": {
+    "title_cn": "在正常 / 非正常運轉條件下無發生爆炸（見附錄 B.2、B.3）4.6"
+  },
+  "No such coin/button battery4.8.2": {
+    "title_cn": "無此類硬幣／鈕扣電池 4.8.2"
+  },
+  "No means for connection to\ntelephone network and no\nringing signal generated5.2.2.7": {
+    "title_cn": "無連接電話網路之方式，且不產生振鈴信號 5.2.2.7"
+  },
+  "No need to conduct this test5.4.2.4": {
+    "title_cn": "無需進行此測試 5.4.2.4"
+  },
+  "The multiplication factor for\naltitude up to 5000m is 1.485.4.2.6": {
+    "title_cn": "海拔至 5000m 的乘數係數為 1.48。4.2.6"
+  },
+  "Material group IIIb is assumed\nto be used5.4.3.4": {
+    "title_cn": "假設使用材料組別 IIIb  \n5.4.3.4"
+  },
+  "Approved opto-coupler comply\nwith IEC 60747-5-55.4.4.5": {
+    "title_cn": "核准之光耦合器符合 IEC 60747-5-5 之 5.4.4.5 條款"
+  },
+  "For insulation tape wrapped\naround transformer5.4.4.6.3": {
+    "title_cn": "繞包於變壓器上的絕緣膠帶  \n5.4.4.6.3"
+  },
+  "Approved triple insulation wire\nused5.4.4.9": {
+    "title_cn": "使用已認可之三重絕緣線  \n5.4.4.9 使用"
+  },
+  "(See appended Tables 5.4.4.9\nand 5.4.9)5.4.5": {
+    "title_cn": "(見附錄表 5.4.4.9 和 5.4.9) 5.4.5"
+  },
+  "Test applied between input\nterminal and output terminal\nrequired by the manufacturer5.4.5.1": {
+    "title_cn": "依製造商要求，在輸入端子與輸出端子之間施加測試  \n5.4.5.1"
+  },
+  "(See sub-clause 5.4 or Annex\nG.12)5.5.5": {
+    "title_cn": "(見 5.4 款或附錄 G.12) 5.5.5"
+  },
+  "The earthing pin of the\nappliance inlet is considered as\nprotective earthing terminal.5.6.4": {
+    "title_cn": "器具插入口的接地插銷視為保護接地端子。5.6.4"
+  },
+  "Approved appliance inlet\nprovided5.6.5.1": {
+    "title_cn": "提供經核准的器具插座 5.6.5.1"
+  },
+  "Approved C14, C6 type\nappliance inlet used, the earth\npin of the appliance inlet is\nconsidered as protective\nearthing terminal5.6.5.2": {
+    "title_cn": "採用已核准的 C14、C6 型器具插入口，器具插入口的接地插銷視為保護接地端子 5.6.5.2"
+  },
+  "Max. 0.398mApk (to output\nterminal);\nMax. 0.010mApk (to accessible\nenclosure)\n(見附表 5.7.4 for\ndetails)5.7.2.2": {
+    "title_cn": "最大 0.398mApk（至輸出端子）；\n最大 0.010mApk（至可接觸外殼）\n（詳見附表 5.7.4）\n5.7.2.2"
+  },
+  "Method of control fire spread\nused (防火外殼 is used)6.4.2": {
+    "title_cn": "採用的控制火勢蔓延方法（使用防火外殼）6.4.2"
+  },
+  "- 見附表 4.1.2\nand Annex G;\n- Parts as in 6.4.5 above;\n- PCB: V-1 or better material\nused;\n- Fire enclosure provided;\n- 輸出 cord with VW-1 rating.6.4.7": {
+    "title_cn": "- 見附表 4.1.2 及附錄 G；\n- 部件如上述 6.4.5 所述；\n- PCB：使用 V-1 或更高等級材料；\n- 提供防火外殼；\n- 輸出電源線具有 VW-1 等級。6.4.7"
+  },
+  "V-0 防火外殼 is used,\nwhich comply with 6.4.8.46.4.7.2": {
+    "title_cn": "使用 V-0 等級防火外殼，符合 6.4.7.2。"
+  },
+  "Equipment mass  7.0kg and\nis classified as MS18.6.2": {
+    "title_cn": "設備質量 7.0 kg，分類為 MS18.6.2"
+  },
+  "±10% tolerance was\nconsidered.B.2.5": {
+    "title_cn": "已考慮 ±10% 公差。B.2.5"
+  },
+  "Safeguards functional during and after abnormal\noperating conditions .............................................. :": {
+    "title_cn": "在異常運行條件期間及之後安全防護之功能狀態 .............................................. :"
+  },
+  "Not intermittent or short-time\noperation equipmentB.4.8": {
+    "title_cn": "非間歇或短時間運轉設備 B.4.8"
+  },
+  "No UV radiation in the\nequipmentC.1.3": {
+    "title_cn": "設備內無 UV 輻射 C.1.3"
+  },
+  "Equipment marking is located\non its exterior surface and is\nreadily visibleF.3.2": {
+    "title_cn": "設備標示位於其外部表面，且易於看見 F.3.2"
+  },
+  "Rated current or rated power ................................ :": {
+    "title_cn": "額定電流或額定功率 ................................ :"
+  },
+  "Single supply connectionF.3.4": {
+    "title_cn": "單一電源連接 F.3.4"
+  },
+  "No voltage setting deviceF.3.5": {
+    "title_cn": "無電壓設定裝置  \nF.3.5"
+  },
+  "No mains appliance outlet and\nsocket-outletF.3.5.2": {
+    "title_cn": "無市電器具插座及插座  \nF.3.5.2"
+  },
+  "Not such switchF.3.5.3": {
+    "title_cn": "無此類開關F.3.5.3"
+  },
+  "Replacement fuse identification and rating\nmarkings ................................................................ :": {
+    "title_cn": "替換熔斷器識別與額定值\n標示 ................................................................ :"
+  },
+  "Non-replaceable fuse used,\n“F1 T6.3AL250V OR\nT4.0AL250V” and\n“F2 T4.0AL250V OR\nJUMPER” marked on PCB\nnear F1 and F2.F.3.5.4": {
+    "title_cn": "使用不可更換保險絲，\n在 F1 與 F2 附近的 PCB 上標示\n「F1 T6.3AL250V OR\nT4.0AL250V」及\n「F2 T4.0AL250V OR\nJUMPER」。F.3.5.4"
+  },
+  "Replacement battery identification marking .......... :": {
+    "title_cn": "替換電池識別標示 .......... :"
+  },
+  "(silkscreen printing on\napproval appliance inlet body)F.3.6.1.2": {
+    "title_cn": "（在核准的設備插入口本體上的絲印）F.3.6.1.2"
+  },
+  "Protective bonding conductor terminals ............... :": {
+    "title_cn": "保護連接導體端子 ............... :"
+  },
+  "Equipment class marking ...................................... :": {
+    "title_cn": "設備類別標誌 ...................................... :"
+  },
+  "Functional earthing terminal marking .................... :": {
+    "title_cn": "功能接地端子標示 .................... :"
+  },
+  "Equipment IP rating marking ................................. :": {
+    "title_cn": "設備 IP 等級標示 ................................. :"
+  },
+  "External power supply output marking .................. :": {
+    "title_cn": "外部電源供應器輸出標示 .................. :"
+  },
+  "See the copy of marking plateF.3.9": {
+    "title_cn": "見標示銘牌複本  \nF.3.9"
+  },
+  "No thermal cut-off usedG.3.1.2": {
+    "title_cn": "未使用熱切斷器 G.3.1.2"
+  },
+  "Approved fuse providedG.3.5": {
+    "title_cn": "提供經核准之熔斷器G.3.5"
+  },
+  "The output connecter is such a\nshape that cannot insertion\ninto a mains socket-outletG.5": {
+    "title_cn": "輸出連接器之形狀設計為無法插入市電插座 G.5"
+  },
+  "Approved source of triple\ninsulated wire used as\nsecondary winding for\nreinforced insulationG.5.1.2": {
+    "title_cn": "採用已核准之三重絕緣線作為加強絕緣之次級繞組  \nG.5.1.2"
+  },
+  "Insulation tube used in\ntransformer as mechanical\nprotectionG.5.2": {
+    "title_cn": "用於變壓器中的絕緣套管作為機械防護 G.5.2"
+  },
+  "Comply with the requirements\nas belowG.5.3.2": {
+    "title_cn": "符合下列要求  \nG.5.3.2"
+  },
+  "變壓器 with double insulation or reinforced\ninsulation ............................................................... :": {
+    "title_cn": "具有雙重絕緣或加強絕緣的變壓器 ............................................................... :"
+  },
+  "Approved TIW used in\ntransformers as secondary\nwinding\n(See Annex J)G.6.2": {
+    "title_cn": "核准之 TIW 用於變壓器之次級繞組  \n(見 附錄 J) G.6.2"
+  },
+  "Cross sectional area (mm2 or AWG) ..................... :": {
+    "title_cn": "截面積 (mm2 或 AWG) ................................. :"
+  },
+  "Approved varistor usedG.8.2": {
+    "title_cn": "使用已認可的壓敏電阻 G.8.2"
+  },
+  "Approved ICX (U1) used (see\nappended table 4.1.2)G.16.2": {
+    "title_cn": "採用已核准的 ICX (U1)（見附錄表 4.1.2）G.16.2"
+  },
+  "The AC inlet used asL.2": {
+    "title_cn": "所使用的 AC 插座作為 L.2"
+  },
+  "The AC inlet used asL.5": {
+    "title_cn": "所使用的 AC 插座作為 L.5"
+  },
+  "Single phase equipmentL.6": {
+    "title_cn": "單相設備 L.6"
+  },
+  "No switches used asL.7": {
+    "title_cn": "未使用開關作為 L.7"
+  },
+  "Estimation of hypothetical volume V (m3/s) ......... :\nZ": {
+    "title_cn": "假設體積 V (m3/s) 的估算 ......... ：  \nZ"
+  },
+  "Consequence of entry test .................................... :": {
+    "title_cn": "進入試驗結果 .................................... :"
+  },
+  "一般\nThis standard is transitioning from short-term\nbased (30 s) requirements to long-term based (40\nhour) requirements. These clauses remain in effect\nonly for devices that do not comply with sound\ndose estimation as stipulated in EN 50332-3.\nFor classifying the acoustic output L ,T ,\nAeq\nmeasurements are based on the A-weighted\nequivalent sound pressure level over a 30 s period.\nFor music where the average sound pressure (long\nterm LAeq,T) measured over the duration of the\nsong is lower than the average produced by the\nprogramme simulation noise, measurements may": {
+    "title_cn": "一般  \n本標準正由以短期（30 s）為基礎之要求，轉換為以長期（40 小時）為基礎之要求。這些條款僅適用於未依 EN 50332-3 規定符合聲劑量估算之裝置。  \n為分類聲學輸出 L ,T ，測量係基於 30 s 期間之 A 加權等效聲壓級。  \nAeq  \n對於音樂，如其在歌曲全長期間量測之平均聲壓（長期 LAeq,T）低於節目模擬噪聲所產生之平均值，則量測可…"
+  },
+  "RS2 limits (to be superseded, see 10.6.3.3)\nRS2 is a class 2 acoustic energy source that does\nnot exceed the following:\n– for equipment provided as a package (player with\nits listening device), and with a proprietary\nconnector between the player and its listening\ndevice, or when the combination of player and\nlistening device is known by other means such as\nsetting or automatic 130 detection, the LAeq,T\nacoustic output shall be ≤ 100 dB(A) when playing\nthe fixed “programme simulation noise” as\ndescribed in EN 50332-1.\n– for equipment provided with a standardized\nconnector (for example, a 3,5 phone jack) that\nallows connection to a listening device for general\nuse, the unweighted r.m.s. output voltage shall be": {
+    "title_cn": "RS2 限值（將被取代，見 10.6.3.3）  \nRS2 為 2 類聲學能量來源，其不得超過下列限值：  \n– 對於以套裝形式提供之設備（播放器及其聽音裝置），且播放器與其聽音裝置之間採用專用連接器，或播放器與聽音裝置之組合可透過其他方式（例如設定或自動偵測）得知時，於播放 EN 50332-1 所述固定「節目模擬噪聲」時，其 LAeq,T 聲學輸出應 ≤ 100 dB(A)。  \n– 對於配備標準化連接器（例如 3,5 耳機插孔），可連接一般用途聽音裝置之設備，其未加權 r.m.s. 輸出電壓應…"
+  },
+  "Protection of persons\nExcept as given below, protection requirements for\nparts accessible to ordinary persons, instructed\npersons and skilled persons are given in 4.3.\nNOTE 1 Volume control is not considered a safeguard.\nBetween RS2 and an ordinary person, the basic\nsafeguard may be replaced by an instructional\nsafeguard in accordance with Clause F.5, except\nthat the instructional safeguard shall be placed\non the equipment, or on the packaging, or in the\ninstruction manual.\nAlternatively, the instructional safeguard may be\ngiven through the equipment display during use.\nThe elements of the instructional safeguard shall\nbe as follows:\n– element 1a: the symbol , IEC 60417-6044\n(2011-01)\n– element 2: “High sound pressure” or equivalent\nwording\n– element 3: “Hearing damage risk” or equivalent\nwording\n– element 4: “Do not listen at high volume levels for\nlong periods.” or equivalent wording\nAn equipment safeguard shall prevent exposure\nof an ordinary person to an RS2 source without\nintentional physical action from the ordinary\nperson and shall automatically return to an output\nlevel not exceeding what is specified for an RS1\nsource when the power is switched off.": {
+    "title_cn": "人員防護  \n除下列情況外，一般人員、受指導人員及熟練人員可接觸部位之防護要求依 4.3 規定。  \n\n註 1 音量控制不視為安全防護。  \n\n在 RS2 與一般人員之間，基本安全防護可依附錄 F.5 以指示性安全防護取代，但指示性安全防護應標示於設備上、包裝上或使用說明書中。  \n\n或者，指示性安全防護可在設備使用過程中透過設備顯示提供。  \n\n指示性安全防護之要素如下：  \n– 要素 1a：符號 ，IEC 60417-6044 (2011-01)  \n– 要素 2：「High sound pressure」或同等語意文字  \n– 要素 3：「Hearing damage risk」或同等語意文字  \n– 要素 4：「Do not listen at high volume levels for long periods.」或同等語意文字  \n\n設備安全防護應防止一般人員在未有刻意身體動作情況下暴露於 RS2 能量來源，且當電源關閉時，應自動恢復至不超過 RS1 能量來源規定之輸出等級。"
+  },
+  "Dose-based warning and requirements\nWhen a dose of 100 % CSD is reached, and at\nleast at every 100 % further increase of CSD, the": {
+    "title_cn": "基於劑量之警告與要求  \n當達到 100 % CSD 劑量，且之後每增加 100 % CSD 時，"
+  },
+  "Exposure-based requirements\nWith only dose-based requirements, cause and\neffect could be far separated in time, defying the\npurpose of educating users about safe listening\npractice. In addition to dose-based requirements,\na PMP shall therefore also put a limit to the short-\nterm sound level a user can listen at.\nThe exposure-based limiter (EL) shall automatically\nreduce the sound level not to exceed 100 dB(A) or\n150 mV integrated over the past 180 s, based on\nmethodology defined in EN 50332-3.\nThe EL settling time (time from starting level\nreduction to reaching target output) shall be 10 s or\nfaster.\nTest of EL functionality is conducted according to\nEN 50332-3, using the limits from this clause. For\nequipment provided as a package (player with its\nlistening device), the level integrated over 180 s\nshall be 100 dB or lower. For equipment provided\nwith a standardized connector, the unweighted\nlevel integrated over 180 s shall be no more than\n150 mV for an analogue interface and no more\nthan -10 dBFS for a digital interface.\nNOTE In case the source is known not to be music (or test\nsignal), the EL may be disabled.": {
+    "title_cn": "以暴露量為基礎之要求  \n若僅採用劑量為基礎之要求，則原因與結果可能在時間上相隔甚遠，無法達到教育使用者安全聆聽習慣之目的。因此，除劑量為基礎之要求外，PMP 亦應對使用者可聆聽之短期聲級加以限制。  \n\n暴露量為基礎之限制器（EL）應自動降低聲級，使其在過去 180 s 之整合值不超過 100 dB(A) 或 150 mV，並依據 EN 50332-3 所定義之方法進行。  \n\nEL 之穩定時間（自開始降低輸出至達到目標輸出之時間）應為 10 s 或更短。  \n\nEL 功能之試驗依據 EN 50332-3 進行，並採用本條款之限制值。對於以套裝形式提供之設備（播放器及其聆聽裝置），其在 180 s 之整合聲級應為 100 dB 或更低。對於以標準化連接器提供之設備，其在 180 s 之整合未加權電壓值，類比介面不應超過 150 mV，數位介面不應超過 -10 dBFS。  \n\n註：若已知訊源並非音樂（或測試訊號），則 EL 得以停用。"
+  },
+  "Ireland and United Kingdom\nAfter the indent for pluggable equipment type A,\nthe following is added:\n– the protective current rating is taken to be 13 A,\nthis being the largest rating of fuse used in the\nmains plug.": {
+    "title_cn": "愛爾蘭與英國  \n在可插式設備 A 型的縮排條款之後，增加下列內容：  \n– 保護電流額定值視為 13 A，這是市電插頭中所使用之保險絲的最大額定值。"
+  },
+  "Germany\nThe following requirement applies:\nFor the operation of any cathode ray tube intended\nfor the display of visual images operating at an\nacceleration voltage exceeding 40 kV, authorization\nis required, or application of type\napproval (Bauartzulassung) and marking.\nJustification:\nGerman ministerial decree against ionizing\nradiation (Röntgenverordnung), in force since\n2002-07-01, implementing the European Directive\n96/29/EURATOM.\nNOTE Contact address:\nPhysikalisch-Technische Bundesanstalt, Bundesallee 100, D-": {
+    "title_cn": "德國  \n適用下列要求：  \n對於任何用於顯示視覺影像且加速電壓超過 40 kV 的陰極射線管之操作，須取得許可，或申請型式認可 (Bauartzulassung) 並加以標示。  \n\n理由：  \n自 2002-07-01 起生效之德國關於游離輻射的部長法令 (Röntgenverordnung)，用以實施歐盟指令 96/29/EURATOM。  \n\n註：聯絡地址：  \nPhysikalisch-Technische Bundesanstalt, Bundesallee 100, D-"
+  },
+  "External power supplies, docking stations and\nother similar devices\nFor external power supplies, docking stations and\nother similar devices, during\nand after abnormal operating conditions and\nduring single fault conditions the output voltage—\n(a) at all ES1 outlets or connectors shall not\nincrease by more than 10 % of the output\nrated voltage under normal operating\nconditions, measured after 3 s of\nintroducing a singlefault condition and\nafter 3 s of introducing abnormal operating\nconditions; and\n(b) of a USB outlet or connector shall not\nincrease by more than 3 V or 10 % of the\noutput rated voltage under normal\noperating conditions, whichever is higher,\nmeasured after3 seconds of introducing a\nsingle fault condition and after 3 s of\nintroducing abnormal operating conditions\nFor equipment with multiple rated voltages at the\noutput, the requirements apply with the equipment\nconfigured for each output rated voltage in turn\nNOTE: This is intended to reduce the possibility of\nbattery fire or explosion in attached equipment or\naccessories when charging secondary lithium\nbatteries. The 3 s measurement delay is based on\nIEC document 108/742/INF, TC 108, Standards\nInterpretation Panel Question 15 — 輸出\nvoltage, in relation to similar requirements in IEC\n62368-3:2017.\nConformity shall be checked by measurement,\ntaking into account the abnormal operating\nconditions of Annex B.3 and the simulated single\nfault conditions of Annex B.4.": {
+    "title_cn": "外部電源供應器、擴充基座及其他類似裝置  \n對於外部電源供應器、擴充基座及其他類似裝置，在異常運行條件期間及之後，以及在單一故障條件期間，輸出電壓應符合下列要求：  \n(a) 所有 ES1 插座或連接器的輸出電壓，在正常運行條件下的額定輸出電壓基礎上，不得增加超過 10 %，量測時間為施加單一故障條件後 3 s 以及施加異常運行條件後 3 s；且  \n(b) USB 插座或連接器的輸出電壓，在正常運行條件下的額定輸出電壓基礎上，不得增加超過 3 V 或 10 %（取較大者），量測時間為施加單一故障條件後 3 s 以及施加異常運行條件後 3 s。  \n\n對於具有多組輸出額定電壓的設備，應將設備分別設定為各輸出額定電壓進行測試，以符合上述要求。  \n\n註：此要求旨在降低於為次級鋰電池充電時，連接設備或附件發生電池起火或爆炸的可能性。3 s 的量測延遲係基於 IEC 文件 108/742/INF，TC 108，標準解釋小組問題 15 — 輸出電壓，與 IEC 62368-3:2017 中類似要求相關。  \n\n應依據附錄 B.3 的異常運行條件及附錄 B.4 的模擬單一故障條件進行量測，以確認其符合性。"
+  },
+  "Restraining device fixing point\nFreestanding-capable MS2 and MS3 television\nsets and display devices shall be provided with a\nfixing point to facilitate the anchoring of the\nequipment from toppling\nThe fixing point shall conform to Clause 8.7 where\nthe fixing point uses a wall, ceiling or other\nstructure mount. Alternatively, the fixing point shall\nbe capable of withstanding a pull equal to the\nmass of the equipment in all directions without\ndamage\nInstructions for installation or instructions for use\nshall be provided to specify correct use of the\nfixing point": {
+    "title_cn": "固定裝置固定點  \n可獨立放置的 MS2 與 MS3 電視機及顯示裝置，應提供一個固定點，以利將設備錨固以防止傾倒。  \n當固定點使用牆壁、天花板或其他結構安裝時，該固定點應符合 8.7 條的規定。或者，固定點應能在各個方向承受等於設備質量的拉力而不致損壞。  \n應提供安裝說明或使用說明，以規定固定點的正確使用方式。"
+  },
+  "Restraining device\nMS2 and MS3 television sets and display devices\nshall be provided with a restraining device and\nassociated hardware to attach to the television set\nor display device.\nThe restraining device shall be capable of\nwithstanding a pull equal to the mass of the\nequipment in all directions.\nInstructions for installation or instructions for use\nshall be provided to specify correct use of the\nfixing point\n.": {
+    "title_cn": "固定裝置  \nMS2 和 MS3 電視機及顯示裝置應提供固定裝置及相關硬體，以連接至電視機或顯示裝置。  \n固定裝置應能承受等於該設備質量的拉力，且適用於所有方向。  \n應提供安裝說明或使用說明，以規定固定點的正確使用方式。"
+  },
+  "Pin bending test\nThe pins of the plug portion of three samples (Samples EFG in Table J1) not\nsubjected to any previous tests shall be tested for compliance with the pin bending\ntest of Clause 2.13.7.2": {
+    "title_cn": "插腳彎曲試驗  \n未經任何先前試驗的三個樣品（表 J1 中的樣品 EFG）之插頭部分的插腳，應依照 2.13.7.2 條款之插腳彎曲試驗進行符合性試驗。"
+  },
+  "Add clause 4.11, as follows:\nProtection in PRIMARY CIRCUITS against\novercurrent short-circuits and earth faults shall be\nprovided as an integral part of the equipment\nexcept the device shall meet the all requirement of\nFault conditions.\nIf pluggable equipment type B or permanently\nconnected equipment depends on protective\ndevices outside the equipment for protection, this\nshall be stated in the installation instructions of the\nequipment, with requirements for short-circuit\nprotection, over-current protection, or both if\nnecessary.": {
+    "title_cn": "新增 4.11 條款，如下：\n對一次電路防止過電流、短路及接地故障之保護，應作為設備不可分割的一部分提供，除非該裝置符合所有故障條件之要求。\n\n若可插拔設備 B 型或永久連接設備之保護依賴於設備外部之保護裝置，則應在設備之安裝說明中予以說明，並在必要時對短路保護、過電流保護或兩者提出要求。"
+  },
+  "Modify second paragraph in note to Table 9 as\nfollows:\nFor each material, account shall be taken of the\ndata for that material to determine the appropriate\nmaximum temperature. In case no data for the\nmaterial is available, JIS C 8300, clause 19.2 may\nbe used to determine the maximum temperature\nlimit of the material.": {
+    "title_cn": "將表 9 備註中的第二段修改如下：\n對於每一種材料，應考慮該材料的資料以決定適當的最高溫度。若無該材料的相關資料，可依據 JIS C 8300 第 19.2 條來決定該材料的最高溫度限制。"
+  },
+  "備註: 用於測試的X電容器: [ ] bleeding resistor rating:\n[ ] ICX:\n1) Normal operating condition (e.g., normal operation, or open fuse), SC= short circuit, OC= open circuit±10%  洩放電阻額定值: [ ] ICX:\n1) Normal operating condition (e.g., normal operation, or open fuse), SC= short circuit, OC= open circuit": {
+    "title_cn": "備註：用於測試的 X 電容器：  \n[ ] 洩放電阻額定值：  \n[ ] ICX：  \n\n1) 正常運行狀態（例如，正常運轉或熔斷器開路），SC = 短路，OC = 開路 ±10%"
+  },
+  "ES3: 連接 AC 主電源之電路 (Except output circuits)": {
+    "title_cn": "ES3：連接 AC 主電源之電路（輸出電路除外）"
+  },
+  "MS1: Edges and corners of enclosure": {
+    "title_cn": "MS1：外殼的邊緣與角部"
+  },
+  "TS3: Internal parts/circuits": {
+    "title_cn": "TS3：內部部件/電路"
+  },
+  "(見附表 4.1.2)\nComponents which are\ncertified to IEC and/or national\nstandards are used correctly\nwithin their ratings.\nComponents not covered by\nIEC standards are tested\nunder the conditions present\nin the equipment. See also\nAnnex G4.1.3": {
+    "title_cn": "(見表 4.1.2)\n依 IEC 和（或）國家標準認證之元件，均在其額定範圍內正確使用。\n未受 IEC 標準涵蓋之元件，已在設備實際條件下進行試驗。另見附錄 G4.1.3"
+  },
+  "Evaluation of safeguards\nregarding limiting the outputs\nto fulfill ES1 and protection in\nregard to risk of spread of fire,\nmechanical and thermal burn\ninjury considered.4.1.4": {
+    "title_cn": "安全防護的評估  \n關於限制輸出以符合 ES1，以及針對火災蔓延風險、機械性與熱灼傷危害之防護已予考量。4.1.4"
+  },
+  "Specified ambient temperature for outdoor use (oC)\n................................................................................. :": {
+    "title_cn": "戶外使用之規定環境溫度 (oC)\n................................................................................. :"
+  },
+  "The external enclosure cannot\nbe opened without damaging\nthe product.4.4.3.6": {
+    "title_cn": "外部外殼若不損壞產品則無法打開。4.4.3.6"
+  },
+  "No such glass used.4.4.3.7": {
+    "title_cn": "未使用此類玻璃。4.4.3.7"
+  },
+  "Mains plug part complies with relevant standard ... :": {
+    "title_cn": "電源插頭部分符合相關標準："
+  },
+  "美規插頭符合 UL\n1310 Class 2 Power Units\n(Mechanical 要求 on\nblades Only); The blade\ndimension was evaluated to\nbe complied with NEMA\nconfigurations in accordance\nwith Wiring Devices-\nDimensional Specifications,\nANSI/NEMA WD6.\n日規插頭符合 JIS C\n8303: 2007.4.7.3": {
+    "title_cn": "美規插頭符合 UL 1310 Class 2 Power Units（僅限插片之機械要求）；插片尺寸依據 Wiring Devices-Dimensional Specifications, ANSI/NEMA WD6 評估符合 NEMA 配置要求。  \n日規插頭符合 JIS C 8303: 2007 之 4.7.3 條款。"
+  },
+  "No coin/button batteries.4.8.2": {
+    "title_cn": "無硬幣型/鈕扣型電池。4.8.2"
+  },
+  "Steady-state voltage and current limits ................... :": {
+    "title_cn": "穩態電壓與電流限制 ................... :"
+  },
+  "Single pulse limits ................................................... :": {
+    "title_cn": "單次脈衝限制 ................................................... :"
+  },
+  "Limits for repetitive pulses ....................................... :": {
+    "title_cn": "重複脈衝之限制 ....................................... :"
+  },
+  "Only ES1 circuit can be\naccessed for this product.5.3.2.2": {
+    "title_cn": "本產品僅可接觸 ES1 電路。5.3.2.2"
+  },
+  "Maximum operating temperature for insulating\nmaterials ................................................................. :": {
+    "title_cn": "絕緣材料的最高工作溫度 ................................................................. :"
+  },
+  "Determination of working voltage ............................ :": {
+    "title_cn": "工作電壓之判定 ............................ :"
+  },
+  "Ball pressure test .................................................... :": {
+    "title_cn": "球壓試驗 .................................................... :"
+  },
+  "External circuit transient voltage ............................. :": {
+    "title_cn": "外部電路暫態電壓 ............................. :"
+  },
+  "No connections to external\ncircuit with transient voltage.5.4.2.3.2.5": {
+    "title_cn": "無與具有暫態電壓的外部電路連接。5.4.2.3.2.5"
+  },
+  "Option was not used.5.4.2.4": {
+    "title_cn": "未使用此選項。5.4.2.4"
+  },
+  "Multiplication factors for clearances and test voltages\n................................................................................ :": {
+    "title_cn": "電氣間隙與測試電壓之乘數係數\n................................................................................ :"
+  },
+  "Creepage distances measurement ......................... :": {
+    "title_cn": "沿面距離量測 .......................... :"
+  },
+  "Minimum distance through insulation ..................... :": {
+    "title_cn": "絕緣穿透的最小距離 ..................... :"
+  },
+  "Standard test procedure for non-separable thin\nsheet material ......................................................... :": {
+    "title_cn": "不可分離薄片材料的標準試驗程序 ......................................................... :"
+  },
+  "Solid insulation at frequencies >30 kHz, E , K , d,\nP R\nV (V) .................................................................... :\nPW": {
+    "title_cn": "頻率 >30 kHz 時之固體絕緣，E、K、d、  \nP R  \nV (V) ....................................................................：  \nPW"
+  },
+  "Surge test with 50 discharges\nat a maximum rate of 12/min\nfrom a 1nF capacitor charged\nto 10kV performed. Measured\ninsulation resistance between\nmains supply to output\nterminals after the surge test,\nsee below for details.5.4.5.3": {
+    "title_cn": "以 1nF 電容充電至 10kV，進行最大頻率 12 次/分鐘、共 50 次放電的雷擊測試。雷擊測試後量測電源輸入與輸出端子之間的絕緣電阻，詳細內容見下文。5.4.5.3"
+  },
+  "Between AC plug and output\nterminals: >500 M.5.4.6": {
+    "title_cn": "在 AC 插頭與輸出端子之間：>500 M。5.4.6"
+  },
+  "Immediately following the\ntemperature test in 5.4.1.45.4.9.1": {
+    "title_cn": "緊接於 5.4.1.4 的溫度試驗之後"
+  },
+  "Test procedure for type test of solid insulation ...... :": {
+    "title_cn": "固體絕緣型式試驗之試驗程序 ...... :"
+  },
+  "Verification for insulation breakdown for impulse\ntest .......................................................................... :": {
+    "title_cn": "脈衝測試之絕緣擊穿驗證 .......................................................................... :"
+  },
+  "Compatibility of an insulating liquid ........................ :": {
+    "title_cn": "絕緣液體的相容性 ........................ :"
+  },
+  "Container for insulating liquid ................................. :": {
+    "title_cn": "絕緣液體容器 ................................. :"
+  },
+  "Approved Y capacitor used,\nsee appended table 4.1.2. See\nG.11.1 for compliance and\ntheir application.5.5.2.1": {
+    "title_cn": "使用已核准之 Y 電容，見附錄表 4.1.2。其符合性及應用見 G.11.1。5.5.2.1"
+  },
+  "(See sub-clause 5.4 or Clause\nG.12)5.5.5": {
+    "title_cn": "(見 5.4 款或 G.12 條款) 5.5.5"
+  },
+  "Insulation between the mains and an external\ncircuit consisting of a coaxial cable ........................ :": {
+    "title_cn": "市電與由同軸電纜構成之外部電路之間的絕緣 ........................ :"
+  },
+  "Unearthed accessible parts .................................... :": {
+    "title_cn": "未接地之可接觸部位 .................................... :"
+  },
+  "Earthed accessible conductive parts...................... :": {
+    "title_cn": "接地之可接觸導電部件...................... :"
+  },
+  "Power source circuit classifications ......................... :": {
+    "title_cn": "電源電路分類 ......................... :"
+  },
+  "No ignition and attainable temperature value less\nthan 90 % defined by ISO 871 or less than 300 C\nfor unknown materials ............................................ :": {
+    "title_cn": "無起燃，且可達溫度值小於 ISO 871 所規定值的 90 %，或對於未知材料小於 300 °C ............................................ :"
+  },
+  "Single Fault Conditions ........................................... :": {
+    "title_cn": "單一故障狀態 ........................................... :"
+  },
+  "符合性 detailed as\nfollows:\n− 印刷電路板: min. V-1\n- Components other than PCB\nand wires are:\n- mounted on PCB rated\nV-1 min, and/or\n- made of V-2/VTM-2 or\nbetter.\n− Isolating transformer:\ncomplying with G.5.3.\n- Wire insulation:\ncomplying with Clause 6.5.\nThe input wire comply with UL\n758 standard, which test\nmethod and testing condition\nequal to IEC/EN 60695-11-21.\n- All other components: at\nleast V-2 except for parts\nmounted on min. V-1 material\nor small parts of combustible\nmaterial) with mass less than\n4g) or components complying\nto relevant IEC standard.\n- Approved V-0 fire\nenclosure used.\n(見附表s 4.1.2\nand Annex G for detail)6.4.6": {
+    "title_cn": "符合性詳述如下：\n− 印刷電路板：最小 V-1\n- 除印刷電路板及導線以外之元件：\n  - 安裝於額定最小 V-1 之印刷電路板上，及／或\n  - 由 V-2/VTM-2 或更佳等級材料製成。\n− 隔離變壓器：\n  符合 G.5.3。\n- 導線絕緣：\n  符合第 6.5 條。\n  輸入導線符合 UL 758 標準，其試驗方法與試驗條件等同 IEC/EN 60695-11-21。\n- 所有其他元件：至少為 V-2，安裝於最小 V-1 材料上的部件或質量小於 4g 的可燃材料小零件，或符合相關 IEC 標準之元件除外。\n- 使用經認可之 V-0 防火外殼。\n（詳見附表 4.1.2 及附錄 G）6.4.6"
+  },
+  "符合性 detailed as\nfollows:\n− 印刷電路板: min. V-1\n- Components other than PCB\nand wires are:\n- mounted on PCB rated\nV-1 min, and/or\n- made of V-2/VTM-2 or\nbetter.\n− Isolating transformer:\ncomplying with G.5.3.\n- Wire insulation:\ncomplying with Clause 6.5.\nThe input wire comply with UL\n758 standard, which test\nmethod and testing condition\nequal to IEC/EN 60695-11-21.\n- All other components: at\nleast V-2 except for parts\nmounted on min. V-1 material\nor small parts of combustible\nmaterial) with mass less than\n4g) or components complying\nto relevant IEC standard.\n- Approved V-0 fire\nenclosure used.\n(見附表s 4.1.2\nand Annex G for detail)6.4.7": {
+    "title_cn": "符合性詳述如下：\n− 印刷電路板：最小 V-1\n- 除印刷電路板及導線以外之元件：\n  - 安裝於額定最小 V-1 之印刷電路板上，及／或\n  - 由 V-2/VTM-2 或更佳等級材料製成。\n− 隔離變壓器：符合 G.5.3。\n- 導線絕緣：符合第 6.5 條。\n  輸入導線符合 UL 758 標準，其試驗方法與試驗條件等同 IEC/EN 60695-11-21。\n- 所有其他元件：至少為 V-2，安裝於最小 V-1 材料上的部件或質量小於 4 g 的可燃材料小型部件，或符合相關 IEC 標準之元件除外。\n- 使用經認可之 V-0 防火外殼。\n（詳見附表 4.1.2 及附錄 G）6.4.7"
+  },
+  "Integrity of a 防火外殼, condition met: a), b) or\nc) ............................................................................. :": {
+    "title_cn": "防火外殼之完整性，符合條件：a)、b) 或 c) .................................................... :"
+  },
+  "Separation of a PIS from a 防火外殼 and a fire\nbarrier distance (mm) or flammability rating ........... :": {
+    "title_cn": "PIS 與防火外殼及防火障板之間的分隔距離 (mm) 或阻燃等級 ........... :"
+  },
+  "Flammability of insulating liquid ............................. :": {
+    "title_cn": "絕緣液體之可燃性 ............................. :"
+  },
+  "Input wire having rating VW-1\nare considered to meet\nIEC/TS 60695-11-21.6.5.2": {
+    "title_cn": "額定為 VW-1 的輸入導線\n被視為符合\nIEC/TS 60695-11-21 之 6.5.2 條款"
+  },
+  "要求 for interconnection to building wiring\n................................................................................ :": {
+    "title_cn": "建築物配線互連之要求\n................................................................................ :"
+  },
+  "Equipment mass, edges and\ncorners are classed as MS1.8.5": {
+    "title_cn": "設備質量、邊緣和角部歸類為 MS1。"
+  },
+  "Cut type and test force (N) ...................................... :": {
+    "title_cn": "切割類型與測試力 (N) ...................................... :"
+  },
+  "Glass particles dimensions (mm) ............................ :": {
+    "title_cn": "玻璃顆粒尺寸 (mm) ............................ :"
+  },
+  "Static stability test ................................................... :": {
+    "title_cn": "靜態穩定性試驗 ................................................... :"
+  },
+  "Horizontal force test ................................................ :": {
+    "title_cn": "水平力測試 ................................................ :"
+  },
+  "Mount means type .................................................. :": {
+    "title_cn": "安裝方式類型 .................................................. :"
+  },
+  "Marking and instructions ......................................... :": {
+    "title_cn": "標示與使用說明 ......................................... :"
+  },
+  "Downward force test, force (N) applied ................... :": {
+    "title_cn": "向下施力試驗，施加之力 (N) ................... :"
+  },
+  "Touch temperatures of accessible parts ................. :": {
+    "title_cn": "可接觸部位之接觸溫度 ................. :"
+  },
+  "Safeguards against optical radiation from lamps and lamp systems (including": {
+    "title_cn": "防護燈與燈系統之光輻射所採取的安全防護（包括"
+  },
+  "Rated input: 100-240V~;\n±10% tolerances were\nconsidered.B.2.5": {
+    "title_cn": "額定輸入：100-240V~；\n已考慮 ±10% 公差。B.2.5"
+  },
+  "Safeguards functional during and after abnormal\noperating conditions............................................... :": {
+    "title_cn": "在異常操作條件期間及之後仍維持功能之安全防護............................................... :"
+  },
+  "No appliance outlet provided.F.3.5.2": {
+    "title_cn": "未提供器具插座。F.3.5.2"
+  },
+  "The fuses are located within\nthe equipment and not\nreplaceable by an ordinary\nperson or an instructed\nperson.\n“T3.15AL/250Vac” marked on\nPCB layout near fuse F1F.3.5.4": {
+    "title_cn": "熔絲位於設備內部，一般人員或受指導人員無法更換。  \n在熔絲 F1F 附近的 PCB 佈局上標示「T3.15AL/250Vac」。"
+  },
+  "Not permanently connected\nequipmentF.3.6.2": {
+    "title_cn": "非永久連接設備 F.3.6.2"
+  },
+  "Marking is considered to be\nlegible and easily discernible.\nSee also the following details.\nThe label was subjected to the\npermanence of marking test.\nThe label was rubbed with\ncloth soaked with water for 15\nsec. And then again for 15\nsec. With the cloth soaked\nwith petroleum spirit. After this\ntest there was no damage to\nthe label. The marking on the\nlabel did not fade.F.3.10": {
+    "title_cn": "標示被認為清晰可辨且容易識別。\n另見以下詳細內容。\n銘牌已進行標示耐久性試驗。\n先以浸水布擦拭銘牌 15 秒，然後再以浸有石油溶劑的布擦拭 15 秒。\n試驗後銘牌未受損壞，銘牌上的標示未褪色。F.3.10"
+  },
+  "After the test, the marking\nremains legible, and moreover\nthe label shows no curling and\nis not removable by hand.F.4": {
+    "title_cn": "試驗後，標示仍清晰可辨，且標籤無捲曲現象，亦無法以手將其移除。F.4"
+  },
+  "No thermal cut-offsG.3.1.2": {
+    "title_cn": "無熱切斷器 G.3.1.2"
+  },
+  "美規插頭符合 UL\n1310 Class 2 Power Units\n(Mechanical 要求 on\nblades Only); The blade\ndimension was evaluated to\nbe complied with NEMA\nconfigurations in accordance\nwith Wiring Devices-\nDimensional Specifications,\nANSI/NEMA WD6.\n日規插頭符合 JIS C\n8303: 2007.G.4.3": {
+    "title_cn": "美規插頭符合 UL 1310 Class 2 Power Units（僅限插片之機械要求）；插片尺寸依據 Wiring Devices-Dimensional Specifications, ANSI/NEMA WD6 評估符合 NEMA 配置。\n\n日規插頭符合 JIS C 8303: 2007.G.4.3。"
+  },
+  "Certified triple insulation wire\nused.G.5.1.2": {
+    "title_cn": "使用經認證的三重絕緣線。G.5.1.2"
+  },
+  "Secondary windings used\ntriple insulation wireG.6.2": {
+    "title_cn": "次級繞組使用三重絕緣線 G.6.2"
+  },
+  "No power supply cord\nprovided.G.7.2": {
+    "title_cn": "未提供電源供應軟線。G.7.2"
+  },
+  "Y-capacitor is used according\nto IEC/EN/UL 60384-14.\nDetail see table 4.1.2G.11.2": {
+    "title_cn": "Y 電容器依據 IEC/EN/UL 60384-14 使用。  \n詳細內容見表 4.1.2G.11.2"
+  },
+  "The mains plug used asL.2": {
+    "title_cn": "所使用的市電插頭作為 L.2"
+  },
+  "Not permanently connectedL.3": {
+    "title_cn": "非永久連接 L.3"
+  },
+  "Glass Impact Test................................................. :": {
+    "title_cn": "玻璃衝擊試驗................................................. :"
+  },
+  "美規插頭符合 UL 1310 Class 2 Power Units（僅限插片之機械要求）；插片尺寸依據 Wiring Devices-Dimensional Specifications, ANSI/NEMA WD6 評估符合 NEMA 配置要求。  \n日規插頭符合 JIS C 8303: 2007 之 4.7.3 條款。": {
+    "title_cn": "美規插頭符合 UL 1310 Class 2 Power Units（僅限插片之機械要求）；插片尺寸依據 Wiring Devices-Dimensional Specifications, ANSI/NEMA WD6 評估符合 NEMA 配置要求。  \n日規插頭符合 JIS C 8303: 2007 第 4.7.3 條款。"
   }
 }
