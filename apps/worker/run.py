@@ -22,7 +22,8 @@ from core.pipeline import process_job
 from core.storage import get_storage
 
 # ===== 配置 =====
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+# 支援 Zeabur 自動注入的環境變數
+REDIS_URL = os.getenv("REDIS_URI") or os.getenv("REDIS_URL", "redis://localhost:6379")
 QUEUE_NAME = "job_queue"
 POLL_INTERVAL = 2  # 秒
 MAX_RETRIES = 3

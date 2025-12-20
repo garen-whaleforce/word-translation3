@@ -24,7 +24,8 @@ from core.models import Job, JobStatus
 from core.storage import get_storage
 
 # ===== 配置 =====
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+# 支援 Zeabur 自動注入的環境變數
+REDIS_URL = os.getenv("REDIS_URI") or os.getenv("REDIS_URL", "redis://localhost:6379")
 ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
 # ===== App =====
