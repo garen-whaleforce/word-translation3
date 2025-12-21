@@ -2044,7 +2044,7 @@
     "title_cn": "ES1"
   },
   "ES1: 輸出電路(輸出連接器)": {
-    "title_cn": "ES1:輸出電路（輸出連接器）"
+    "title_cn": "ES1: 輸出電路(輸出連接器)"
   },
   "ES2": {
     "title_cn": "ES2"
@@ -2056,7 +2056,7 @@
     "title_cn": "ES3: X電容(於L與N之間)"
   },
   "ES3: 所有連接到AC主電源的線路": {
-    "title_cn": "ES3:所有連接至AC主電源之線路"
+    "title_cn": "ES3: 所有連接到AC主電源的線路"
   },
   "ES分類": {
     "title_cn": "ES 分類"
@@ -3467,7 +3467,7 @@
     "title_cn": "MS1 分類"
   },
   "MS1: 邊與角": {
-    "title_cn": "MS1:邊與角"
+    "title_cn": "MS1: 邊與角"
   },
   "MSCC": {
     "title_cn": "最大規定充電電流"
@@ -3734,13 +3734,13 @@
     "title_cn": "PS2:二次側電路"
   },
   "PS2: 輸出電路(輸出連接器)": {
-    "title_cn": "PS2:輸出電路（輸出連接器）"
+    "title_cn": "PS2: 輸出電路(輸出連接器)"
   },
   "PS3: 所有電路": {
     "title_cn": "PS3:所有電路"
   },
   "PS3: 設備外殼內所有的主線路": {
-    "title_cn": "PS3:設備外殼內所有主線路"
+    "title_cn": "PS3: 設備外殼內所有的主線路"
   },
   "PS3: 除輸出電路外所有電路": {
     "title_cn": "PS3:除輸出電路外所有電路"
@@ -4029,7 +4029,7 @@
     "title_cn": "TN TT IT - V L-L 非交流主電源"
   },
   "TS1: 塑膠外殼": {
-    "title_cn": "TS1:塑膠外殼"
+    "title_cn": "TS1: 塑膠外殼"
   },
   "TS1: 外殼可觸及部位": {
     "title_cn": "TS1:外殼可觸及部位"
@@ -7173,5 +7173,8 @@
   },
   "美規插頭符合 UL 1310 Class 2 Power Units（僅限插片之機械要求）；插片尺寸依據 Wiring Devices-Dimensional Specifications, ANSI/NEMA WD6 評估符合 NEMA 配置要求。  \n日規插頭符合 JIS C 8303: 2007 之 4.7.3 條款。": {
     "title_cn": "美規插頭符合 UL 1310 Class 2 Power Units（僅限插片之機械要求）；插片尺寸依據 Wiring Devices-Dimensional Specifications, ANSI/NEMA WD6 評估符合 NEMA 配置要求。  \n日規插頭符合 JIS C 8303: 2007 第 4.7.3 條款。"
+  },
+  "MS1: 設備質量": {
+    "title_cn": "MS1: 設備質量"
   }
 }

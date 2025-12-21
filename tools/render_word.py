@@ -166,33 +166,33 @@ def translate_energy_source(energy_source: str, clause: int) -> str:
 
     translations = {
         # Clause 5 - Electrically-caused injury (依照人工檔案格式)
-        'ES3: Primary circuits supplied by a.c. mains supply': 'ES3: 除了輸出端子以外的所有電路',
-        'ES3: The circuit connected to AC mains (Except output circuits)': 'ES3: 除了輸出端子以外的所有電路',
-        'ES3: All circuits except output circuits': 'ES3: 除了輸出端子以外的所有電路',
-        'ES3: Capacitor connected between L and N': 'ES3: X電容 (L與N之間)',
-        'ES1: Secondary output connector': 'ES1: 輸出端子',
-        'ES1: Output circuits': 'ES1: 輸出電路',
-        'ES1: Output connector': 'ES1: 輸出端子',
+        'ES3: Primary circuits supplied by a.c. mains supply': 'ES3: 所有連接到AC主電源的線路',
+        'ES3: The circuit connected to AC mains (Except output circuits)': 'ES3: 所有連接到AC主電源的線路',
+        'ES3: All circuits except output circuits': 'ES3: 所有連接到AC主電源的線路',
+        'ES3: Capacitor connected between L and N': 'ES3: X電容(於L與N之間)',
+        'ES1: Secondary output connector': 'ES1: 輸出電路(輸出連接器)',
+        'ES1: Output circuits': 'ES1: 輸出電路(輸出連接器)',
+        'ES1: Output connector': 'ES1: 輸出電路(輸出連接器)',
         # Clause 6 - Electrically-caused fire (依照人工檔案格式)
-        'PS3: All primary circuits inside the equipment enclosure': 'PS3電路',
-        'PS3: All circuits except for output circuits': 'PS3電路',
-        'PS3: Primary circuits': 'PS3電路',
-        'PS2: Secondary output connector': 'PS2電路',
-        'PS2: secondary part circuits': 'PS2電路',
-        'PS2: Secondary circuits': 'PS2電路',
+        'PS3: All primary circuits inside the equipment enclosure': 'PS3: 設備外殼內所有的主線路',
+        'PS3: All circuits except for output circuits': 'PS3: 設備外殼內所有的主線路',
+        'PS3: Primary circuits': 'PS3: 設備外殼內所有的主線路',
+        'PS2: Secondary output connector': 'PS2: 輸出電路(輸出連接器)',
+        'PS2: secondary part circuits': 'PS2: 輸出電路(輸出連接器)',
+        'PS2: Secondary circuits': 'PS2: 輸出電路(輸出連接器)',
         # Clause 8 - Mechanically-caused injury (依照人工檔案格式)
         'MS1: Mass of the unit': 'MS1: 設備質量',
-        'MS1: Edges and corners': 'MS1: 銳邊切角',
-        'MS1: Edges and corners of enclosure': 'MS1: 銳邊切角',
-        'MS1: Sharp edges': 'MS1: 銳邊切角',
+        'MS1: Edges and corners': 'MS1: 邊與角',
+        'MS1: Edges and corners of enclosure': 'MS1: 邊與角',
+        'MS1: Sharp edges': 'MS1: 邊與角',
         # Clause 9 - Thermal burn (依照人工檔案格式)
-        'TS1: Plastic enclosure': 'TS1: 可觸及表面',
-        'TS1: External surface': 'TS1: 可觸及表面',
-        'TS1: Accessible surface': 'TS1: 可觸及表面',
+        'TS1: Plastic enclosure': 'TS1: 塑膠外殼',
+        'TS1: External surface': 'TS1: 塑膠外殼',
+        'TS1: Accessible surface': 'TS1: 塑膠外殼',
         'TS3: Internal parts/circuits': 'TS3: 內部零件',
         'TS3: Internal parts': 'TS3: 內部零件',
         # N/A
-        'N/A': '無',
+        'N/A': 'N/A',
     }
 
     # 精確匹配
@@ -202,20 +202,20 @@ def translate_energy_source(energy_source: str, clause: int) -> str:
     # 模糊匹配 - 依 prefix 分類
     if energy_source_oneline.startswith('ES3'):
         if 'Capacitor' in energy_source_oneline or 'capacitor' in energy_source_oneline:
-            return 'ES3: X電容 (L與N之間)'
-        return 'ES3: 除了輸出端子以外的所有電路'
+            return 'ES3: X電容(於L與N之間)'
+        return 'ES3: 所有連接到AC主電源的線路'
     if energy_source_oneline.startswith('ES1'):
-        return 'ES1: 輸出端子'
+        return 'ES1: 輸出電路(輸出連接器)'
     if energy_source_oneline.startswith('PS3'):
-        return 'PS3電路'
+        return 'PS3: 設備外殼內所有的主線路'
     if energy_source_oneline.startswith('PS2'):
-        return 'PS2電路'
+        return 'PS2: 輸出電路(輸出連接器)'
     if energy_source_oneline.startswith('MS1'):
         if 'Mass' in energy_source_oneline or 'mass' in energy_source_oneline:
             return 'MS1: 設備質量'
-        return 'MS1: 銳邊切角'
+        return 'MS1: 邊與角'
     if energy_source_oneline.startswith('TS1'):
-        return 'TS1: 可觸及表面'
+        return 'TS1: 塑膠外殼'
     if energy_source_oneline.startswith('TS3'):
         return 'TS3: 內部零件'
 
@@ -234,12 +234,12 @@ def translate_body_part(body_part: str, clause: int) -> str:
         'Ordinary Instructed Skilled': '普通人員',
         'N/A': '無',
         # Clause 6 materials (依照人工檔案格式)
-        'All combustible materials within equipment fire enclosure': '塑料外殼',
-        'Connections of secondary equipment': '輸出連接器',
+        'All combustible materials within equipment fire enclosure': '設備外殼內所有易燃材料',
+        'Connections of secondary equipment': '二次設備的接線處',
         'PCB': '印刷電路板',
         'Printed circuit board': '印刷電路板',
         'Enclosure': '外殼',
-        'Plastic enclosure': '塑料外殼',
+        'Plastic enclosure': '塑膠外殼',
         'Plastic materials not part of PS3 circuit': '其他零組件/材料',
         'Other components': '其他零組件/材料',
         'Other materials': '其他零組件/材料',
@@ -257,14 +257,14 @@ def translate_body_part(body_part: str, clause: int) -> str:
     # 模糊匹配
     lower = body_part_oneline.lower()
     if 'combustible' in lower or 'fire enclosure' in lower:
-        return '塑料外殼'
+        return '設備外殼內所有易燃材料'
     if 'pcb' in lower or 'printed circuit' in lower:
         return '印刷電路板'
-    if 'secondary' in lower and 'connect' in lower:
-        return '輸出連接器'
+    if 'secondary' in lower and ('connect' in lower or 'equipment' in lower):
+        return '二次設備的接線處'
     if 'enclosure' in lower or 'plastic' in lower:
         if clause == 6:
-            return '塑料外殼'
+            return '塑膠外殼'
         return '外殼'
     if 'wiring' in lower:
         return '輸出配線'
@@ -301,7 +301,12 @@ def translate_safeguard(safeguard: str, clause: int) -> str:
         import re
         clauses = re.findall(r'[0-9]+\.[0-9]+(?:\.[0-9]+)?', safeguard_oneline)
         if clauses:
-            return f"外殼, 見條款{', '.join(clauses)}"
+            # 使用「與」連接最後一個條款（依人工版本格式）
+            if len(clauses) > 1:
+                clause_str = ', '.join(clauses[:-1]) + '與' + clauses[-1]
+            else:
+                clause_str = clauses[0]
+            return f"外殼, 見條款{clause_str}"
         return '外殼'
     if 'See 5.5.2.2' in safeguard_oneline:
         return '見條款5.5.2.2'
@@ -349,10 +354,12 @@ def add_row_after(table, reference_row_idx):
 
 def fill_overview_table_from_cb_p12(doc: Document, overview_cb_p12_rows: list):
     """
-    使用 overview_cb_p12_rows 更新安全防護總攬表的 safeguard 欄位
-    新策略：保留模板結構，只更新 safeguard（基本、補充、強化）欄位
-    不刪除模板中的任何列
+    使用 overview_cb_p12_rows 動態重建安全防護總攬表
+    新策略：刪除模板中舊的資料列，根據 PDF 資料動態新增列
     """
+    from copy import deepcopy
+    from docx.oxml.ns import qn
+
     if not overview_cb_p12_rows:
         print("警告：overview_cb_p12_rows 為空，保留模板預設值")
         return 0
@@ -376,112 +383,168 @@ def fill_overview_table_from_cb_p12(doc: Document, overview_cb_p12_rows: list):
             pdf_by_clause[clause] = []
         pdf_by_clause[clause].append(row_data)
 
-    # 掃描模板中各章節的資料列
-    def scan_clause_sections():
-        sections = {}
-        current = None
-        for idx, row in enumerate(overview_table.rows):
-            first_cell = row.cells[0].text.strip()
-            if first_cell == '5.1':
-                current = 5
-                sections[5] = {'start': idx, 'data_rows': []}
-            elif first_cell == '6.1':
-                current = 6
-                sections[6] = {'start': idx, 'data_rows': []}
-            elif first_cell == '7.1':
-                current = 7
-                sections[7] = {'start': idx, 'data_rows': []}
-            elif first_cell == '8.1':
-                current = 8
-                sections[8] = {'start': idx, 'data_rows': []}
-            elif first_cell == '9.1':
-                current = 9
-                sections[9] = {'start': idx, 'data_rows': []}
-            elif first_cell == '10.1':
-                current = 10
-                sections[10] = {'start': idx, 'data_rows': []}
+    # 掃描模板結構，找出各 clause 區段的位置
+    # 結構: 標題列(X.1) -> 欄位說明列1 -> 欄位說明列2 -> 資料列... -> 下一個標題列
+    clause_structure = {}  # {clause: {'title_idx': int, 'header1_idx': int, 'header2_idx': int, 'data_start': int, 'data_end': int}}
 
-            # 偵測資料列
-            if current and (
-                first_cell.startswith('ES') or
-                first_cell.startswith('PS') or
-                first_cell.startswith('MS') or
-                first_cell.startswith('TS') or
-                first_cell.startswith('RS') or
-                first_cell in ['N/A', '無']
-            ):
-                sections[current]['data_rows'].append(idx)
-        return sections
+    for idx, row in enumerate(overview_table.rows):
+        first_cell = row.cells[0].text.strip()
+        if first_cell == '5.1':
+            clause_structure[5] = {'title_idx': idx, 'header1_idx': idx + 1, 'header2_idx': idx + 2, 'data_start': idx + 3}
+        elif first_cell == '6.1':
+            if 5 in clause_structure:
+                clause_structure[5]['data_end'] = idx - 1
+            clause_structure[6] = {'title_idx': idx, 'header1_idx': idx + 1, 'header2_idx': idx + 2, 'data_start': idx + 3}
+        elif first_cell == '7.1':
+            if 6 in clause_structure:
+                clause_structure[6]['data_end'] = idx - 1
+            clause_structure[7] = {'title_idx': idx, 'header1_idx': idx + 1, 'header2_idx': idx + 2, 'data_start': idx + 3}
+        elif first_cell == '8.1':
+            if 7 in clause_structure:
+                clause_structure[7]['data_end'] = idx - 1
+            clause_structure[8] = {'title_idx': idx, 'header1_idx': idx + 1, 'header2_idx': idx + 2, 'data_start': idx + 3}
+        elif first_cell == '9.1':
+            if 8 in clause_structure:
+                clause_structure[8]['data_end'] = idx - 1
+            clause_structure[9] = {'title_idx': idx, 'header1_idx': idx + 1, 'header2_idx': idx + 2, 'data_start': idx + 3}
+        elif first_cell == '10.1':
+            if 9 in clause_structure:
+                clause_structure[9]['data_end'] = idx - 1
+            clause_structure[10] = {'title_idx': idx, 'header1_idx': idx + 1, 'header2_idx': idx + 2, 'data_start': idx + 3}
+        elif '補充資料' in first_cell:
+            if 10 in clause_structure:
+                clause_structure[10]['data_end'] = idx - 1
 
-    clause_sections = scan_clause_sections()
-    updated_rows = 0
+    # 在刪除資料列前，先保存一個資料列的範本（用於複製格式）
+    # 找一個不含 vMerge 的資料列
+    template_tr = None
+    for idx, row in enumerate(overview_table.rows):
+        first_cell = row.cells[0].text.strip()
+        # 找資料列（ES, PS, MS, TS, RS 或 N/A 開頭）
+        if (first_cell.startswith('ES') or first_cell.startswith('PS') or
+            first_cell.startswith('MS') or first_cell.startswith('TS') or
+            first_cell.startswith('RS') or first_cell in ['N/A', '無']):
+            template_tr = deepcopy(row._tr)
+            break
 
-    # 建立 PDF 資料的 energy source 類型映射（用於匹配）
-    def get_energy_type(text):
-        """從能源來源文字中提取類型 (ES1, ES3, PS2, PS3, MS1, TS1, TS3, RS1, N/A)"""
-        text = text.upper()
-        for prefix in ['ES3', 'ES2', 'ES1', 'PS3', 'PS2', 'PS1', 'MS3', 'MS2', 'MS1', 'TS3', 'TS2', 'TS1', 'RS3', 'RS2', 'RS1']:
-            if prefix in text:
-                return prefix
-        if 'N/A' in text or text == '無':
-            return 'N/A'
-        return None
+    if template_tr is None:
+        print("警告：找不到資料列範本")
+        return 0
 
-    # 對每個章節，根據能源類型匹配更新 safeguard 欄位
+    # 收集需要刪除的列 (從後往前刪除，避免索引偏移)
+    rows_to_delete = []
     for clause in [5, 6, 7, 8, 9, 10]:
-        if clause not in clause_sections:
+        if clause in clause_structure:
+            struct = clause_structure[clause]
+            data_start = struct['data_start']
+            data_end = struct.get('data_end', data_start)
+            for i in range(data_start, data_end + 1):
+                rows_to_delete.append(i)
+
+    # 從後往前刪除舊資料列
+    rows_to_delete.sort(reverse=True)
+    for idx in rows_to_delete:
+        if idx < len(overview_table.rows):
+            tr = overview_table.rows[idx]._tr
+            tr.getparent().remove(tr)
+
+    # 重新掃描結構（刪除後索引會變）
+    clause_insert_points = {}
+    for idx, row in enumerate(overview_table.rows):
+        first_cell = row.cells[0].text.strip()
+        if first_cell == '5.1':
+            clause_insert_points[5] = idx + 2  # header2 之後
+        elif first_cell == '6.1':
+            clause_insert_points[6] = idx + 2
+        elif first_cell == '7.1':
+            clause_insert_points[7] = idx + 2
+        elif first_cell == '8.1':
+            clause_insert_points[8] = idx + 2
+        elif first_cell == '9.1':
+            clause_insert_points[9] = idx + 2
+        elif first_cell == '10.1':
+            clause_insert_points[10] = idx + 2
+
+    # 從後往前插入資料列（避免索引偏移）
+    inserted_count = 0
+    for clause in [10, 9, 8, 7, 6, 5]:
+        if clause not in clause_insert_points:
             continue
 
-        section = clause_sections[clause]
-        template_data_rows = section['data_rows']
+        insert_after_idx = clause_insert_points[clause]
         pdf_rows = pdf_by_clause.get(clause, [])
 
         if not pdf_rows:
-            continue
+            # 如果沒有資料，插入一個 N/A 列
+            pdf_rows = [{'class_energy_source': 'N/A', 'body_or_material': 'N/A', 'basic': 'N/A', 'supp1': 'N/A', 'supp2': 'N/A'}]
 
-        # 建立 PDF 資料的能源類型映射
-        pdf_by_type = {}
-        for pdf_row in pdf_rows:
-            energy_source = pdf_row.get('energy_source', '') or pdf_row.get('class_energy_source', '')
-            etype = get_energy_type(energy_source)
-            if etype:
-                if etype not in pdf_by_type:
-                    pdf_by_type[etype] = []
-                pdf_by_type[etype].append(pdf_row)
+        # 取得插入位置的參考列（只用於定位插入點）
+        ref_row = overview_table.rows[insert_after_idx]
+        ref_tr = ref_row._tr
 
-        # 遍歷模板中的每個資料列，根據能源類型匹配更新
-        for row_idx in template_data_rows:
-            table_row = overview_table.rows[row_idx]
-            template_energy = table_row.cells[0].text.strip()
-            template_type = get_energy_type(template_energy)
+        # 反向遍歷 PDF 資料（這樣插入後順序正確）
+        for pdf_row in reversed(pdf_rows):
+            # 複製資料列範本（不含 vMerge）
+            new_tr = deepcopy(template_tr)
 
-            if not template_type or template_type not in pdf_by_type:
-                continue
+            # 準備資料
+            energy_source = pdf_row.get('class_energy_source', '') or pdf_row.get('energy_source', '')
+            body_part = pdf_row.get('body_or_material', '') or 'N/A'
+            basic = pdf_row.get('basic', '') or pdf_row.get('safeguard_basic', '') or 'N/A'
+            supp1 = pdf_row.get('supp1', '') or pdf_row.get('safeguard_supplementary', '') or 'N/A'
+            supp2 = pdf_row.get('supp2', '') or pdf_row.get('safeguard_reinforced', '') or 'N/A'
 
-            # 取出對應類型的第一個 PDF 資料（後續的用於相同類型的不同子項目）
-            if pdf_by_type[template_type]:
-                pdf_row = pdf_by_type[template_type][0]
+            # 翻譯
+            energy_source_zh = translate_energy_source(energy_source, clause)
+            body_part_zh = translate_body_part(body_part, clause)
+            basic_zh = translate_safeguard(basic, clause)
+            supp1_zh = translate_safeguard(supp1, clause)
+            supp2_zh = translate_safeguard(supp2, clause)
 
-                # 更新 safeguard 欄位（保留模板的能源來源和身體部位）
-                basic = pdf_row.get('safeguard_basic', '') or pdf_row.get('basic', '')
-                supp1 = pdf_row.get('safeguard_supplementary', '') or pdf_row.get('supp1', '')
-                supp2 = pdf_row.get('safeguard_reinforced', '') or pdf_row.get('supp2', '')
+            # 填入資料到新列
+            cell_texts = [energy_source_zh, body_part_zh, basic_zh, supp1_zh, supp2_zh]
+            tcs = new_tr.findall('.//w:tc', {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'})
+            for i, tc in enumerate(tcs):
+                if i < len(cell_texts):
+                    # 先清除儲存格內所有的文字
+                    for p in tc.findall('.//w:p', {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}):
+                        for r in list(p):
+                            if r.tag.endswith('}r'):
+                                for t in list(r):
+                                    if t.tag.endswith('}t'):
+                                        t.text = ''
 
-                # 只更新 safeguard 欄位（第2-4欄），保留第0-1欄的模板內容
-                if basic:
-                    table_row.cells[2].text = translate_safeguard(basic, clause)
-                if supp1:
-                    table_row.cells[3].text = translate_safeguard(supp1, clause)
-                if supp2:
-                    table_row.cells[4].text = translate_safeguard(supp2, clause)
+                    # 然後在第一個段落的第一個 run 填入文字
+                    paragraphs = tc.findall('.//w:p', {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'})
+                    if paragraphs:
+                        p = paragraphs[0]
+                        runs = [r for r in p if r.tag.endswith('}r')]
+                        if runs:
+                            # 使用第一個 run
+                            r = runs[0]
+                            texts = [t for t in r if t.tag.endswith('}t')]
+                            if texts:
+                                texts[0].text = cell_texts[i]
+                            else:
+                                from docx.oxml import OxmlElement
+                                t = OxmlElement('w:t')
+                                t.text = cell_texts[i]
+                                r.append(t)
+                        else:
+                            # 創建新的 run 和 text
+                            from docx.oxml import OxmlElement
+                            r = OxmlElement('w:r')
+                            t = OxmlElement('w:t')
+                            t.text = cell_texts[i]
+                            r.append(t)
+                            p.append(r)
 
-                updated_rows += 1
+            # 在參考列後插入新列
+            ref_tr.addnext(new_tr)
+            inserted_count += 1
 
-                # 對於 PS3/PS2 等有多個子項目的類型，不移除 PDF 資料
-                # 讓相同類型的模板列共享相同的 safeguard 資訊
-
-    print(f"已更新 {updated_rows} 列的 safeguard 欄位")
-    return updated_rows
+    print(f"已動態插入 {inserted_count} 列安全防護資料")
+    return inserted_count
 
 def rebuild_clause_tables_v2(doc: Document, pdf_clause_rows: list) -> dict:
     """
@@ -3256,10 +3319,11 @@ def fill_remarks_section(doc: Document, meta: dict):
     # 組合備註內容（依照人工檔案格式）
     remarks_lines = []
 
-    # CB 證書資訊（固定格式）
+    # CB 證書資訊（含標準版本）
     cb_report_no = meta.get('cb_report_no', '')
+    standard = meta.get('standard', 'IEC 62368-1:2018')
     if cb_report_no:
-        remarks_lines.append(f"此份報告是依據 CB 證書，其報告號碼為 {cb_report_no}。")
+        remarks_lines.append(f"此份報告是依據 CB 證書，其報告號碼為 {cb_report_no}，標準版本為{standard}。")
         remarks_lines.append("- 針對直接插牆式插頭, 增加評估CNS 690極性檢查及尺度量測，量測結果執詳如表4.1.2。")
 
     # 簡化的產品說明
@@ -3277,7 +3341,17 @@ def fill_remarks_section(doc: Document, meta: dict):
         product_remarks_lines.append("使用超音波固定外殼。")
 
     # 生產廠資訊
-    product_remarks_lines.append("生產廠資訊:")
+    factory_locations = meta.get('factory_locations', [])
+    if factory_locations:
+        product_remarks_lines.append("生產廠資訊:")
+        product_remarks_lines.append("名稱\t\t\t\t地址")
+        for factory in factory_locations:
+            # 嘗試分割名稱和地址（通常以換行或特定格式分隔）
+            factory_clean = factory.strip()
+            if factory_clean:
+                product_remarks_lines.append(factory_clean)
+    else:
+        product_remarks_lines.append("生產廠資訊:")
 
     remarks_lines.extend(product_remarks_lines)
 
