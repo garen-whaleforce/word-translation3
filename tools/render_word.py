@@ -2800,21 +2800,49 @@ def fill_table_5522(doc: Document, table_5522_data: dict):
 
 def translate_component_part(part: str) -> str:
     """翻譯 4.1.2 零件名稱"""
+    # 正規化換行
+    part_norm = ' '.join(part.split())
+
     translations = {
+        # 插頭相關
+        'For fixed plug model': '針對固定式插頭型號',
+        'For replaceable plug model': '針對可替換式插頭型號',
+        'For desktop type model': '針對桌上型型號',
+        'For all model': '針對所有型號',
+        'Fixed EU plug portion': '固定式歐規插頭',
+        'Fixed UK plug portion': '固定式英規插頭',
+        'Fixed AU plug portion': '固定式澳規插頭',
+        'Fixed JP plug portion': '固定式日規插頭',
+        'Replaceable EU plug portion': '可替換式歐規插頭',
+        'Replaceable UK plug portion': '可替換式英規插頭',
+        'Replaceable AU plug portion': '可替換式澳規插頭',
+        'Replaceable JP plug portion': '可替換式日規插頭',
+        'Plug holder': '插頭座',
+        'pin sleeving material': '插銷套材料',
+        'Appliance inlet': '器具插座',
+        # 材料相關
         'Plastic enclosure and plug holder': '塑膠外殼及插頭座',
-        'Japan plug': '日本插頭',
+        'Plastic enclosure': '塑膠外殼',
+        'Material of AC connector': 'AC連接器材料',
+        'Insulation Sheet': '絕緣片',
         'Insulation barrier': '絕緣屏障',
+        # 電子元件
         'PCB': 'PCB',
+        'Primary wire': '一次側配線',
+        'Output wire': '輸出配線',
         'Input wire': '輸入配線',
         'Fuse': '保險絲',
         'Heat shrinkable tube': '熱縮套管',
         'Line choke': '電感',
+        'Line chock': '電感',
         'Thermistor': '熱敏電阻',
         'Electrolytic Capacitors': '電解電容',
         'Bridging Rectifier diode': '橋式整流器',
         'Current sensor resistor': '限流電阻',
+        'Varistor': '變阻器',
+        'X-Capacitor': 'X電容',
+        'Y-Capacitor': 'Y電容',
         'Opto-coupler': '光耦合器',
-        'Y-Capacitor': '跨接電容',
         'Transformer': '變壓器',
         'Bobbin': '線架',
         'Magnet wire': '漆包線',
@@ -2822,17 +2850,17 @@ def translate_component_part(part: str) -> str:
         'Insulation tape': '絕緣膠帶',
         'Coil': '線圈',
         'Insulation system': '絕緣系統',
+        # 其他
         '(Alternative)': '(替代)',
-        'Interchangeable': '互換',
+        '(Optional)': '(選配)',
+        'Interchangeable': '可互換',
+        'inside EUT': '(EUT內部)',
     }
 
-    result = part
+    result = part_norm
     for eng, chn in translations.items():
         if eng.lower() in result.lower():
-            result = result.replace(eng, chn)
-            # 也處理大小寫變體
-            result = result.replace(eng.lower(), chn)
-            result = result.replace(eng.upper(), chn)
+            result = re.sub(re.escape(eng), chn, result, flags=re.IGNORECASE)
 
     return result
 
@@ -3762,6 +3790,28 @@ def translate_all_tables(doc: Document):
         _apply_llm_translations(doc, llm_candidates)
 
 
+def translate_component_spec(spec: str) -> str:
+    """翻譯 4.1.2 技術規格欄位"""
+    if not spec:
+        return spec
+
+    # 正規化換行
+    result = ' '.join(spec.split())
+
+    translations = [
+        ('min. thickness', '最小厚度'),
+        ('min thickness', '最小厚度'),
+        ('thickness', '厚度'),
+        ('min.', '至少'),
+        ('max.', '最大'),
+    ]
+
+    for eng, chn in translations:
+        result = re.sub(re.escape(eng), chn, result, flags=re.IGNORECASE)
+
+    return result
+
+
 def fill_table_412(doc: Document, table_412_data: list):
     """
     從 PDF 提取的 4.1.2 Critical components 數據填充 Word 表格
@@ -3772,6 +3822,19 @@ def fill_table_412(doc: Document, table_412_data: list):
     """
     if not table_412_data:
         print("警告：4.1.2 表格數據為空")
+        return
+
+    # 過濾掉英文表頭行（第一行是 Object / part No. 等）
+    filtered_data = []
+    for row_data in table_412_data:
+        part = row_data.get('part', '').strip()
+        # 跳過英文表頭行
+        if part.lower().startswith('object') or 'part no' in part.lower():
+            continue
+        filtered_data.append(row_data)
+
+    if not filtered_data:
+        print("警告：4.1.2 表格過濾後數據為空")
         return
 
     # 找到 4.1.2 表格 (Table 45，標題含「重要零件列表」)
@@ -3800,7 +3863,7 @@ def fill_table_412(doc: Document, table_412_data: list):
         target_table._tbl.remove(target_table.rows[-1]._tr)
 
     # 添加新的數據行
-    for row_data in table_412_data:
+    for row_data in filtered_data:
         new_row = target_table.add_row()
         cells = new_row.cells
 
@@ -3808,14 +3871,16 @@ def fill_table_412(doc: Document, table_412_data: list):
         part_translated = translate_component_part(row_data.get('part', ''))
         # 翻譯認證標誌
         mark_translated = translate_component_mark(row_data.get('mark', ''))
+        # 翻譯技術規格
+        spec_translated = translate_component_spec(row_data.get('spec', ''))
 
         # 填入數據
         if len(cells) >= 8:
             cells[0].text = part_translated
-            cells[1].text = row_data.get('manufacturer', '')
-            cells[2].text = row_data.get('model', '')
-            cells[3].text = row_data.get('spec', '')
-            cells[4].text = row_data.get('standard', '')
+            cells[1].text = row_data.get('manufacturer', '').replace('\n', ' ')
+            cells[2].text = row_data.get('model', '').replace('\n', ' ')
+            cells[3].text = spec_translated
+            cells[4].text = row_data.get('standard', '').replace('\n', ' ')
             cells[5].text = mark_translated
             cells[6].text = mark_translated  # 重複認證標誌欄
             cells[7].text = ''  # 索引欄（可選）
@@ -3824,7 +3889,7 @@ def fill_table_412(doc: Document, table_412_data: list):
     note_row = target_table.add_row()
     note_row.cells[0].text = '備註:'
 
-    print(f"4.1.2 表格：已填入 {len(table_412_data)} 行零件資料")
+    print(f"4.1.2 表格：已填入 {len(filtered_data)} 行零件資料")
 
 
 def fill_table_t7_t8(doc: Document, cb_tables: list):
