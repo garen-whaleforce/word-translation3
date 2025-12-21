@@ -3421,6 +3421,14 @@ def fill_remarks_section(doc: Document, meta: dict):
     Args:
         doc: Word 文件
         meta: 包含 general_product_remarks 和 model_differences 的 meta 資料
+
+    備註格式（依照人工檔案）：
+    1. 此份報告是依據 {CB機構} 所發行之CB證書，其報告號碼為 {報告號碼}，
+       參考證書號碼為{證書號碼}，標準版本為{標準}。
+       - 針對直接插牆式插頭, 增加評估CNS 690極性檢查及尺度量測，量測結果執詳如表4.1.2。
+    2. 本產品為影音、資訊及通訊設備類與室內使用，產品為電源供應器。
+    3. 使用超音波固定外殼。
+    4. 生產廠資訊: (動態)
     """
     if len(doc.tables) <= 3:
         return 0
@@ -3428,56 +3436,59 @@ def fill_remarks_section(doc: Document, meta: dict):
     table = doc.tables[3]  # T4
     filled_count = 0
 
-    # 組合備註內容（依照人工檔案格式）
+    # 組合備註內容（依照人工檔案格式，使用編號列表）
     remarks_lines = []
 
-    # CB 證書資訊（含標準版本）
+    # 1. CB 證書資訊（含標準版本）
     cb_report_no = meta.get('cb_report_no', '')
     standard = meta.get('standard', 'IEC 62368-1:2018')
+    cb_lab = meta.get('cb_testing_lab', '')  # CB 測試實驗室
+    cb_cert_no = meta.get('cb_certificate_no', '')  # CB 證書號碼
+
     if cb_report_no:
-        remarks_lines.append(f"此份報告是依據 CB 證書，其報告號碼為 {cb_report_no}，標準版本為{standard}。")
+        # 構建 CB 證書說明
+        cb_info = f"此份報告是依據"
+        if cb_lab:
+            cb_info += f" {cb_lab} 所發行之CB證書，"
+        else:
+            cb_info += " CB證書，"
+        cb_info += f"其報告號碼為 {cb_report_no}"
+        if cb_cert_no:
+            cb_info += f"，參考證書號碼為{cb_cert_no}"
+        cb_info += f"，標準版本為{standard}。"
+        remarks_lines.append(f"1. {cb_info}")
         remarks_lines.append("- 針對直接插牆式插頭, 增加評估CNS 690極性檢查及尺度量測，量測結果執詳如表4.1.2。")
 
-    # 簡化的產品說明
-    # 依照人工檔案格式，只保留關鍵資訊
-    tip = meta.get('test_item_particulars', {})
-    equipment_class = tip.get('equipment_class', '')
-    product_remarks_lines = []
+    # 2. 產品類型和用途
+    remarks_lines.append("2. 本產品為影音、資訊及通訊設備類與室內使用，產品為電源供應器。")
 
-    # 產品類型和用途
-    product_remarks_lines.append("本產品為影音、資訊及通訊設備類與室內使用，產品為電源供應器。")
-
-    # 外殼固定方式
+    # 3. 外殼固定方式
     general_remarks = meta.get('general_product_remarks', '')
     if 'ultrasonic' in general_remarks.lower():
-        product_remarks_lines.append("使用超音波固定外殼。")
+        remarks_lines.append("3. 使用超音波固定外殼。")
 
-    # 生產廠資訊
+    # 4. 生產廠資訊（動態抓取）
     factory_locations = meta.get('factory_locations', [])
     if factory_locations:
-        product_remarks_lines.append("生產廠資訊:")
-        product_remarks_lines.append("名稱\t\t\t\t地址")
-        for factory in factory_locations:
-            # 嘗試分割名稱和地址（通常以換行或特定格式分隔）
+        factory_text = "4. 生產廠資訊:\n"
+        for i, factory in enumerate(factory_locations, 1):
             factory_clean = factory.strip()
             if factory_clean:
-                product_remarks_lines.append(factory_clean)
+                # 嘗試分割名稱和地址
+                # 格式通常是 "名稱\n地址" 或 "名稱, 地址"
+                if '\n' in factory_clean:
+                    parts = factory_clean.split('\n', 1)
+                    factory_text += f"   {i}. {parts[0].strip()}\n      {parts[1].strip()}\n"
+                else:
+                    factory_text += f"   {i}. {factory_clean}\n"
+        remarks_lines.append(factory_text.rstrip())
     else:
-        product_remarks_lines.append("生產廠資訊:")
-
-    remarks_lines.extend(product_remarks_lines)
-
-    # Model Differences - 只在有差異時加入
-    model_diff = meta.get('model_differences', '')
-    if model_diff and 'identical' not in model_diff.lower():
-        translated_diff = translate_model_differences(model_diff)
-        if translated_diff:
-            remarks_lines.append(f"\n型號差異說明: {translated_diff}")
+        remarks_lines.append("4. 生產廠資訊:")
 
     if not remarks_lines:
         return 0
 
-    # 找到備註列 (R19)
+    # 找到備註列 (R19) 並完全替換內容
     for row in table.rows:
         first_cell_text = row.cells[0].text.strip()
         if '備註' in first_cell_text:
@@ -3486,9 +3497,12 @@ def fill_remarks_section(doc: Document, meta: dict):
                 target_cell = row.cells[0]  # 備註通常跨欄，所以填入第一欄
                 remarks_text = "備註:\n" + "\n".join(remarks_lines)
 
-                # 清除現有內容並填入新內容
+                # 完全清除現有內容（包括所有段落）
+                for paragraph in target_cell.paragraphs:
+                    paragraph.clear()
+
+                # 填入新內容
                 if target_cell.paragraphs:
-                    target_cell.paragraphs[0].clear()
                     target_cell.paragraphs[0].add_run(remarks_text)
                 else:
                     target_cell.text = remarks_text
@@ -4239,18 +4253,16 @@ def main():
     ctx = normalize_context(data)
 
     # 封面欄位處理：
-    # - 如果用戶有填入封面欄位 → 使用用戶填入的值
-    # - 如果用戶沒有填入封面欄位 → 保持空白（不使用 PDF 抽取的值）
-    # 這三個欄位永遠使用用戶提供的值（即使是空字串）
-    ctx['meta']['cb_report_no'] = args.cover_report_no  # 覆蓋報告編號
-    ctx['meta']['applicant'] = args.cover_applicant_name  # 覆蓋申請者名稱
-    ctx['meta']['applicant_address'] = args.cover_applicant_address  # 覆蓋申請者地址
-
+    # - 如果用戶有填入封面欄位（非空字串）→ 使用用戶填入的值覆蓋
+    # - 如果用戶沒有填入封面欄位（空字串）→ 保留 JSON 中 PDF 抽取的值
     if args.cover_report_no:
+        ctx['meta']['cb_report_no'] = args.cover_report_no
         print(f"封面報告編號: {args.cover_report_no}")
     if args.cover_applicant_name:
+        ctx['meta']['applicant'] = args.cover_applicant_name
         print(f"封面申請者名稱: {args.cover_applicant_name}")
     if args.cover_applicant_address:
+        ctx['meta']['applicant_address'] = args.cover_applicant_address
         print(f"封面申請者地址: {args.cover_applicant_address}")
 
     # 第一階段：docxtpl 渲染

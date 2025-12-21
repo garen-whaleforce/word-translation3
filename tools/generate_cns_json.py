@@ -20,6 +20,7 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
         "target_report": "CNS 15598-1 (109年版)",
         "cb_report_no": "",
         "report_date": "",
+        "test_item_description": "",  # 品名 (Test item description)
         "applicant": "",
         "manufacturer": "",
         "factory_locations": [],
@@ -50,8 +51,8 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
         }
     }
 
-    # 合併前幾頁文字
-    first_pages_text = '\n'.join([c['text'] for c in chunks[:15]])
+    # 合併前幾頁文字（增加到 20 個 chunks 以涵蓋更多內容）
+    first_pages_text = '\n'.join([c['text'] for c in chunks[:20]])
 
     # Report No - 多種格式
     m = re.search(r'Report\s*Number[.\s]*:\s*([A-Z0-9]+\s*\d+)', first_pages_text, re.IGNORECASE)
@@ -67,6 +68,11 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
     if m:
         meta['report_date'] = m.group(1)
 
+    # Test item description - 品名
+    m = re.search(r'Test\s+item\s+description\s*[.\s]*:\s*([^\n]+)', first_pages_text, re.IGNORECASE)
+    if m:
+        meta['test_item_description'] = m.group(1).strip()
+
     # Applicant - 多種格式
     m = re.search(r"Applicant.*?:\s*([A-Z][^\n]+)", first_pages_text, re.IGNORECASE)
     if m:
@@ -80,6 +86,15 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
             meta['manufacturer'] = 'Same as applicant'
         else:
             meta['manufacturer'] = mfr
+
+    # CB Testing Laboratory - CB 測試實驗室
+    # 格式: "CB Testing Laboratory: Dongguan Lepont Testing Service Co., Ltd. (China)"
+    m = re.search(r'CB\s+Testing\s+Laboratory:\s*([A-Z][^\n]+?)(?:\s*\([^)]+\))?(?:\s*$|\s*\n)', first_pages_text, re.IGNORECASE)
+    if m:
+        lab = m.group(1).strip()
+        # 如果後面還有括號中的國家代碼，保留實驗室名稱
+        if lab and not lab.startswith('and '):
+            meta['cb_testing_lab'] = lab
 
     # Model - 多種格式
     m = re.search(r'Model/Type\s*reference\s*[.\s]*:\s*([A-Z0-9][\w\-]+(?:\s*,\s*[A-Z0-9][\w\-]+)?)', first_pages_text, re.IGNORECASE)
@@ -288,10 +303,27 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
     m = re.search(r'Name\s+and\s+address\s+of\s+factory.*?:\s*(.*?)(?=General\s+product\s+information)', first_pages_text, re.IGNORECASE | re.DOTALL)
     if m:
         factory_text = m.group(1).strip()
-        # 提取工廠列表
-        factories = re.findall(r'\d+\)\s*([^\d]+?)(?=\d+\)|$)', factory_text, re.DOTALL)
+        # 清理頁碼等雜訊
+        factory_text = re.sub(r'TRF\s+No\.\s+IEC62368_1E', '', factory_text)
+        factory_text = re.sub(r'Page\s+\d+\s+of\s+\d+\s+Report\s+No\.:\s*[\w-]+', '', factory_text)
+
+        # 用數字開頭分割（支援 "1." 或 "1)" 格式）
+        factory_parts = re.split(r'(?=\d+\.)', factory_text.strip())
+        factories = []
+        for part in factory_parts:
+            part = part.strip()
+            if part and re.match(r'\d+\.', part):
+                # 移除開頭的數字編號
+                factory_info = re.sub(r'^\d+\.\s*', '', part).strip()
+                # 將換行轉為空格，整理格式
+                factory_info = re.sub(r'\s+', ' ', factory_info)
+                # 移除結尾可能殘留的報告號碼片段
+                factory_info = re.sub(r'\s+\d{3}$', '', factory_info)
+                if factory_info:
+                    factories.append(factory_info)
+
         if factories:
-            meta['factory_locations'] = [f.strip() for f in factories if f.strip()]
+            meta['factory_locations'] = factories
 
     return meta
 
