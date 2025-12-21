@@ -191,8 +191,8 @@ def translate_energy_source(energy_source: str, clause: int) -> str:
         'TS1: Accessible surface': 'TS1: 塑膠外殼',
         'TS3: Internal parts/circuits': 'TS3: 內部零件',
         'TS3: Internal parts': 'TS3: 內部零件',
-        # N/A
-        'N/A': 'N/A',
+        # N/A - 翻譯成「無」
+        'N/A': '無',
     }
 
     # 精確匹配
