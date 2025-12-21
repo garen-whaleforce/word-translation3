@@ -121,6 +121,14 @@ def run_worker():
     print(f"Redis URL: {REDIS_URL}")
     print(f"Queue: {QUEUE_NAME}")
     print(f"Poll Interval: {POLL_INTERVAL}s")
+
+    # 診斷 Azure OpenAI 環境變數
+    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "")
+    azure_key = os.getenv("AZURE_OPENAI_API_KEY", "")
+    azure_deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", "")
+    print(f"Azure OpenAI Endpoint: {azure_endpoint[:50]}..." if azure_endpoint else "Azure OpenAI Endpoint: NOT SET")
+    print(f"Azure OpenAI API Key: {'SET (' + azure_key[:8] + '...)' if azure_key else 'NOT SET'}")
+    print(f"Azure OpenAI Deployment: {azure_deployment if azure_deployment else 'NOT SET'}")
     print("=" * 50)
 
     # 設定信號處理
