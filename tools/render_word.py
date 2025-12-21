@@ -3062,6 +3062,185 @@ def fill_mass_of_equipment(doc: Document, mass_of_equipment: str):
     return filled_count
 
 
+def fill_test_item_particulars(doc: Document, meta: dict):
+    """
+    填充 T4 表格的 Test item particulars 欄位
+
+    Args:
+        doc: Word 文件
+        meta: 包含 test_item_particulars 的 meta 資料
+    """
+    if len(doc.tables) <= 3:
+        return 0
+
+    table = doc.tables[3]  # T4
+    tip = meta.get('test_item_particulars', {})
+    filled_count = 0
+
+    # 欄位對應表：(中文標題關鍵字, meta 欄位名, 填充方式)
+    # 填充方式: 'text' = 直接填入文字, 'tma' = 製造商宣告溫度
+    field_mapping = {
+        '製造商宣告': ('manufacturer_tma', 'tma'),
+        '保護裝置的額定電流': ('protective_device_rating', 'text'),
+    }
+
+    for row in table.rows:
+        first_cell_text = row.cells[0].text.strip()
+
+        for keyword, (field_name, fill_type) in field_mapping.items():
+            if keyword in first_cell_text:
+                value = tip.get(field_name, '')
+                if value and len(row.cells) > 1:
+                    target_cell = row.cells[1]
+                    if fill_type == 'tma':
+                        # 製造商宣告 Tma：填入溫度值
+                        # 格式: "45 °C   室外:最低      °C"
+                        # 需要替換第一個溫度值
+                        current_text = target_cell.text
+                        if '°C' in current_text:
+                            # 提取數字部分
+                            temp_value = value.replace('°C', '').replace(' ', '')
+                            # 替換第一個溫度值
+                            new_text = re.sub(r'^\s*\d*\s*°C', f'{temp_value} °C', current_text)
+                            if target_cell.paragraphs:
+                                for para in target_cell.paragraphs:
+                                    for run in para.runs:
+                                        if '°C' in run.text:
+                                            run.text = re.sub(r'^\s*\d*\s*°C', f'{temp_value} °C', run.text, count=1)
+                                            filled_count += 1
+                                            break
+                    elif fill_type == 'text':
+                        # 直接填入文字
+                        if target_cell.paragraphs:
+                            # 在現有文字前面加入值
+                            current_text = target_cell.text
+                            if value not in current_text:
+                                target_cell.paragraphs[0].runs[0].text = value + ' ' + target_cell.paragraphs[0].runs[0].text if target_cell.paragraphs[0].runs else value
+                                filled_count += 1
+                break
+
+    return filled_count
+
+
+def fill_remarks_section(doc: Document, meta: dict):
+    """
+    填充 T4R19 備註區塊
+
+    Args:
+        doc: Word 文件
+        meta: 包含 general_product_remarks 和 model_differences 的 meta 資料
+    """
+    if len(doc.tables) <= 3:
+        return 0
+
+    table = doc.tables[3]  # T4
+    filled_count = 0
+
+    # 組合備註內容
+    remarks_parts = []
+
+    # CB 證書資訊（固定格式）
+    cb_report_no = meta.get('cb_report_no', '')
+    if cb_report_no:
+        remarks_parts.append(f"此份報告是依據 CB 證書，其報告號碼為 {cb_report_no}。")
+
+    # General product information and other remarks
+    general_remarks = meta.get('general_product_remarks', '')
+    if general_remarks:
+        # 翻譯/簡化產品說明
+        translated_remarks = translate_product_remarks(general_remarks)
+        remarks_parts.append(translated_remarks)
+
+    # Model Differences
+    model_diff = meta.get('model_differences', '')
+    if model_diff:
+        translated_diff = translate_model_differences(model_diff)
+        if translated_diff:
+            remarks_parts.append(f"型號差異說明: {translated_diff}")
+
+    if not remarks_parts:
+        return 0
+
+    # 找到備註列 (R19)
+    for row in table.rows:
+        first_cell_text = row.cells[0].text.strip()
+        if '備註' in first_cell_text:
+            # 找到備註列
+            if len(row.cells) > 0:
+                target_cell = row.cells[0]  # 備註通常跨欄，所以填入第一欄
+                remarks_text = "備註:\n" + "\n".join(remarks_parts)
+
+                # 清除現有內容並填入新內容
+                if target_cell.paragraphs:
+                    target_cell.paragraphs[0].clear()
+                    target_cell.paragraphs[0].add_run(remarks_text)
+                else:
+                    target_cell.text = remarks_text
+                filled_count += 1
+            break
+
+    return filled_count
+
+
+def translate_product_remarks(remarks: str) -> str:
+    """
+    翻譯產品說明
+
+    Args:
+        remarks: 英文產品說明
+
+    Returns:
+        翻譯後的中文說明
+    """
+    result = remarks
+
+    # 常見翻譯對應
+    translations = {
+        'This AC POWER SUPPLY is class II construction': '本產品為 Class II 結構',
+        'designed to power supply for audio/video, information and communication technology equipment': '設計用於影音、資訊及通訊設備類',
+        'for indoor use only': '僅供室內使用',
+        'The maximum operating ambient temperature is': '最高工作環境溫度為',
+        'The top enclosure is sealed with bottom enclosure by ultrasonic welding': '使用超音波固定外殼',
+        'maximum continuous output power is': '最大連續輸出功率為',
+        'working load with': '工作負載為',
+        'for 5 minutes': '工作 5 分鐘',
+        'for 10 minutes': '工作 10 分鐘',
+        'for long working': '進行長期工作',
+        'then reduced to': '然後降至',
+        'The other outputs could with normal maximum load condition': '其他輸出可按正常最大負載條件運行',
+        'refer to appended table': '詳細資訊請參閱附表',
+        'for details': '',
+    }
+
+    for en, zh in translations.items():
+        result = result.replace(en, zh)
+
+    return result
+
+
+def translate_model_differences(diff: str) -> str:
+    """
+    翻譯型號差異說明
+
+    Args:
+        diff: 英文型號差異說明
+
+    Returns:
+        翻譯後的中文說明
+    """
+    if not diff:
+        return ""
+
+    # 常見翻譯
+    if 'All models are identical' in diff or 'identical to each other' in diff:
+        return "所有型號都相同除了型號命名不同外。"
+
+    if 'except for model number' in diff.lower():
+        return "所有型號都相同除了型號命名不同外。"
+
+    return diff
+
+
 def fill_annex_model_rows(doc: Document, annex_model_rows: list):
     """
     使用 PDF 抽取的 Model 行資料填充 Word 附表中的型號行
@@ -3676,6 +3855,16 @@ def main():
         filled = fill_mass_of_equipment(docx, mass_of_equipment)
         if filled:
             print(f"設備質量：已填入 '{mass_of_equipment}'")
+
+    # 填充 Test item particulars 欄位
+    tip_filled = fill_test_item_particulars(docx, ctx['meta'])
+    if tip_filled:
+        print(f"Test item particulars：已填入 {tip_filled} 個欄位")
+
+    # 填充備註區塊
+    remarks_filled = fill_remarks_section(docx, ctx['meta'])
+    if remarks_filled:
+        print(f"備註區塊：已填入")
 
     # 使用 overview_cb_p12_rows 填充安全防護總攬表（方案A）
     overview_cb_p12_rows = data.get('overview_cb_p12_rows', [])

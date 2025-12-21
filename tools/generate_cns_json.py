@@ -28,7 +28,26 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
         "ratings_input": "",
         "ratings_output": "",
         "mass_of_equipment": "",
-        "notes": []
+        "notes": [],
+        # Test item particulars 欄位
+        "test_item_particulars": {
+            "product_group": "",  # end product / built-in component
+            "classification_of_use": [],  # Ordinary person, Instructed person, Skilled person, Children likely present
+            "supply_connection": "",  # AC mains / DC mains / not mains connected
+            "supply_tolerance": "",  # +10%/-10%, +20%/-15%, etc.
+            "supply_connection_type": "",  # pluggable equipment type A/B, direct plug-in, etc.
+            "protective_device_rating": "",  # 16A, 20A, etc.
+            "equipment_mobility": [],  # movable, hand-held, transportable, direct plug-in, stationary, etc.
+            "overvoltage_category": "",  # OVC I, OVC II, OVC III, OVC IV
+            "equipment_class": "",  # Class I, Class II, Class III
+            "special_installation_location": "",  # N/A, restricted access area, outdoor location
+            "pollution_degree": "",  # PD 1, PD 2, PD 3
+            "manufacturer_tma": "",  # 45 °C, etc.
+            "ip_protection_class": "",  # IPX0, IP__
+            "power_systems": "",  # TN, TT, IT
+            "altitude_operation": "",  # 2000 m or less, 5000 m
+            "altitude_test_lab": "",  # 2000 m or less
+        }
     }
 
     # 合併前幾頁文字
@@ -123,6 +142,156 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
         mass_text = re.sub(r'\s*TRF\s+No\..*$', '', mass_text, flags=re.IGNORECASE)
         mass_text = re.sub(r'\s+', ' ', mass_text).strip()
         meta['mass_of_equipment'] = mass_text
+
+    # ===== Test item particulars 欄位提取 =====
+    tip = meta['test_item_particulars']
+
+    # Product group - 產品群組
+    m = re.search(r'Product\s+group\s*[.\s]*:\s*(end\s+product|built-in\s+component)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['product_group'] = m.group(1).strip().lower()
+
+    # Classification of use - 使用分類
+    # 檢查哪些選項被選中（通常 PDF 中選中的項目會出現在特定位置）
+    classification_section = re.search(r'Classification\s+of\s+use\s+by\s*[.\s]*:\s*([^\n]+(?:\n[^\n]+){0,3})', first_pages_text, re.IGNORECASE)
+    if classification_section:
+        section_text = classification_section.group(1)
+        classifications = []
+        if 'Ordinary' in section_text:
+            classifications.append('ordinary')
+        if 'Instructed' in section_text:
+            classifications.append('instructed')
+        if 'Skilled' in section_text:
+            classifications.append('skilled')
+        if 'Children' in section_text:
+            classifications.append('children')
+        tip['classification_of_use'] = classifications
+
+    # Supply connection - 電源連接
+    m = re.search(r'Supply\s+connection\s*[.\s]*:\s*(AC\s+mains|DC\s+mains|not\s+mains\s+connected)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['supply_connection'] = m.group(1).strip().lower()
+
+    # Supply tolerance - 電源許可差
+    m = re.search(r'Supply\s+tolerance\s*[.\s]*:\s*(\+\d+%/-\d+%)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['supply_tolerance'] = m.group(1).strip()
+
+    # Equipment mobility - 設備移動性 (重要！需要精確識別)
+    # PDF 格式: "Equipment mobility ..........: movable hand-held transportable\ndirect plug-in stationary for building-in"
+    mobility_section = re.search(r'Equipment\s+mobility\s*[.\s]*:\s*([^\n]+(?:\n[^\n]+)?)', first_pages_text, re.IGNORECASE)
+    if mobility_section:
+        section_text = mobility_section.group(1).lower()
+        mobility_options = []
+        # 根據 PDF 文字識別選中的選項
+        # 注意：PDF 中通常只有被選中的項目會顯示，或者位置決定
+        if 'movable' in section_text and 'hand-held' not in section_text.split('movable')[0][-20:]:
+            mobility_options.append('movable')
+        if 'hand-held' in section_text:
+            mobility_options.append('hand-held')
+        if 'transportable' in section_text:
+            mobility_options.append('transportable')
+        if 'direct plug-in' in section_text or 'direct plug' in section_text:
+            mobility_options.append('direct plug-in')
+        if 'stationary' in section_text:
+            mobility_options.append('stationary')
+        if 'for building-in' in section_text or 'building-in' in section_text:
+            mobility_options.append('for building-in')
+        if 'wall' in section_text or 'ceiling' in section_text:
+            mobility_options.append('wall/ceiling-mounted')
+        if 'srme' in section_text or 'rack-mounted' in section_text:
+            mobility_options.append('SRME/rack-mounted')
+        tip['equipment_mobility'] = mobility_options
+
+    # Overvoltage category - 過壓類別
+    m = re.search(r'Overvoltage\s+category\s*\(OVC\)\s*[.\s]*:\s*(OVC\s*[IV]+)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['overvoltage_category'] = m.group(1).strip().upper().replace(' ', '')
+
+    # Class of equipment - 防電擊保護
+    m = re.search(r'Class\s+of\s+equipment\s*[.\s]*:\s*(Class\s*[I]+|Not\s+classified)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['equipment_class'] = m.group(1).strip()
+
+    # Special installation location - 特殊安裝位置
+    m = re.search(r'Special\s+installation\s+location\s*[.\s]*:\s*(N/A|restricted\s+access\s+area|outdoor\s+location)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['special_installation_location'] = m.group(1).strip()
+
+    # Pollution degree - 污染等級
+    m = re.search(r'Pollution\s+degree\s*\(PD\)\s*[.\s]*:\s*(PD\s*[123])', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['pollution_degree'] = m.group(1).strip().upper().replace(' ', '')
+
+    # Manufacturer's specified Tma - 製造商宣告 Tma
+    m = re.search(r"Manufacturer.*?T\s*[.\s]*:\s*(\d+)\s*°?C", first_pages_text, re.IGNORECASE)
+    if m:
+        tip['manufacturer_tma'] = m.group(1) + " °C"
+
+    # IP protection class - IP 等級
+    m = re.search(r'IP\s+protection\s+class\s*[.\s]*:\s*(IP[X0-9]+)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['ip_protection_class'] = m.group(1).strip().upper()
+
+    # Power systems - 電力系統
+    power_section = re.search(r'Power\s+systems\s*[.\s]*:\s*([^\n]+)', first_pages_text, re.IGNORECASE)
+    if power_section:
+        section_text = power_section.group(1).upper()
+        systems = []
+        if 'TN' in section_text:
+            systems.append('TN')
+        if 'TT' in section_text:
+            systems.append('TT')
+        if 'IT' in section_text:
+            systems.append('IT')
+        if 'NOT AC MAINS' in section_text:
+            systems.append('not AC mains')
+        tip['power_systems'] = ', '.join(systems) if systems else section_text.strip()
+
+    # Altitude during operation - 設備適用的海拔高度
+    m = re.search(r'Altitude\s+during\s+operation\s*\(m\)\s*[.\s]*:\s*(2000\s*m\s+or\s+less|5000\s*m)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['altitude_operation'] = m.group(1).strip()
+
+    # Altitude of test laboratory - 測試實驗室海拔高度
+    m = re.search(r'Altitude\s+of\s+test\s+laboratory\s*\(m\)\s*[.\s]*:\s*(2000\s*m\s+or\s+less|\d+\s*m)', first_pages_text, re.IGNORECASE)
+    if m:
+        tip['altitude_test_lab'] = m.group(1).strip()
+
+    # Protective device rating - 保護裝置額定電流
+    m = re.search(r'Considered\s+current\s+rating.*?:\s*(\d+)\s*A', first_pages_text, re.IGNORECASE | re.DOTALL)
+    if m:
+        tip['protective_device_rating'] = m.group(1) + " A"
+
+    # ===== 備註區塊提取 (General product information and other remarks) =====
+    # 這些備註會填入 Word 模板的 T4R19
+
+    # General product information and other remarks
+    m = re.search(r'General\s+product\s+information\s+and\s+other\s+remarks:\s*(.*?)(?=Model\s+Differences|Additional\s+application|TRF\s+No)', first_pages_text, re.IGNORECASE | re.DOTALL)
+    if m:
+        remarks_text = m.group(1).strip()
+        # 清理頁碼和報告號碼
+        remarks_text = re.sub(r'TRF\s+No\.\s+IEC62368_1E', '', remarks_text)
+        remarks_text = re.sub(r'Page\s+\d+\s+of\s+\d+\s+Report\s+No\.\s+[\w-]+', '', remarks_text)
+        remarks_text = re.sub(r'\s+', ' ', remarks_text).strip()
+        meta['general_product_remarks'] = remarks_text
+
+    # Model Differences
+    m = re.search(r'Model\s+Differences:\s*(.*?)(?=Additional\s+application|TRF\s+No|$)', first_pages_text, re.IGNORECASE | re.DOTALL)
+    if m:
+        model_diff = m.group(1).strip()
+        model_diff = re.sub(r'TRF\s+No\.\s+IEC62368_1E', '', model_diff)
+        model_diff = re.sub(r'\s+', ' ', model_diff).strip()
+        meta['model_differences'] = model_diff
+
+    # Name and address of factory - 工廠資訊
+    m = re.search(r'Name\s+and\s+address\s+of\s+factory.*?:\s*(.*?)(?=General\s+product\s+information)', first_pages_text, re.IGNORECASE | re.DOTALL)
+    if m:
+        factory_text = m.group(1).strip()
+        # 提取工廠列表
+        factories = re.findall(r'\d+\)\s*([^\d]+?)(?=\d+\)|$)', factory_text, re.DOTALL)
+        if factories:
+            meta['factory_locations'] = [f.strip() for f in factories if f.strip()]
 
     return meta
 
