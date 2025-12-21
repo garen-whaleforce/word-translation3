@@ -2733,8 +2733,12 @@ def translate_remark(remark: str, clause_id: str) -> str:
 
     # 常見模式翻譯（使用正規化後的文字）
     patterns = [
-        (r'^\(See\s+(?:Annex\s+)?([A-Z][\d.]+(?:,\s*[A-Z]?[\d.]+)*)\)$', r'(見附表 \1)'),
-        (r'^\(See\s+(?:Clause\s+)?([A-Z]?[\d.]+(?:,\s*[A-Z]?[\d.]+)*)\)$', r'(見條款 \1)'),
+        # (See Annex X) - 翻譯為「見附錄」（附錄是文件末尾的補充資料）
+        (r'^\(See Annex ([A-Z](?:[\d.]*)?)\)$', r'(見附錄 \1)'),
+        # (See appended table X) - 翻譯為「見附表」（附表是條款內嵌的表格）
+        (r'^\(See\s+(?:appended\s+)?table\s+([A-Z]?[\d.]+(?:,\s*[A-Z]?[\d.]+)*)\)$', r'(見附表 \1)'),
+        # (See Clause X) - 翻譯為「見條款」
+        (r'^\(See\s+Clause\s+([A-Z]?[\d.]+(?:,\s*[A-Z]?[\d.]+)*)\)$', r'(見條款 \1)'),
         (r'^\(See Clause ([A-Z]?[\d.]+(?:,\s*[A-Z]?[\d.]+)*)\)$', r'(見條款 \1)'),
         (r'^See\s+(?:appended\s+)?table\s+([A-Z]?[\d.]+)', r'(見附表 \1)'),
         (r'^Indoor\s+use$', '室內使用'),
@@ -2809,23 +2813,21 @@ def translate_remark(remark: str, clause_id: str) -> str:
     if remark_normalized in simple_translations:
         return simple_translations[remark_normalized]
 
-    # 如果 PDF remark 是空的或只有簡單參考，則使用 clause_translations.json 的 remark_cn
-    # 但如果 PDF 有實質內容（技術描述），則不使用模板覆蓋
+    # 如果 PDF remark 是空的，則使用 clause_translations.json 的 remark_cn
+    # 注意：(See Annex X) 這類參考應該動態翻譯，不使用模板
     if clause_id and clause_id in CLAUSE_TRANSLATIONS:
         template_remark = CLAUSE_TRANSLATIONS[clause_id].get('remark_cn', '')
         if template_remark:
-            # 判斷 PDF remark 是否有實質內容
-            # 簡單參考模式：空、純數字、純標點、只有 "See" 開頭等
-            is_simple_ref = (
+            # 判斷 PDF remark 是否為空（只有空才用模板）
+            # 有內容的 remark（包括 See Annex/Clause 參考）都應該動態翻譯
+            is_empty = (
                 not remark_normalized or
-                remark_normalized.strip() in ('', '-', '--', 'N/A', '0') or
-                re.match(r'^[\d.]+$', remark_normalized.strip()) or
-                re.match(r'^\(See\s', remark_normalized, re.IGNORECASE)
+                remark_normalized.strip() in ('', '-', '--')
             )
-            # 如果是簡單參考，使用模板翻譯
-            if is_simple_ref:
+            # 只有真正空的 remark 才使用模板翻譯
+            if is_empty:
                 return template_remark
-            # 否則繼續用 LLM 翻譯實質內容
+            # 否則繼續動態翻譯 PDF 的實際內容
 
     # 字典未匹配，嘗試 LLM 翻譯
     if HAS_LLM:
