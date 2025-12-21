@@ -27,6 +27,7 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
         "model_type_references": [],
         "ratings_input": "",
         "ratings_output": "",
+        "mass_of_equipment": "",
         "notes": []
     }
 
@@ -103,6 +104,25 @@ def extract_meta_from_chunks(chunks: list, pdf_name: str) -> dict:
             output_text = re.sub(r'\s*\n\s*', ' ', output_text)
             output_text = re.sub(r'\s+', ' ', output_text)
             meta['ratings_output'] = output_text
+
+    # Mass of equipment - 設備質量
+    # 格式可能是：
+    # 1. "Mass of equipment (kg) ...: Approx. 0.072kg."
+    # 2. "Mass of equipment (kg) ...: For direct plug-in models approx. 0.134kg;\nFor desktop models approx. 0.135Kg."
+    m = re.search(r'Mass\s+of\s+equipment\s*\(kg\)\s*[.\s]*:\s*([^\n]+)', first_pages_text, re.IGNORECASE)
+    if m:
+        mass_text = m.group(1).strip()
+        # 如果結尾是分號，可能有多行
+        if mass_text.endswith(';'):
+            # 嘗試抓取下一行
+            m2 = re.search(r'Mass\s+of\s+equipment\s*\(kg\)\s*[.\s]*:\s*([^\n]+\n[^\n]+)', first_pages_text, re.IGNORECASE)
+            if m2:
+                mass_text = m2.group(1).strip()
+                mass_text = re.sub(r'\s*\n\s*', ' ', mass_text)
+        # 移除可能誤抓的 TRF No. 等文字
+        mass_text = re.sub(r'\s*TRF\s+No\..*$', '', mass_text, flags=re.IGNORECASE)
+        mass_text = re.sub(r'\s+', ' ', mass_text).strip()
+        meta['mass_of_equipment'] = mass_text
 
     return meta
 

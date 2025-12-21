@@ -3026,6 +3026,42 @@ def _apply_llm_translations(doc: Document, candidates: list):
         print(f"[LLM] 新翻譯已保存至: {new_trans_path}")
 
 
+def fill_mass_of_equipment(doc: Document, mass_of_equipment: str):
+    """
+    填充設備質量到 Word 模板的 T4R18C2
+
+    Args:
+        doc: Word 文件
+        mass_of_equipment: 設備質量文字（從 PDF 提取）
+    """
+    if not mass_of_equipment:
+        return 0
+
+    filled_count = 0
+
+    # T4 是產品資訊表格（索引 3，0-based）
+    if len(doc.tables) > 3:
+        table = doc.tables[3]
+
+        # 搜尋包含「設備質量」的列
+        for row_idx, row in enumerate(table.rows):
+            first_cell_text = row.cells[0].text.strip()
+            if '設備質量' in first_cell_text:
+                # 找到目標列，填入第二欄
+                if len(row.cells) > 1:
+                    target_cell = row.cells[1]
+                    # 保留原有格式，只替換文字
+                    if target_cell.paragraphs:
+                        target_cell.paragraphs[0].clear()
+                        target_cell.paragraphs[0].add_run(mass_of_equipment)
+                    else:
+                        target_cell.text = mass_of_equipment
+                    filled_count += 1
+                    break
+
+    return filled_count
+
+
 def fill_annex_model_rows(doc: Document, annex_model_rows: list):
     """
     使用 PDF 抽取的 Model 行資料填充 Word 附表中的型號行
@@ -3633,6 +3669,13 @@ def main():
 
     # 重新打開文件進行後處理
     docx = Document(str(out_path))
+
+    # 填充設備質量（從 meta 提取）
+    mass_of_equipment = ctx['meta'].get('mass_of_equipment', '')
+    if mass_of_equipment:
+        filled = fill_mass_of_equipment(docx, mass_of_equipment)
+        if filled:
+            print(f"設備質量：已填入 '{mass_of_equipment}'")
 
     # 使用 overview_cb_p12_rows 填充安全防護總攬表（方案A）
     overview_cb_p12_rows = data.get('overview_cb_p12_rows', [])
