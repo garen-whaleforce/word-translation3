@@ -124,15 +124,27 @@ def extract_clause_rows(pdf, start_page: int = 0) -> list:
                         'pdf_page': page_num
                     })
                 elif first_cell == '' and req:
-                    # 無 clause_id 的子項目
-                    rows.append({
-                        'clause_id': '',
-                        'req': req,
-                        'remark': remark,
-                        'verdict': verdict,
-                        'pdf_page': page_num,
-                        'parent_clause': current_parent
-                    })
+                    # 檢查是否是標題斷行的延續（全大寫英文且 verdict 是 ⎯，且前一行存在）
+                    is_title_continuation = (
+                        rows and
+                        verdict == '⎯' and
+                        req.isupper() and
+                        re.match(r'^[A-Z\s,]+$', req.replace('\n', ' '))
+                    )
+
+                    if is_title_continuation:
+                        # 合併到前一行的 req
+                        rows[-1]['req'] = rows[-1]['req'] + ' ' + req.replace('\n', ' ')
+                    else:
+                        # 無 clause_id 的子項目
+                        rows.append({
+                            'clause_id': '',
+                            'req': req,
+                            'remark': remark,
+                            'verdict': verdict,
+                            'pdf_page': page_num,
+                            'parent_clause': current_parent
+                        })
 
     return rows
 

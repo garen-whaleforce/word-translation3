@@ -2452,8 +2452,8 @@ def translate_remark(remark: str, clause_id: str) -> str:
         'Resistance to corrosion': '耐腐蝕性',
 
         # 常見試驗結果備註
-        'See copy of marking plate': '見銘牌影本',
-        'See copy of marking plate.': '見銘牌影本。',
+        'See copy of marking plate': '見標示標籤',
+        'See copy of marking plate.': '見標示標籤。',
         'See marking plate': '見銘牌',
         'Test with appliance': '隨機測試',
         'Test with appliance.': '隨機測試。',
@@ -2836,7 +2836,7 @@ def translate_summary_table(doc: Document):
     # 常見英文短語翻譯
     phrase_translations = [
         ('See appended table', '見附表'),
-        ('See copy of marking plate', '見銘牌影本'),
+        ('See copy of marking plate', '見標示標籤'),
         ('Test method and compliance', '試驗方法及符合性'),
         ('Reinforced insulation', '強化絕緣'),
         ('Reinforced safeguard', '強化安全防護'),
@@ -3027,7 +3027,7 @@ def translate_all_tables(doc: Document):
         ('Test with appliance', '隨機測試'),
         ('Tested with appliance', '隨機測試'),
         ('See appended table', '見附表'),
-        ('See copy of marking plate', '見銘牌影本'),
+        ('See copy of marking plate', '見標示標籤'),
         ('Interchangeable', '可互換'),
         ('Interchangeabl e', '可互換'),  # 處理斷字
         ('Interchangeabl\ne', '可互換'),  # 處理換行斷字
