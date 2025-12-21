@@ -277,40 +277,6 @@
             font-weight: 600;
         }
 
-        .jobs-list {
-            margin-top: 30px;
-        }
-
-        .job-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .job-item:hover {
-            background: #e9ecef;
-        }
-
-        .job-info {
-            flex: 1;
-        }
-
-        .job-filename {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .job-time {
-            font-size: 12px;
-            color: #666;
-        }
-
         .processing-steps {
             margin-bottom: 20px;
             padding: 15px;
@@ -353,6 +319,23 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+
+        .time-info {
+            margin: 15px 0;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 8px;
+            color: #2e7d32;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-info.running {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
         }
     </style>
 </head>
@@ -414,24 +397,29 @@
             <div id="processingSteps" class="processing-steps">
                 <div class="step" id="step1">
                     <span class="step-icon">⏳</span>
-                    <span class="step-text">等待處理</span>
+                    <span class="step-text">等待 Worker 接收任務</span>
                 </div>
                 <div class="step" id="step2">
                     <span class="step-icon">⏳</span>
-                    <span class="step-text">讀取 PDF 內容</span>
+                    <span class="step-text">讀取 PDF：解析文件結構與頁面內容</span>
                 </div>
                 <div class="step" id="step3">
                     <span class="step-icon">⏳</span>
-                    <span class="step-text">抽取表格資料</span>
+                    <span class="step-text">抽取資料：Overview、條款表、零件表、附表</span>
                 </div>
                 <div class="step" id="step4">
                     <span class="step-icon">⏳</span>
-                    <span class="step-text">QA 品質檢查</span>
+                    <span class="step-text">QA 檢查：比對欄位完整性與翻譯準確度</span>
                 </div>
                 <div class="step" id="step5">
                     <span class="step-icon">⏳</span>
-                    <span class="step-text">產生 Word 報告</span>
+                    <span class="step-text">產生報告：填充模板並輸出 DOCX 檔案</span>
                 </div>
+            </div>
+
+            <!-- Time Info -->
+            <div id="timeInfo" class="time-info" style="display: none;">
+                <span id="elapsedTime"></span>
             </div>
 
             <div class="qa-results" id="qaResults"></div>
@@ -452,13 +440,6 @@
             </button>
         </div>
 
-        <!-- Recent Jobs -->
-        <div class="card">
-            <h2>最近的任務</h2>
-            <div class="jobs-list" id="jobsList">
-                <p style="color: #666;">載入中...</p>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -589,33 +570,33 @@
             const qaNames = (job.qa_results || []).map(q => q.gate_name);
             let currentStep = 1;
             let progressPercent = 10;
-            let progressText = '等待 Worker 處理...';
+            let progressText = '等待 Worker 接收任務...';
 
             if (job.status === 'RUNNING') {
                 if (qaNames.includes('extract_overview') || qaNames.includes('extract_clause_rows')) {
                     currentStep = 3;
                     progressPercent = 40;
-                    progressText = '正在抽取表格資料...';
+                    progressText = '正在抽取 Overview、條款表、零件表資料...';
                 } else if (job.json_data_key) {
                     currentStep = 2;
                     progressPercent = 25;
-                    progressText = '正在讀取 PDF 內容...';
+                    progressText = '正在解析 PDF 文件結構與頁面內容...';
                 } else {
                     currentStep = 2;
                     progressPercent = 20;
-                    progressText = '正在讀取 PDF 內容...';
+                    progressText = '正在讀取 PDF 檔案...';
                 }
 
                 if (qaNames.includes('qa_overview_match') || qaNames.includes('qa_clause_match')) {
                     currentStep = 4;
                     progressPercent = 60;
-                    progressText = '正在進行 QA 品質檢查...';
+                    progressText = '正在比對欄位完整性與翻譯準確度...';
                 }
 
                 if (qaNames.includes('final_qa')) {
                     currentStep = 5;
                     progressPercent = 80;
-                    progressText = '正在產生 Word 報告...';
+                    progressText = '正在填充模板並產生 DOCX 報告...';
                 }
             } else if (job.status === 'PASS') {
                 currentStep = 6;
@@ -632,6 +613,9 @@
 
             document.getElementById('progressFill').style.width = `${progressPercent}%`;
             document.getElementById('progressText').textContent = progressText;
+
+            // Time info
+            updateTimeInfo(job);
 
             // Update step indicators
             updateStepIndicators(currentStep, job.status);
@@ -694,76 +678,61 @@
             document.getElementById('downloadSection').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('qaResults').innerHTML = '';
-
-            loadRecentJobs();
+            document.getElementById('timeInfo').style.display = 'none';
         }
 
-        // Load recent jobs
-        async function loadRecentJobs() {
-            const container = document.getElementById('jobsList');
+        function updateTimeInfo(job) {
+            const timeInfoEl = document.getElementById('timeInfo');
+            const elapsedEl = document.getElementById('elapsedTime');
 
-            try {
-                const response = await fetch(`${API_BASE}/api/jobs`);
-                if (!response.ok) {
-                    container.innerHTML = '<p style="color: #666;">無法載入</p>';
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (!data.jobs || data.jobs.length === 0) {
-                    container.innerHTML = '<p style="color: #666;">尚無任務記錄</p>';
-                    return;
-                }
-
-                container.innerHTML = data.jobs.map(job => `
-                    <div class="job-item" onclick="viewJob('${job.job_id}')">
-                        <div class="job-info">
-                            <div class="job-filename">${job.pdf_filename}</div>
-                            <div class="job-time">${new Date(job.created_at).toLocaleString()}</div>
-                        </div>
-                        <span class="status-badge status-${job.status}">${job.status}</span>
-                    </div>
-                `).join('');
-
-            } catch (error) {
-                container.innerHTML = '<p style="color: #666;">載入失敗</p>';
+            if (!job.created_at) {
+                timeInfoEl.style.display = 'none';
+                return;
             }
-        }
 
-        async function viewJob(jobId) {
-            currentJobId = jobId;
+            const createdAt = new Date(job.created_at);
+            const now = new Date();
 
-            try {
-                const response = await fetch(
-                    `${API_BASE}/api/jobs/${jobId}`
-                );
-
-                if (!response.ok) return;
-
-                const job = await response.json();
-
-                document.getElementById('uploadCard').style.display = 'none';
-                document.getElementById('statusCard').classList.add('show');
-
-                updateJobStatus(job);
-
-                if (!['PASS', 'FAIL', 'ERROR'].includes(job.status)) {
-                    pollInterval = setInterval(pollJobStatus, 2000);
-                }
-
-            } catch (error) {
-                console.error(error);
+            // 計算時間差
+            let endTime;
+            if (['PASS', 'FAIL', 'ERROR'].includes(job.status) && job.updated_at) {
+                endTime = new Date(job.updated_at);
+            } else {
+                endTime = now;
             }
+
+            const diffMs = endTime - createdAt;
+            const diffSec = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(diffSec / 60);
+            const seconds = diffSec % 60;
+
+            // 格式化時間
+            let timeStr;
+            if (minutes > 0) {
+                timeStr = `${minutes} 分 ${seconds} 秒`;
+            } else {
+                timeStr = `${seconds} 秒`;
+            }
+
+            // 根據狀態顯示不同文字
+            if (['PASS', 'FAIL', 'ERROR'].includes(job.status)) {
+                elapsedEl.textContent = `⏱️ 總耗時：${timeStr}`;
+                timeInfoEl.classList.remove('running');
+            } else {
+                elapsedEl.textContent = `⏱️ 已執行：${timeStr}`;
+                timeInfoEl.classList.add('running');
+            }
+
+            timeInfoEl.style.display = 'flex';
         }
 
         function updateStepIndicators(currentStep, status) {
             const steps = [
-                { id: 'step1', name: '等待處理' },
-                { id: 'step2', name: '讀取 PDF 內容' },
-                { id: 'step3', name: '抽取表格資料' },
-                { id: 'step4', name: 'QA 品質檢查' },
-                { id: 'step5', name: '產生 Word 報告' }
+                { id: 'step1', name: '等待 Worker 接收任務' },
+                { id: 'step2', name: '讀取 PDF：解析文件結構與頁面內容' },
+                { id: 'step3', name: '抽取資料：Overview、條款表、零件表、附表' },
+                { id: 'step4', name: 'QA 檢查：比對欄位完整性與翻譯準確度' },
+                { id: 'step5', name: '產生報告：填充模板並輸出 DOCX 檔案' }
             ];
 
             steps.forEach((step, index) => {
@@ -811,8 +780,6 @@
             }
         }
 
-        // Init - 頁面載入時自動載入最近任務
-        loadRecentJobs();
     </script>
 </body>
 </html>
