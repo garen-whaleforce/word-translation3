@@ -3683,22 +3683,38 @@ def fill_annex_model_rows(doc: Document, annex_model_rows: list):
 
         # 遍歷表格中的行，尋找型號行
         for row_idx, row in enumerate(table.rows):
-            for cell_idx, cell in enumerate(row.cells):
-                text = cell.text.strip()
-                # 檢查是否是需要替換的型號行（包含完整規格列表）
-                if '型號:' in text and ' or ' in text:
-                    # 取得對應的 PDF Model 行
-                    if pdf_model_idx < len(pdf_models):
-                        pdf_model_text = pdf_models[pdf_model_idx]
-                        # 翻譯 PDF Model 行
-                        # Model: MC-601 (output: 20.0Vdc, 3.0A) → 型號: MC-601 (輸出: 20.0 Vdc, 3.0 A)
-                        translated = translate_model_text(pdf_model_text)
-                        cell.text = translated
-                        updated_count += 1
+            first_cell_text = row.cells[0].text.strip() if row.cells else ''
 
-            # 檢查這行是否有 Model 行被替換（只在第一個儲存格有時才增加索引）
-            first_cell = row.cells[0].text.strip() if row.cells else ''
-            if '型號:' in first_cell and 'or' not in first_cell and pdf_model_idx < len(pdf_models):
+            # 檢查是否是需要替換的型號行
+            # 通用型號模式：包含 "See model list"、"-xyW"、"-xy-"、"or" 等
+            is_generic_model = False
+            if '型號' in first_cell_text:
+                # 檢查是否為通用型號（需要被替換）
+                generic_patterns = [
+                    'See model list',
+                    'see model list',
+                    '-xyW',
+                    '-xy-',
+                    ' or ',
+                    '詳見型號列表',
+                    'pages 10-11',
+                    '(輸出: 詳見型號列表)'
+                ]
+                for pattern in generic_patterns:
+                    if pattern in first_cell_text:
+                        is_generic_model = True
+                        break
+
+            if is_generic_model and pdf_model_idx < len(pdf_models):
+                # 取得對應的 PDF Model 行並翻譯
+                pdf_model_text = pdf_models[pdf_model_idx]
+                translated = translate_model_text(pdf_model_text)
+
+                # 替換這行所有儲存格（合併儲存格時都是同一內容）
+                for cell in row.cells:
+                    cell.text = translated
+                    updated_count += 1
+
                 pdf_model_idx += 1
 
     if updated_count > 0:
