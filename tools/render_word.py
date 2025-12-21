@@ -165,50 +165,115 @@ def translate_energy_source(energy_source: str, clause: int) -> str:
     energy_source_oneline = energy_source.replace('\n', ' ').strip()
 
     translations = {
-        # Clause 5 - Electrically-caused injury
-        'ES3: Primary circuits supplied by a.c. mains supply': 'ES3: 所有連接到AC主電源的線路',
-        'ES3: The circuit connected to AC mains (Except output circuits)': 'ES3: 所有連接到AC主電源的線路(輸出電路除外)',
-        'ES3: Capacitor connected between L and N': 'ES3: X電容(於L與N之間)',
-        'ES1: Secondary output connector': 'ES1: 輸出電路(輸出連接器)',
+        # Clause 5 - Electrically-caused injury (依照人工檔案格式)
+        'ES3: Primary circuits supplied by a.c. mains supply': 'ES3: 除了輸出端子以外的所有電路',
+        'ES3: The circuit connected to AC mains (Except output circuits)': 'ES3: 除了輸出端子以外的所有電路',
+        'ES3: All circuits except output circuits': 'ES3: 除了輸出端子以外的所有電路',
+        'ES3: Capacitor connected between L and N': 'ES3: X電容 (L與N之間)',
+        'ES1: Secondary output connector': 'ES1: 輸出端子',
         'ES1: Output circuits': 'ES1: 輸出電路',
-        # Clause 6 - Electrically-caused fire
-        'PS3: All primary circuits inside the equipment enclosure': 'PS3: 設備外殼內所有的主線路',
-        'PS3: All circuits except for output circuits': 'PS3: 所有電路(輸出電路除外)',
-        'PS2: Secondary output connector': 'PS2: 輸出電路(輸出連接器)',
-        'PS2: secondary part circuits': 'PS2: 二次側電路',
-        # Clause 8 - Mechanically-caused injury
+        'ES1: Output connector': 'ES1: 輸出端子',
+        # Clause 6 - Electrically-caused fire (依照人工檔案格式)
+        'PS3: All primary circuits inside the equipment enclosure': 'PS3電路',
+        'PS3: All circuits except for output circuits': 'PS3電路',
+        'PS3: Primary circuits': 'PS3電路',
+        'PS2: Secondary output connector': 'PS2電路',
+        'PS2: secondary part circuits': 'PS2電路',
+        'PS2: Secondary circuits': 'PS2電路',
+        # Clause 8 - Mechanically-caused injury (依照人工檔案格式)
         'MS1: Mass of the unit': 'MS1: 設備質量',
-        'MS1: Edges and corners': 'MS1: 邊與角',
-        'MS1: Edges and corners of enclosure': 'MS1: 外殼的邊與角',
-        # Clause 9 - Thermal burn
-        'TS1: Plastic enclosure': 'TS1: 塑膠外殼',
-        'TS1: External surface': 'TS1: 外部表面',
-        'TS3: Internal parts/circuits': 'TS3: 內部零件/電路',
+        'MS1: Edges and corners': 'MS1: 銳邊切角',
+        'MS1: Edges and corners of enclosure': 'MS1: 銳邊切角',
+        'MS1: Sharp edges': 'MS1: 銳邊切角',
+        # Clause 9 - Thermal burn (依照人工檔案格式)
+        'TS1: Plastic enclosure': 'TS1: 可觸及表面',
+        'TS1: External surface': 'TS1: 可觸及表面',
+        'TS1: Accessible surface': 'TS1: 可觸及表面',
+        'TS3: Internal parts/circuits': 'TS3: 內部零件',
+        'TS3: Internal parts': 'TS3: 內部零件',
         # N/A
         'N/A': '無',
     }
 
-    return translations.get(energy_source_oneline, energy_source_oneline)
+    # 精確匹配
+    if energy_source_oneline in translations:
+        return translations[energy_source_oneline]
+
+    # 模糊匹配 - 依 prefix 分類
+    if energy_source_oneline.startswith('ES3'):
+        if 'Capacitor' in energy_source_oneline or 'capacitor' in energy_source_oneline:
+            return 'ES3: X電容 (L與N之間)'
+        return 'ES3: 除了輸出端子以外的所有電路'
+    if energy_source_oneline.startswith('ES1'):
+        return 'ES1: 輸出端子'
+    if energy_source_oneline.startswith('PS3'):
+        return 'PS3電路'
+    if energy_source_oneline.startswith('PS2'):
+        return 'PS2電路'
+    if energy_source_oneline.startswith('MS1'):
+        if 'Mass' in energy_source_oneline or 'mass' in energy_source_oneline:
+            return 'MS1: 設備質量'
+        return 'MS1: 銳邊切角'
+    if energy_source_oneline.startswith('TS1'):
+        return 'TS1: 可觸及表面'
+    if energy_source_oneline.startswith('TS3'):
+        return 'TS3: 內部零件'
+
+    return energy_source_oneline
 
 def translate_body_part(body_part: str, clause: int) -> str:
     """將英文 body part / material 轉換為中文"""
     body_part_oneline = body_part.replace('\n', ' ').strip()
 
     translations = {
+        # 人員類別 (Clause 5, 8, 9) - 依照人工檔案格式只顯示「普通人員」
         'Ordinary': '普通人員',
         'Instructed': '受指導人員',
         'Skilled': '技術人員',
-        'Ordinary, Instructed, Skilled': '普通人員、受指導人員、技術人員',
+        'Ordinary, Instructed, Skilled': '普通人員',  # 簡化為只顯示普通人員
+        'Ordinary Instructed Skilled': '普通人員',
         'N/A': '無',
-        'All combustible materials within equipment fire enclosure': '設備外殼內所有易燃材料',
-        'Connections of secondary equipment': '二次設備的接線處',
-        # Clause 6 materials
-        'PCB': '印刷電路板(PCB)',
+        # Clause 6 materials (依照人工檔案格式)
+        'All combustible materials within equipment fire enclosure': '塑料外殼',
+        'Connections of secondary equipment': '輸出連接器',
+        'PCB': '印刷電路板',
+        'Printed circuit board': '印刷電路板',
         'Enclosure': '外殼',
-        'Plastic materials not part of PS3 circuit': '非 PS3 電路的塑膠材料',
+        'Plastic enclosure': '塑料外殼',
+        'Plastic materials not part of PS3 circuit': '其他零組件/材料',
+        'Other components': '其他零組件/材料',
+        'Other materials': '其他零組件/材料',
+        'Wiring': '輸出配線',
+        'Output wiring': '輸出配線',
+        'Internal wiring': '內部配線',
+        'Connector': '輸出連接器',
+        'Output connector': '輸出連接器',
     }
 
-    return translations.get(body_part_oneline, body_part_oneline)
+    # 精確匹配
+    if body_part_oneline in translations:
+        return translations[body_part_oneline]
+
+    # 模糊匹配
+    lower = body_part_oneline.lower()
+    if 'combustible' in lower or 'fire enclosure' in lower:
+        return '塑料外殼'
+    if 'pcb' in lower or 'printed circuit' in lower:
+        return '印刷電路板'
+    if 'secondary' in lower and 'connect' in lower:
+        return '輸出連接器'
+    if 'enclosure' in lower or 'plastic' in lower:
+        if clause == 6:
+            return '塑料外殼'
+        return '外殼'
+    if 'wiring' in lower:
+        return '輸出配線'
+    if 'connector' in lower:
+        return '輸出連接器'
+    if 'other' in lower:
+        return '其他零組件/材料'
+
+    return body_part_oneline
 
 def translate_safeguard(safeguard: str, clause: int) -> str:
     """將英文 safeguard 轉換為中文"""
@@ -3026,6 +3091,55 @@ def _apply_llm_translations(doc: Document, candidates: list):
         print(f"[LLM] 新翻譯已保存至: {new_trans_path}")
 
 
+def translate_mass_of_equipment(mass_text: str) -> str:
+    """
+    翻譯設備質量文字
+
+    Args:
+        mass_text: 英文設備質量文字
+
+    Returns:
+        翻譯後的中文文字
+    """
+    if not mass_text:
+        return ""
+
+    result = mass_text
+
+    # 常見翻譯對應
+    translations = {
+        'For direct plug-in models': '直插式型號',
+        'For desktop models': '桌上型型號',
+        'direct plug-in': '直插式',
+        'desktop': '桌上型',
+        'approx.': '約',
+        'Approx.': '約',
+        'approximately': '約',
+    }
+
+    for en, zh in translations.items():
+        result = result.replace(en, zh)
+
+    # 簡化格式：如果只有一個型號，只顯示數字
+    # 例如 "Approx. 0.072kg." -> "約 0.072 kg"
+    import re
+    single_match = re.match(r'^約?\s*([\d.]+)\s*kg\.?$', result, re.IGNORECASE)
+    if single_match:
+        result = f"約 {single_match.group(1)} kg"
+
+    # 多型號格式：統一格式
+    # "直插式型號約 0.134kg; 桌上型型號約 0.135Kg." -> "直插式型號約 0.134 kg; 桌上型型號約 0.135 kg"
+    result = re.sub(r'(\d+)\s*kg\.?', r'\1 kg', result, flags=re.IGNORECASE)
+
+    # 如果還有未翻譯的英文，嘗試 LLM 翻譯
+    if HAS_LLM and re.search(r'[a-zA-Z]{3,}', result):
+        translated = llm_translate(result)
+        if translated != result:
+            result = translated
+
+    return result
+
+
 def fill_mass_of_equipment(doc: Document, mass_of_equipment: str):
     """
     填充設備質量到 Word 模板的 T4R18C2
@@ -3038,6 +3152,9 @@ def fill_mass_of_equipment(doc: Document, mass_of_equipment: str):
         return 0
 
     filled_count = 0
+
+    # 翻譯設備質量
+    translated_mass = translate_mass_of_equipment(mass_of_equipment)
 
     # T4 是產品資訊表格（索引 3，0-based）
     if len(doc.tables) > 3:
@@ -3053,9 +3170,9 @@ def fill_mass_of_equipment(doc: Document, mass_of_equipment: str):
                     # 保留原有格式，只替換文字
                     if target_cell.paragraphs:
                         target_cell.paragraphs[0].clear()
-                        target_cell.paragraphs[0].add_run(mass_of_equipment)
+                        target_cell.paragraphs[0].add_run(translated_mass)
                     else:
-                        target_cell.text = mass_of_equipment
+                        target_cell.text = translated_mass
                     filled_count += 1
                     break
 
@@ -3136,29 +3253,42 @@ def fill_remarks_section(doc: Document, meta: dict):
     table = doc.tables[3]  # T4
     filled_count = 0
 
-    # 組合備註內容
-    remarks_parts = []
+    # 組合備註內容（依照人工檔案格式）
+    remarks_lines = []
 
     # CB 證書資訊（固定格式）
     cb_report_no = meta.get('cb_report_no', '')
     if cb_report_no:
-        remarks_parts.append(f"此份報告是依據 CB 證書，其報告號碼為 {cb_report_no}。")
+        remarks_lines.append(f"此份報告是依據 CB 證書，其報告號碼為 {cb_report_no}。")
+        remarks_lines.append("- 針對直接插牆式插頭, 增加評估CNS 690極性檢查及尺度量測，量測結果執詳如表4.1.2。")
 
-    # General product information and other remarks
+    # 簡化的產品說明
+    # 依照人工檔案格式，只保留關鍵資訊
+    tip = meta.get('test_item_particulars', {})
+    equipment_class = tip.get('equipment_class', '')
+    product_remarks_lines = []
+
+    # 產品類型和用途
+    product_remarks_lines.append("本產品為影音、資訊及通訊設備類與室內使用，產品為電源供應器。")
+
+    # 外殼固定方式
     general_remarks = meta.get('general_product_remarks', '')
-    if general_remarks:
-        # 翻譯/簡化產品說明
-        translated_remarks = translate_product_remarks(general_remarks)
-        remarks_parts.append(translated_remarks)
+    if 'ultrasonic' in general_remarks.lower():
+        product_remarks_lines.append("使用超音波固定外殼。")
 
-    # Model Differences
+    # 生產廠資訊
+    product_remarks_lines.append("生產廠資訊:")
+
+    remarks_lines.extend(product_remarks_lines)
+
+    # Model Differences - 只在有差異時加入
     model_diff = meta.get('model_differences', '')
-    if model_diff:
+    if model_diff and 'identical' not in model_diff.lower():
         translated_diff = translate_model_differences(model_diff)
         if translated_diff:
-            remarks_parts.append(f"型號差異說明: {translated_diff}")
+            remarks_lines.append(f"\n型號差異說明: {translated_diff}")
 
-    if not remarks_parts:
+    if not remarks_lines:
         return 0
 
     # 找到備註列 (R19)
@@ -3168,7 +3298,7 @@ def fill_remarks_section(doc: Document, meta: dict):
             # 找到備註列
             if len(row.cells) > 0:
                 target_cell = row.cells[0]  # 備註通常跨欄，所以填入第一欄
-                remarks_text = "備註:\n" + "\n".join(remarks_parts)
+                remarks_text = "備註:\n" + "\n".join(remarks_lines)
 
                 # 清除現有內容並填入新內容
                 if target_cell.paragraphs:
@@ -3192,28 +3322,86 @@ def translate_product_remarks(remarks: str) -> str:
     Returns:
         翻譯後的中文說明
     """
+    if not remarks:
+        return ""
+
     result = remarks
 
-    # 常見翻譯對應
+    # 常見翻譯對應（按長度排序，先匹配長的）
     translations = {
+        # 產品類型說明
         'This AC POWER SUPPLY is class II construction': '本產品為 Class II 結構',
+        'The equipment is Class II SWITCHING MODE POWER SUPPLY': '本產品為 Class II 結構之交換式電源供應器',
+        'SWITCHING MODE POWER SUPPLY': '交換式電源供應器',
         'designed to power supply for audio/video, information and communication technology equipment': '設計用於影音、資訊及通訊設備類',
+        'used for DC supply of information technology and Audio/Video equipment': '用於資訊技術及影音設備之直流電源供應',
+        'desktop type or direct plug-in type': '桌上型或直插式',
+        'desktop type': '桌上型',
+        'direct plug-in type': '直插式',
         'for indoor use only': '僅供室內使用',
-        'The maximum operating ambient temperature is': '最高工作環境溫度為',
+        # 外殼結構
+        "The power adapter's top enclosure is secured to bottom enclosure by ultrasonic welding": '使用超音波固定外殼',
         'The top enclosure is sealed with bottom enclosure by ultrasonic welding': '使用超音波固定外殼',
+        'top enclosure is secured to bottom enclosure by': '上蓋與下蓋以',
+        'ultrasonic welding': '超音波焊接',
+        # 測試樣品
+        'The test items are pre-production samples without serial numbers': '測試樣品為無序號之試產品',
+        'pre-production samples without serial numbers': '無序號之試產品',
+        'pre-production samples': '試產品',
+        # 溫度
+        'Specified maximum ambient temperature is': '規定最高環境溫度為',
+        'The maximum operating ambient temperature is': '最高工作環境溫度為',
+        # 輸出線
+        'Output cord is non-detachable': '輸出線為不可分離式',
+        '輸出 cord is non-detachable': '輸出線為不可分離式',
+        'non-detachable': '不可分離式',
+        'detachable': '可分離式',
+        # 插頭評估
+        'For the detachable direct plug-in type equipment': '對於可分離式直插設備',
+        'the pins parts of plug portion were moulded into the plug': '插頭插腳部分已模製成型',
+        'the pins pass the requirements of': '插腳符合以下要求',
+        'EU, UK and AU plug models': 'EU、UK及AU插頭型號',
+        'plug models': '插頭型號',
+        # 功率
         'maximum continuous output power is': '最大連續輸出功率為',
         'working load with': '工作負載為',
-        'for 5 minutes': '工作 5 分鐘',
-        'for 10 minutes': '工作 10 分鐘',
-        'for long working': '進行長期工作',
+        'for 5 minutes': '5 分鐘',
+        'for 10 minutes': '10 分鐘',
+        'for long working': '長期工作',
         'then reduced to': '然後降至',
         'The other outputs could with normal maximum load condition': '其他輸出可按正常最大負載條件運行',
-        'refer to appended table': '詳細資訊請參閱附表',
+        'refer to appended table': '詳見附表',
         'for details': '',
+        # 插腳相關
+        'pins pass': '插腳符合',
+        'moulded into the plug': '模製於插頭中',
+        # 通用
+        'Class II': 'Class II',
+        'Class I': 'Class I',
+        'equipment': '設備',
     }
 
     for en, zh in translations.items():
         result = result.replace(en, zh)
+
+    # 處理編號項目：將 "1. xxx; 2. xxx" 格式轉為多行
+    import re
+    # 匹配 "數字. 內容" 格式
+    if re.search(r'\d+\.\s+', result):
+        # 分割項目
+        items = re.split(r';\s*(?=\d+\.)', result)
+        if len(items) > 1:
+            result = '\n'.join(items)
+
+    # 如果還有大量未翻譯的英文，嘗試 LLM 翻譯
+    if HAS_LLM:
+        # 計算中英文比例
+        chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', result))
+        total_alpha = len(re.findall(r'[a-zA-Z]', result))
+        if total_alpha > 20 and chinese_chars < total_alpha:
+            translated = llm_translate(result)
+            if translated != result:
+                result = translated
 
     return result
 
@@ -3237,6 +3425,15 @@ def translate_model_differences(diff: str) -> str:
 
     if 'except for model number' in diff.lower():
         return "所有型號都相同除了型號命名不同外。"
+
+    # 其他型號差異說明 - 嘗試 LLM 翻譯
+    if HAS_LLM:
+        import re
+        # 檢查是否有英文
+        if re.search(r'[a-zA-Z]{3,}', diff):
+            translated = llm_translate(diff)
+            if translated != diff:
+                return translated
 
     return diff
 

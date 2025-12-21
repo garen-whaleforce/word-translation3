@@ -3,6 +3,8 @@
 LLM 翻譯模組 - 使用 Azure OpenAI 進行專業安規術語翻譯
 支援 IEC 62368-1 & CNS 15598-1 標準術語
 支援併發翻譯加速處理
+
+翻譯規則參考: LLM翻譯術語表.md
 """
 import os
 import re
@@ -19,47 +21,183 @@ except ImportError:
     HAS_OPENAI = False
 
 
+# ============================================================
+# 強制術語表 (MANDATORY GLOSSARY) - 翻譯時必須使用
+# ============================================================
+MANDATORY_GLOSSARY = {
+    # 零件 / 元件 (Parts / Components)
+    'Bleeding resistor': '洩放電阻',
+    'Electrolytic capacitor': '電解電容',
+    'MOSFET': '電晶體',
+    'Current limit resistor': '限流電阻',
+    'Varistor': '突波吸收器',
+    'MOV': '突波吸收器',
+    'Primary wire': '一次側引線',
+    'Line choke': '電感',
+    'Line chock': '電感',
+    'Bobbin': '線架',
+    'Plug holder': '刃片插座塑膠材質',
+    'AC connector': 'AC 連接器',
+    'Fuse': '保險絲',
+    'Triple insulated wire': '三層絕緣線',
+    'Trace': '銅箔',  # PCB Trace
+
+    # 電路側與繞線 (Circuit Sides & Windings)
+    'primary winding': '一次側繞線',
+    'primary circuit': '一次側電路',
+    'primary': '一次側',
+    'secondary': '二次側',
+    'Sec.': '二次側',
+    'winding': '繞線',
+    'core': '鐵芯',
+    'magnetic core': '鐵芯',
+    'circuit': '電路',
+    'connected to': '連接至',
+
+    # 測試條件、環境、狀態
+    'Unit shutdown immediately': '設備立即中斷',
+    'Unit shutdown': '設備中斷',
+    'Ambient': '室溫',
+    'Plastic enclosure outside near': '塑膠外殼內側靠近',
+    'For model': '適用型號',
+    'Optional': '可選',
+    'Interchangeable': '不限',
+    'Minimum': '至少',
+    'at least': '至少',
+    'approx.': '約',
+    'Approx.': '約',
+
+    # 型號類型
+    'For direct plug-in models': '直插式型號',
+    'direct plug-in models': '直插式型號',
+    'direct plug-in': '直插式',
+    'For desktop models': '桌上型型號',
+    'desktop models': '桌上型型號',
+    'desktop': '桌上型',
+
+    # 判定結果 (Verdict / Result)
+    'Pass': '符合',
+    'Fail': '不符合',
+    'Not applicable': '不適用',
+}
+
+# 特殊翻譯映射 - 直接映射不經過 LLM
+SPECIAL_TRANSLATIONS = {
+    'P': '符合',
+    'N/A': '不適用',
+    '--': '--',
+    'F': '不符合',
+}
+
+# LLM 拒絕消息開頭 - 遇到這些開頭時替換為 '--'
+LLM_REFUSAL_PREFIXES = [
+    '抱歉，我無法',
+    '抱歉，我不能',
+    '對不起，我無法',
+    '對不起，我不能',
+    '很抱歉，我無法',
+    '很抱歉，我不能',
+    "I'm sorry",
+    'I cannot',
+    "I can't",
+]
+
+# 英文檢測排除清單 - 這些詞彙不觸發重新翻譯
+ENGLISH_EXCLUDE_LIST = {
+    'iec', 'en', 'ul', 'csa', 'vde', 'tuv', 'cb', 'ict', 'mosfet', 'pcb',
+    'ac', 'dc', 'led', 'usb', 'hdmi', 'wifi', 'http', 'https', 'api',
+    'pass', 'fail', 'n/a', 'max', 'min', 'typ', 'nom', 'ref', 'see',
+    'table', 'figure', 'note', 'page', 'item', 'model', 'type', 'class',
+}
+
+
 # 系統提示詞 - 專業安規工程師角色
 SYSTEM_PROMPT = """你是一位專業嚴謹的安規工程師，專精於 IEC 62368-1 與 CNS 15598-1 (109年版) 標準。
 你的任務是將 CB 測試報告中的英文內容翻譯為繁體中文。
 
-翻譯原則：
-1. 使用 CNS 15598-1 官方標準術語，不可自行創造詞彙
-2. 技術術語必須準確，例如：
-   - SELV → 安全特低電壓
-   - HAZARDOUS VOLTAGE → 危險電壓
-   - BASIC INSULATION → 基本絕緣
-   - SUPPLEMENTARY INSULATION → 補充絕緣
-   - REINFORCED INSULATION → 加強絕緣
-   - DOUBLE INSULATION → 雙重絕緣
-   - PROTECTIVE EARTHING → 保護接地
-   - FUNCTIONAL EARTHING → 功能接地
-   - ENCLOSURE → 外殼
-   - ACCESSIBLE PART → 可接觸部位
-   - ENERGY SOURCE → 能量來源
-   - SAFEGUARD → 安全防護
-   - THERMAL CUT-OUT → 熱切斷器
-   - THERMAL LINK → 熱熔斷器
-   - PROTECTIVE IMPEDANCE → 保護阻抗
-   - CURRENT LIMITER → 限流器
-   - CREEPAGE DISTANCE → 沿面距離
-   - CLEARANCE → 電氣間隙
-   - WORKING VOLTAGE → 工作電壓
-   - DIELECTRIC STRENGTH → 介電強度
-   - TOUCH CURRENT → 接觸電流
-   - PROTECTIVE CONDUCTOR CURRENT → 保護導體電流
-   - FIRE ENCLOSURE → 防火外殼
-   - ORDINARY PERSON → 一般人員
-   - INSTRUCTED PERSON → 受指導人員
-   - SKILLED PERSON → 熟練人員
-3. 判定結果翻譯：
-   - PASS / P → 符合
-   - FAIL / F → 不符合
-   - N/A → 不適用
-4. 保留數值、單位、型號、標準編號（如 IEC 60950-1）不翻譯
-5. 保留表格編號格式（如 Table 4.1.2 → 表 4.1.2）
-6. 條款編號保持原格式（如 4.2.1、B.3）
-7. 翻譯要簡潔專業，不加額外解釋
+【強制術語表 - 必須使用以下翻譯】
+
+零件/元件:
+- Bleeding resistor → 洩放電阻
+- Electrolytic capacitor → 電解電容
+- MOSFET → 電晶體
+- Current limit resistor → 限流電阻
+- Varistor / MOV → 突波吸收器
+- Primary wire → 一次側引線
+- Line choke / Line chock → 電感
+- Bobbin → 線架
+- Plug holder → 刃片插座塑膠材質
+- AC connector → AC 連接器
+- Fuse → 保險絲
+- Triple insulated wire → 三層絕緣線
+- Trace (PCB) → 銅箔
+
+電路側與繞線:
+- primary winding → 一次側繞線
+- primary circuit → 一次側電路
+- primary (指一次側時) → 一次側
+- secondary / Sec. → 二次側
+- winding → 繞線
+- core / magnetic core → 鐵芯
+
+【絕對禁止的翻譯方式】
+- ❌ primary → 初級 (錯誤)  ✅ primary → 一次側 (正確)
+- ❌ primary → 一次測 (錯誤)  ✅ primary → 一次側 (正確)
+- ❌ secondary → 次級 (錯誤)  ✅ secondary → 二次側 (正確)
+
+【CNS 15598-1 標準術語】
+- SELV → 安全特低電壓
+- HAZARDOUS VOLTAGE → 危險電壓
+- BASIC INSULATION → 基本絕緣
+- SUPPLEMENTARY INSULATION → 補充絕緣
+- REINFORCED INSULATION → 加強絕緣
+- DOUBLE INSULATION → 雙重絕緣
+- PROTECTIVE EARTHING → 保護接地
+- FUNCTIONAL EARTHING → 功能接地
+- ENCLOSURE → 外殼
+- ACCESSIBLE PART → 可接觸部位
+- ENERGY SOURCE → 能量來源
+- SAFEGUARD → 安全防護
+- THERMAL CUT-OUT → 熱切斷器
+- THERMAL LINK → 熱熔斷器
+- PROTECTIVE IMPEDANCE → 保護阻抗
+- CURRENT LIMITER → 限流器
+- CREEPAGE DISTANCE → 沿面距離
+- CLEARANCE → 電氣間隙
+- WORKING VOLTAGE → 工作電壓
+- DIELECTRIC STRENGTH → 介電強度
+- TOUCH CURRENT → 接觸電流
+- PROTECTIVE CONDUCTOR CURRENT → 保護導體電流
+- FIRE ENCLOSURE → 防火外殼
+- ORDINARY PERSON → 一般人員
+- INSTRUCTED PERSON → 受指導人員
+- SKILLED PERSON → 熟練人員
+
+【判定結果翻譯】
+- PASS / P → 符合
+- FAIL / F → 不符合
+- N/A → 不適用
+
+【測試條件翻譯】
+- Unit shutdown immediately → 設備立即中斷
+- Unit shutdown → 設備中斷
+- Ambient → 室溫
+- Optional → 可選
+- Interchangeable → 不限
+- Minimum / at least → 至少
+
+【保留英文不翻譯的項目】
+1. 標準代碼：IEC / EN / UL / CSA / VDE / TUV / CB 等
+2. 型號名稱：商品名稱、型號名稱
+3. 公司名稱：製造商、申請者等公司名稱
+4. PCB 標記符：R1, C2, T1, Q1 等
+5. 標準術語縮寫：CB, ICT, AV 等
+6. 數值、單位（如 230V, 50Hz, 3.0A）
+
+【其他規則】
+- 保留表格編號格式（如 Table 4.1.2 → 表 4.1.2）
+- 條款編號保持原格式（如 4.2.1、B.3）
+- 翻譯要簡潔專業，不加額外解釋
 
 只回覆翻譯結果，不要加任何前綴或說明。"""
 
@@ -74,6 +212,13 @@ class LLMTranslator:
         self._cache: Dict[str, str] = {}
         self._cache_lock = threading.Lock()
         self.max_workers = max_workers  # 併發數量
+
+        # 建立按長度排序的術語表（優先匹配最長詞組）
+        self._sorted_glossary = sorted(
+            MANDATORY_GLOSSARY.items(),
+            key=lambda x: len(x[0]),
+            reverse=True
+        )
 
         if not HAS_OPENAI:
             print("[LLM] openai 套件未安裝，LLM 翻譯功能停用")
@@ -110,6 +255,26 @@ class LLMTranslator:
             return True
         return chinese_chars / total_chars > 0.3
 
+    def _has_significant_english(self, text: str) -> bool:
+        """
+        檢查是否有需要翻譯的英文（排除常見縮寫）
+        """
+        if not text:
+            return False
+
+        # 移除數字和符號
+        words_only = re.sub(r'[0-9\.\-\+\/%°℃Ω,;:()（）\[\]]+', ' ', text)
+        # 提取英文單詞
+        english_words = re.findall(r'\b[a-zA-Z]{2,}\b', words_only)
+
+        # 過濾掉排除清單中的詞彙
+        significant_words = [
+            w for w in english_words
+            if w.lower() not in ENGLISH_EXCLUDE_LIST
+        ]
+
+        return len(significant_words) > 0
+
     def _should_translate(self, text: str) -> bool:
         """判斷是否需要翻譯"""
         if not text or len(text.strip()) < 3:
@@ -125,34 +290,95 @@ class LLMTranslator:
             return False
         return True
 
+    def _apply_special_translation(self, text: str) -> Optional[str]:
+        """
+        檢查特殊翻譯映射（P, N/A, -- 等）
+        返回翻譯結果或 None（表示需要進一步處理）
+        """
+        text_stripped = text.strip()
+        if text_stripped in SPECIAL_TRANSLATIONS:
+            return SPECIAL_TRANSLATIONS[text_stripped]
+        return None
+
+    def _apply_glossary(self, text: str) -> str:
+        """
+        套用強制術語表進行預翻譯
+        優先匹配最長的詞組
+        """
+        result = text
+        for eng, chi in self._sorted_glossary:
+            # 使用 word boundary 進行替換（忽略大小寫）
+            pattern = re.compile(re.escape(eng), re.IGNORECASE)
+            result = pattern.sub(chi, result)
+        return result
+
+    def _filter_refusal(self, text: str) -> str:
+        """
+        過濾 LLM 拒絕消息
+        如果回覆以拒絕消息開頭，替換為 '--'
+        """
+        for prefix in LLM_REFUSAL_PREFIXES:
+            if text.startswith(prefix):
+                return '--'
+        return text
+
     def translate(self, text: str) -> str:
-        """翻譯單個文本"""
-        if not self.enabled or not self._should_translate(text):
+        """
+        翻譯單個文本
+
+        流程:
+        1. 檢查特殊翻譯映射 (P, N/A, --)
+        2. 套用強制術語表預翻譯
+        3. 如果仍有英文且 LLM 啟用，呼叫 LLM
+        4. 過濾拒絕消息
+        """
+        if not text or len(text.strip()) < 1:
             return text
 
-        # 檢查快取（thread-safe）
-        cache_key = text.strip()
-        with self._cache_lock:
-            if cache_key in self._cache:
-                return self._cache[cache_key]
+        # Step 1: 特殊翻譯映射
+        special = self._apply_special_translation(text)
+        if special is not None:
+            return special
 
-        try:
-            response = self.client.chat.completions.create(
-                model=self.deployment,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"翻譯以下內容：\n{text}"}
-                ],
-                max_completion_tokens=500,
-                temperature=0.1,  # 低溫度確保一致性
-            )
-            result = response.choices[0].message.content.strip()
-            with self._cache_lock:
-                self._cache[cache_key] = result
+        # Step 2: 套用強制術語表
+        result = self._apply_glossary(text)
+
+        # 如果已經變成中文為主，直接返回
+        if self._is_chinese(result):
             return result
-        except Exception as e:
-            print(f"[LLM] 翻譯失敗: {e}")
-            return text
+
+        # Step 3: 如果仍有英文且 LLM 啟用，呼叫 LLM
+        if self.enabled and self._has_significant_english(result):
+            # 檢查快取（thread-safe）
+            cache_key = text.strip()
+            with self._cache_lock:
+                if cache_key in self._cache:
+                    return self._cache[cache_key]
+
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.deployment,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": f"翻譯以下內容：\n{text}"}
+                    ],
+                    max_completion_tokens=500,
+                    temperature=0.1,  # 低溫度確保一致性
+                )
+                llm_result = response.choices[0].message.content.strip()
+
+                # Step 4: 過濾拒絕消息
+                llm_result = self._filter_refusal(llm_result)
+
+                with self._cache_lock:
+                    self._cache[cache_key] = llm_result
+                return llm_result
+            except Exception as e:
+                print(f"[LLM] 翻譯失敗: {e}")
+                # 回傳字典翻譯結果
+                return result
+
+        return result
 
     def _translate_single_for_batch(self, text: str, idx: int) -> tuple:
         """併發翻譯的單個任務"""
@@ -210,30 +436,52 @@ class LLMTranslator:
         print(f"[LLM] 併發翻譯完成: {completed}/{len(to_translate)}")
         return results
 
-    def final_review(self, texts: Dict[str, str]) -> Dict[str, str]:
-        """最終審查 - 檢查並修正遺漏的英文"""
-        if not self.enabled:
-            return texts
+    def translate_with_glossary_only(self, text: str) -> str:
+        """
+        僅使用字典翻譯（不呼叫 LLM）
+        適用於不需要 LLM 或 LLM 未啟用的情況
+        """
+        if not text or len(text.strip()) < 1:
+            return text
 
-        # 找出仍有大量英文的欄位
+        # 特殊翻譯映射
+        special = self._apply_special_translation(text)
+        if special is not None:
+            return special
+
+        # 套用強制術語表
+        return self._apply_glossary(text)
+
+    def final_review(self, texts: Dict[str, str]) -> Dict[str, str]:
+        """
+        最終審查 - 檢查並修正遺漏的英文
+
+        即使 LLM 未啟用，也會使用字典翻譯
+        """
+        # 找出仍有英文的欄位
         to_review = {}
         for key, value in texts.items():
-            if value and not self._is_chinese(value) and self._should_translate(value):
+            if value and self._has_significant_english(value):
                 to_review[key] = value
 
         if not to_review:
             return texts
 
-        print(f"[LLM] 最終審查：發現 {len(to_review)} 個未翻譯欄位")
-
-        # 批次翻譯遺漏項目
-        keys = list(to_review.keys())
-        values = list(to_review.values())
-        translated = self.translate_batch(values)
+        print(f"[翻譯] 最終審查：發現 {len(to_review)} 個含英文欄位")
 
         result = dict(texts)
-        for i, key in enumerate(keys):
-            result[key] = translated[i]
+
+        if self.enabled:
+            # LLM 啟用時，批次翻譯
+            keys = list(to_review.keys())
+            values = list(to_review.values())
+            translated = self.translate_batch(values)
+            for i, key in enumerate(keys):
+                result[key] = translated[i]
+        else:
+            # LLM 未啟用時，使用字典翻譯
+            for key, value in to_review.items():
+                result[key] = self.translate_with_glossary_only(value)
 
         return result
 
@@ -251,8 +499,13 @@ def get_translator() -> LLMTranslator:
 
 
 def llm_translate(text: str) -> str:
-    """便捷函數：翻譯單個文本"""
+    """便捷函數：翻譯單個文本（使用字典 + LLM）"""
     return get_translator().translate(text)
+
+
+def glossary_translate(text: str) -> str:
+    """便捷函數：僅使用字典翻譯（不呼叫 LLM）"""
+    return get_translator().translate_with_glossary_only(text)
 
 
 def llm_translate_batch(texts: List[str]) -> List[str]:
@@ -263,3 +516,14 @@ def llm_translate_batch(texts: List[str]) -> List[str]:
 def llm_final_review(texts: Dict[str, str]) -> Dict[str, str]:
     """便捷函數：最終審查"""
     return get_translator().final_review(texts)
+
+
+# 導出術語表供其他模組使用
+def get_mandatory_glossary() -> Dict[str, str]:
+    """獲取強制術語表"""
+    return MANDATORY_GLOSSARY.copy()
+
+
+def get_special_translations() -> Dict[str, str]:
+    """獲取特殊翻譯映射"""
+    return SPECIAL_TRANSLATIONS.copy()
