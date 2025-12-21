@@ -284,11 +284,12 @@ def add_row_after(table, reference_row_idx):
 
 def fill_overview_table_from_cb_p12(doc: Document, overview_cb_p12_rows: list):
     """
-    使用 overview_cb_p12_rows 完全重建安全防護總攬表
-    方案A：找到表格後，按章節填入資料列，必要時插入新列
+    使用 overview_cb_p12_rows 更新安全防護總攬表的 safeguard 欄位
+    新策略：保留模板結構，只更新 safeguard（基本、補充、強化）欄位
+    不刪除模板中的任何列
     """
     if not overview_cb_p12_rows:
-        print("警告：overview_cb_p12_rows 為空")
+        print("警告：overview_cb_p12_rows 為空，保留模板預設值")
         return 0
 
     # 找安全防護總攬表
@@ -310,20 +311,7 @@ def fill_overview_table_from_cb_p12(doc: Document, overview_cb_p12_rows: list):
             pdf_by_clause[clause] = []
         pdf_by_clause[clause].append(row_data)
 
-    # 預期每個章節的列數
-    expected_counts = {
-        5: 3,  # ES3 mains, ES3 Capacitor, ES1 output
-        6: 2,  # PS3, PS2
-        7: 1,  # N/A
-        8: 2,  # MS1 mass, MS1 edges
-        9: 1,  # TS1
-        10: 1  # N/A
-    }
-
-    # 第一遍：分析並在需要時插入列
-    # 由於 python-docx 插入列比較複雜，我們改用「先找出位置，然後在第一個資料列後複製並插入」
-
-    # 先做一次完整掃描，找出每個章節的資料列
+    # 掃描模板中各章節的資料列
     def scan_clause_sections():
         sections = {}
         current = None
@@ -348,77 +336,33 @@ def fill_overview_table_from_cb_p12(doc: Document, overview_cb_p12_rows: list):
                 current = 10
                 sections[10] = {'start': idx, 'data_rows': []}
 
+            # 偵測資料列
             if current and (
                 first_cell.startswith('ES') or
                 first_cell.startswith('PS') or
                 first_cell.startswith('MS') or
                 first_cell.startswith('TS') or
+                first_cell.startswith('RS') or
                 first_cell in ['N/A', '無']
             ):
                 sections[current]['data_rows'].append(idx)
         return sections
 
     clause_sections = scan_clause_sections()
+    updated_rows = 0
 
-    # 檢查 Clause 5 是否需要插入列
-    if 5 in clause_sections:
-        template_count = len(clause_sections[5]['data_rows'])
-        pdf_count = len(pdf_by_clause.get(5, []))
+    # 建立 PDF 資料的 energy source 類型映射（用於匹配）
+    def get_energy_type(text):
+        """從能源來源文字中提取類型 (ES1, ES3, PS2, PS3, MS1, TS1, TS3, RS1, N/A)"""
+        text = text.upper()
+        for prefix in ['ES3', 'ES2', 'ES1', 'PS3', 'PS2', 'PS1', 'MS3', 'MS2', 'MS1', 'TS3', 'TS2', 'TS1', 'RS3', 'RS2', 'RS1']:
+            if prefix in text:
+                return prefix
+        if 'N/A' in text or text == '無':
+            return 'N/A'
+        return None
 
-        if pdf_count > template_count and template_count >= 1:
-            # 需要在 Clause 5 的第一個資料列後插入額外的列
-            first_data_row = clause_sections[5]['data_rows'][0]
-            rows_to_add = pdf_count - template_count
-
-            for i in range(rows_to_add):
-                add_row_after(overview_table, first_data_row + i)
-
-            # 重新掃描 - 這次包含新插入的列
-            # 由於新列文字被複製了，需要手動調整 clause_sections
-            # 重新掃描後，Clause 5 應該有 3 個資料列位置
-            clause_sections = {}
-            current = None
-            for idx, row in enumerate(overview_table.rows):
-                first_cell = row.cells[0].text.strip()
-
-                # 偵測章節開始
-                if first_cell == '5.1':
-                    current = 5
-                    clause_sections[5] = {'start': idx, 'data_rows': []}
-                elif first_cell == '6.1':
-                    current = 6
-                    clause_sections[6] = {'start': idx, 'data_rows': []}
-                elif first_cell == '7.1':
-                    current = 7
-                    clause_sections[7] = {'start': idx, 'data_rows': []}
-                elif first_cell == '8.1':
-                    current = 8
-                    clause_sections[8] = {'start': idx, 'data_rows': []}
-                elif first_cell == '9.1':
-                    current = 9
-                    clause_sections[9] = {'start': idx, 'data_rows': []}
-                elif first_cell == '10.1':
-                    current = 10
-                    clause_sections[10] = {'start': idx, 'data_rows': []}
-
-                # 偵測資料列（包含新插入的）
-                if current and (
-                    first_cell.startswith('ES') or
-                    first_cell.startswith('PS') or
-                    first_cell.startswith('MS') or
-                    first_cell.startswith('TS') or
-                    first_cell in ['N/A', '無'] or
-                    first_cell == ''  # 新插入的列可能是空的
-                ):
-                    # 排除表頭列和空列（除非是在資料區間）
-                    # 只在已經有資料列的章節內才加入空列
-                    if clause_sections[current]['data_rows'] or first_cell != '':
-                        if first_cell != '' or (clause_sections[current]['data_rows'] and idx == clause_sections[current]['data_rows'][-1] + 1):
-                            clause_sections[current]['data_rows'].append(idx)
-
-    rendered_rows = 0
-
-    # 對每個章節，填入對應的資料
+    # 對每個章節，根據能源類型匹配更新 safeguard 欄位
     for clause in [5, 6, 7, 8, 9, 10]:
         if clause not in clause_sections:
             continue
@@ -427,60 +371,52 @@ def fill_overview_table_from_cb_p12(doc: Document, overview_cb_p12_rows: list):
         template_data_rows = section['data_rows']
         pdf_rows = pdf_by_clause.get(clause, [])
 
-        # 計算需要填入的列數
-        rows_to_fill = min(len(template_data_rows), len(pdf_rows))
+        if not pdf_rows:
+            continue
 
-        for i in range(rows_to_fill):
-            row_idx = template_data_rows[i]
-            row_data = pdf_rows[i]
+        # 建立 PDF 資料的能源類型映射
+        pdf_by_type = {}
+        for pdf_row in pdf_rows:
+            energy_source = pdf_row.get('energy_source', '') or pdf_row.get('class_energy_source', '')
+            etype = get_energy_type(energy_source)
+            if etype:
+                if etype not in pdf_by_type:
+                    pdf_by_type[etype] = []
+                pdf_by_type[etype].append(pdf_row)
 
+        # 遍歷模板中的每個資料列，根據能源類型匹配更新
+        for row_idx in template_data_rows:
             table_row = overview_table.rows[row_idx]
+            template_energy = table_row.cells[0].text.strip()
+            template_type = get_energy_type(template_energy)
 
-            # 支援兩種欄位命名方式
-            energy_source = row_data.get('energy_source', '') or row_data.get('class_energy_source', '')
-            body_part = row_data.get('body_part_or_material', '') or row_data.get('body_or_material', '')
-            basic = row_data.get('safeguard_basic', '') or row_data.get('basic', 'N/A')
-            supp1 = row_data.get('safeguard_supplementary', '') or row_data.get('supp1', 'N/A')
-            supp2 = row_data.get('safeguard_reinforced', '') or row_data.get('supp2', 'N/A')
+            if not template_type or template_type not in pdf_by_type:
+                continue
 
-            # 翻譯並填入
-            table_row.cells[0].text = translate_energy_source(energy_source, clause)
-            table_row.cells[1].text = translate_body_part(body_part, clause)
-            table_row.cells[2].text = translate_safeguard(basic, clause)
-            table_row.cells[3].text = translate_safeguard(supp1, clause)
-            table_row.cells[4].text = translate_safeguard(supp2, clause)
+            # 取出對應類型的第一個 PDF 資料（後續的用於相同類型的不同子項目）
+            if pdf_by_type[template_type]:
+                pdf_row = pdf_by_type[template_type][0]
 
-            rendered_rows += 1
+                # 更新 safeguard 欄位（保留模板的能源來源和身體部位）
+                basic = pdf_row.get('safeguard_basic', '') or pdf_row.get('basic', '')
+                supp1 = pdf_row.get('safeguard_supplementary', '') or pdf_row.get('supp1', '')
+                supp2 = pdf_row.get('safeguard_reinforced', '') or pdf_row.get('supp2', '')
 
-        # 如果 PDF 有更多列但仍然沒位置，報告警告
-        if len(pdf_rows) > len(template_data_rows):
-            print(f"警告：Clause {clause} PDF 有 {len(pdf_rows)} 列但模板只有 {len(template_data_rows)} 個位置（插入後）")
+                # 只更新 safeguard 欄位（第2-4欄），保留第0-1欄的模板內容
+                if basic:
+                    table_row.cells[2].text = translate_safeguard(basic, clause)
+                if supp1:
+                    table_row.cells[3].text = translate_safeguard(supp1, clause)
+                if supp2:
+                    table_row.cells[4].text = translate_safeguard(supp2, clause)
 
-        # 如果模板有多餘的列，清空它們（標記為待刪除）
-        for i in range(len(pdf_rows), len(template_data_rows)):
-            row_idx = template_data_rows[i]
-            table_row = overview_table.rows[row_idx]
-            # 將多餘的列清空（填入「--」以便識別）
-            table_row.cells[0].text = '--'
-            for cell in table_row.cells[1:]:
-                cell.text = '--'
+                updated_rows += 1
 
-    # 刪除標記為 '--' 的列（從後往前刪）
-    rows_to_delete = []
-    for idx, row in enumerate(overview_table.rows):
-        if row.cells and row.cells[0].text.strip() == '--':
-            rows_to_delete.append(idx)
+                # 對於 PS3/PS2 等有多個子項目的類型，不移除 PDF 資料
+                # 讓相同類型的模板列共享相同的 safeguard 資訊
 
-    # 從後往前刪除
-    for idx in reversed(rows_to_delete):
-        tr = overview_table.rows[idx]._tr
-        tr.getparent().remove(tr)
-
-    if rows_to_delete:
-        print(f"已刪除 {len(rows_to_delete)} 列多餘的資料")
-
-    print(f"已填入 {rendered_rows} 列到安全防護總攬表")
-    return rendered_rows
+    print(f"已更新 {updated_rows} 列的 safeguard 欄位")
+    return updated_rows
 
 def rebuild_clause_tables_v2(doc: Document, pdf_clause_rows: list) -> dict:
     """
@@ -2395,7 +2331,7 @@ def translate_remark(remark: str, clause_id: str) -> str:
         'Indoor use': '室內使用',
         'Outdoor use': '室外使用',
         'Not applicable': '不適用',
-        'See table': '見表格',
+        'See table': '見附表',
         'See clause': '見條款',
         'No opening': '無開口',
         'No openings': '無開口',

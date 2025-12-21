@@ -29,10 +29,8 @@ def find_page_by_content(pdf, search_text: str, max_pages: int = 84) -> int:
 def extract_overview_energy_sources(pdf) -> dict:
     """
     抽取 OVERVIEW OF ENERGY SOURCES AND SAFEGUARDS 表格
-    確保：
-    1. 不漏列、不去重、保留 N/A 列
-    2. 包含 ES3 Capacitor 列和 5.5.2 引用
-    3. 總共 10 列（Clause 5: 3列, Clause 6: 2列, Clause 7: 1列, Clause 8: 2列, Clause 9: 1列, Clause 10: 1列）
+    不漏列、不去重、保留 N/A 列
+    注意：不同 PDF 可能有不同數量的資料列，不做固定行數驗證
     """
     result = {
         'page': -1,
@@ -145,18 +143,16 @@ def extract_overview_energy_sources(pdf) -> dict:
 
     result['total_rows'] = len(result['rows'])
 
-    # 驗證
+    # 記錄驗證狀態（不再拋出異常，改為警告資訊）
+    result['warnings'] = []
     if not result['has_capacitor_row']:
-        raise ValueError("Overview 表格缺少 'Capacitor connected between L and N' 列")
+        result['warnings'].append("Overview 表格未找到 'Capacitor connected between L and N' 列")
 
     if not result['first_es3_has_5_5_2']:
-        raise ValueError("Overview 表格第一個 ES3 列的 safeguards 缺少 '5.5.2'")
+        result['warnings'].append("Overview 表格第一個 ES3 列的 safeguards 未找到 '5.5.2'")
 
     if not result['has_es1_output']:
-        raise ValueError("Overview 表格缺少 'ES1: Secondary output connector' 列")
-
-    if result['total_rows'] != 10:
-        raise ValueError(f"Overview 表格應有 10 列，但只抽到 {result['total_rows']} 列")
+        result['warnings'].append("Overview 表格未找到 'ES1: Secondary output connector' 列")
 
     return result
 
