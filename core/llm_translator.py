@@ -4,6 +4,15 @@ LLM 翻譯模組 - 使用 Azure OpenAI 進行專業安規術語翻譯
 支援 IEC 62368-1 & CNS 15598-1 標準術語
 支援併發翻譯加速處理
 
+翻譯策略（純 LLM 模式）:
+1. 特殊映射（P, N/A, --）→ 直接映射
+2. LLM 翻譯 → 唯一翻譯來源
+3. LLM 失敗或未啟用 → 保留原文
+
+二次翻譯機制:
+- 第一階段：大片翻譯（分 chunk + 併發）
+- 第二階段：掃描殘留英文並重新翻譯
+
 翻譯規則參考: LLM翻譯術語表.md
 """
 import os
@@ -79,6 +88,14 @@ MANDATORY_GLOSSARY = {
     'Pass': '符合',
     'Fail': '不符合',
     'Not applicable': '不適用',
+
+    # 產品類型 (Product Types)
+    'SWITCHING MODE POWER SUPPLY': '電源供應器',
+    'Switching Mode Power Supply': '電源供應器',
+    'switching mode power supply': '電源供應器',
+    'POWER SUPPLY': '電源供應器',
+    'Power Supply': '電源供應器',
+    'power supply': '電源供應器',
 }
 
 # 特殊翻譯映射 - 直接映射不經過 LLM
@@ -202,16 +219,37 @@ SYSTEM_PROMPT = """你是一位專業嚴謹的安規工程師，專精於 IEC 62
 只回覆翻譯結果，不要加任何前綴或說明。"""
 
 
+# ============================================================
+# 翻譯配置參數
+# ============================================================
+CHUNK_SIZE = 1500           # 每個 chunk 的最大字符數
+MAX_RETRIES = 3             # API 呼叫最大重試次數
+RETRY_DELAY = 2             # 重試間隔時間（秒）
+MAX_CONCURRENT_CHUNKS = 20  # 每個文件最大併發 API 呼叫數
+
+# Token 價格（USD per 1M tokens）
+TOKEN_PRICES = {
+    'gpt-5.1': {'input': 1.25, 'cached_input': 0.125, 'output': 10.00},
+    'gpt-5.2': {'input': 1.75, 'cached_input': 0.175, 'output': 14.00},
+}
+
+
 class LLMTranslator:
     """LLM 翻譯器 - Azure OpenAI（支援併發）"""
 
-    def __init__(self, max_workers: int = 5):
+    def __init__(self, max_workers: int = MAX_CONCURRENT_CHUNKS):
         self.enabled = False
         self.client = None
         self.deployment = None
         self._cache: Dict[str, str] = {}
         self._cache_lock = threading.Lock()
         self.max_workers = max_workers  # 併發數量
+
+        # Token 統計
+        self.total_input_tokens = 0
+        self.total_output_tokens = 0
+        self.total_cached_tokens = 0
+        self._stats_lock = threading.Lock()
 
         # 建立按長度排序的術語表（優先匹配最長詞組）
         self._sorted_glossary = sorted(
@@ -322,33 +360,81 @@ class LLMTranslator:
                 return '--'
         return text
 
+    def _update_token_stats(self, usage):
+        """更新 token 統計（thread-safe）"""
+        with self._stats_lock:
+            if hasattr(usage, 'prompt_tokens'):
+                self.total_input_tokens += usage.prompt_tokens
+            if hasattr(usage, 'completion_tokens'):
+                self.total_output_tokens += usage.completion_tokens
+            # Azure OpenAI 可能有 cached_tokens
+            if hasattr(usage, 'prompt_tokens_details') and usage.prompt_tokens_details:
+                if hasattr(usage.prompt_tokens_details, 'cached_tokens'):
+                    self.total_cached_tokens += usage.prompt_tokens_details.cached_tokens
+
+    def get_token_stats(self) -> Dict:
+        """獲取 token 統計"""
+        with self._stats_lock:
+            return {
+                'input_tokens': self.total_input_tokens,
+                'output_tokens': self.total_output_tokens,
+                'cached_tokens': self.total_cached_tokens,
+                'total_tokens': self.total_input_tokens + self.total_output_tokens,
+            }
+
+    def get_cost_estimate(self) -> Dict:
+        """計算成本估算（USD）"""
+        stats = self.get_token_stats()
+        model = self.deployment or 'gpt-5.1'
+        prices = TOKEN_PRICES.get(model, TOKEN_PRICES['gpt-5.1'])
+
+        # 計算成本（價格是 per 1M tokens）
+        input_cost = (stats['input_tokens'] - stats['cached_tokens']) * prices['input'] / 1_000_000
+        cached_cost = stats['cached_tokens'] * prices['cached_input'] / 1_000_000
+        output_cost = stats['output_tokens'] * prices['output'] / 1_000_000
+        total_cost = input_cost + cached_cost + output_cost
+
+        return {
+            'model': model,
+            'input_tokens': stats['input_tokens'],
+            'cached_tokens': stats['cached_tokens'],
+            'output_tokens': stats['output_tokens'],
+            'input_cost': round(input_cost, 4),
+            'cached_cost': round(cached_cost, 4),
+            'output_cost': round(output_cost, 4),
+            'total_cost': round(total_cost, 4),
+        }
+
+    def reset_stats(self):
+        """重置統計"""
+        with self._stats_lock:
+            self.total_input_tokens = 0
+            self.total_output_tokens = 0
+            self.total_cached_tokens = 0
+
     def translate(self, text: str) -> str:
         """
-        翻譯單個文本
+        翻譯單個文本（純 LLM 模式）
 
         流程:
         1. 檢查特殊翻譯映射 (P, N/A, --)
-        2. 套用強制術語表預翻譯
-        3. 如果仍有英文且 LLM 啟用，呼叫 LLM
-        4. 過濾拒絕消息
+        2. 如果 LLM 啟用且有英文，呼叫 LLM
+        3. LLM 失敗或未啟用時，保留原文
         """
         if not text or len(text.strip()) < 1:
             return text
 
-        # Step 1: 特殊翻譯映射
+        # Step 1: 特殊翻譯映射（P, N/A, -- 等直接映射）
         special = self._apply_special_translation(text)
         if special is not None:
             return special
 
-        # Step 2: 套用強制術語表
-        result = self._apply_glossary(text)
+        # 如果已經是中文為主，直接返回
+        if self._is_chinese(text):
+            return text
 
-        # 如果已經變成中文為主，直接返回
-        if self._is_chinese(result):
-            return result
-
-        # Step 3: 如果仍有英文且 LLM 啟用，呼叫 LLM
-        if self.enabled and self._has_significant_english(result):
+        # Step 2: 純 LLM 翻譯
+        if self.enabled and self._has_significant_english(text):
             # 檢查快取（thread-safe）
             cache_key = text.strip()
             with self._cache_lock:
@@ -367,18 +453,23 @@ class LLMTranslator:
                 )
                 llm_result = response.choices[0].message.content.strip()
 
-                # Step 4: 過濾拒絕消息
+                # 追蹤 token 使用量
+                if hasattr(response, 'usage') and response.usage:
+                    self._update_token_stats(response.usage)
+
+                # 過濾拒絕消息
                 llm_result = self._filter_refusal(llm_result)
 
                 with self._cache_lock:
                     self._cache[cache_key] = llm_result
                 return llm_result
             except Exception as e:
-                print(f"[LLM] 翻譯失敗: {e}")
-                # 回傳字典翻譯結果
-                return result
+                print(f"[LLM] 翻譯失敗，保留原文: {e}")
+                # LLM 失敗時，保留原文（不使用字典）
+                return text
 
-        return result
+        # LLM 未啟用時，保留原文（不使用字典）
+        return text
 
     def _translate_single_for_batch(self, text: str, idx: int) -> tuple:
         """併發翻譯的單個任務"""
@@ -389,9 +480,107 @@ class LLMTranslator:
             print(f"[LLM] 併發翻譯失敗 (idx={idx}): {e}")
             return (idx, text)
 
+    def _create_chunks(self, texts: List[str], indices: List[int]) -> List[List[int]]:
+        """
+        將文本分組成 chunks 進行批次翻譯
+
+        Args:
+            texts: 需要翻譯的文本列表
+            indices: 對應的原始索引列表
+
+        Returns:
+            chunks: 分組後的索引列表
+        """
+        chunks = []
+        current_chunk = []
+        current_length = 0
+
+        for i, text in enumerate(texts):
+            text_length = len(text)
+
+            # 超過 CHUNK_SIZE 就新建一個 chunk
+            if current_length + text_length > CHUNK_SIZE and current_chunk:
+                chunks.append(current_chunk)
+                current_chunk = []
+                current_length = 0
+
+            current_chunk.append(i)
+            current_length += text_length
+
+        if current_chunk:
+            chunks.append(current_chunk)
+
+        return chunks
+
+    def _translate_chunk(self, texts: List[str], chunk_indices: List[int]) -> Dict[int, str]:
+        """
+        翻譯單個 chunk（合併文本用分隔符）
+
+        Args:
+            texts: 完整的文本列表
+            chunk_indices: 此 chunk 包含的索引
+
+        Returns:
+            翻譯結果字典 {index: translated_text}
+        """
+        separator = " ||| "
+        chunk_texts = [texts[i] for i in chunk_indices]
+        combined_text = separator.join(chunk_texts)
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.deployment,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": f"翻譯以下內容（保持 ||| 分隔符）：\n{combined_text}"}
+                ],
+                max_completion_tokens=2000,
+                temperature=0.1,
+            )
+            translated_combined = response.choices[0].message.content.strip()
+
+            # 追蹤 token 使用量
+            if hasattr(response, 'usage') and response.usage:
+                self._update_token_stats(response.usage)
+
+            translated_combined = self._filter_refusal(translated_combined)
+
+            # 拆分翻譯結果
+            translated_texts = translated_combined.split(separator)
+
+            # 如果分隔符數量匹配
+            if len(translated_texts) == len(chunk_indices):
+                result = {}
+                for i, idx in enumerate(chunk_indices):
+                    result[idx] = translated_texts[i].strip()
+                return result
+
+            # 分隔符不匹配，逐個翻譯
+            print(f"[LLM] Chunk 分隔符不匹配，改用逐個翻譯")
+            result = {}
+            for idx in chunk_indices:
+                result[idx] = self.translate(texts[idx])
+            return result
+
+        except Exception as e:
+            print(f"[LLM] Chunk 翻譯失敗，保留原文: {e}")
+            # 失敗時保留原文（不使用字典）
+            result = {}
+            for idx in chunk_indices:
+                result[idx] = texts[idx]
+            return result
+
     def translate_batch(self, texts: List[str]) -> List[str]:
-        """批次翻譯多個文本（併發處理）"""
+        """
+        批次翻譯多個文本（分 chunk + 併發處理）
+
+        採用二階段策略：
+        1. 先將文本分成 chunks（每個 chunk ≤ CHUNK_SIZE 字符）
+        2. 每個 chunk 內的文本合併用分隔符連接，一次 API 調用翻譯
+        3. 使用 ThreadPoolExecutor 併發處理多個 chunks
+        """
         if not self.enabled:
+            # LLM 未啟用時，保留原文（不使用字典）
             return texts
 
         # 過濾出需要翻譯的文本
@@ -412,28 +601,34 @@ class LLMTranslator:
         if not to_translate:
             return results
 
-        print(f"[LLM] 開始併發翻譯 {len(to_translate)} 個項目 (max_workers={self.max_workers})...")
+        # 分 chunk
+        chunks = self._create_chunks(to_translate, indices)
+        print(f"[LLM] 開始翻譯 {len(to_translate)} 個項目，分成 {len(chunks)} 個 chunks (max_workers={self.max_workers})...")
 
-        # 使用 ThreadPoolExecutor 併發翻譯
+        # 使用 ThreadPoolExecutor 併發處理 chunks
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = {
-                executor.submit(self._translate_single_for_batch, text, i): i
-                for i, text in enumerate(to_translate)
+                executor.submit(self._translate_chunk, to_translate, chunk): chunk_idx
+                for chunk_idx, chunk in enumerate(chunks)
             }
 
             completed = 0
             for future in as_completed(futures):
                 try:
-                    batch_idx, translated = future.result()
-                    original_idx = indices[batch_idx]
-                    results[original_idx] = translated
+                    chunk_results = future.result()
+                    for batch_idx, translated in chunk_results.items():
+                        original_idx = indices[batch_idx]
+                        results[original_idx] = translated
+                        # 更新快取
+                        with self._cache_lock:
+                            self._cache[to_translate[batch_idx].strip()] = translated
                     completed += 1
-                    if completed % 10 == 0:
-                        print(f"[LLM] 進度: {completed}/{len(to_translate)}")
+                    if completed % 5 == 0 or completed == len(chunks):
+                        print(f"[LLM] Chunk 進度: {completed}/{len(chunks)}")
                 except Exception as e:
-                    print(f"[LLM] 併發任務失敗: {e}")
+                    print(f"[LLM] Chunk 處理失敗: {e}")
 
-        print(f"[LLM] 併發翻譯完成: {completed}/{len(to_translate)}")
+        print(f"[LLM] 批次翻譯完成")
         return results
 
     def translate_with_glossary_only(self, text: str) -> str:
@@ -454,9 +649,7 @@ class LLMTranslator:
 
     def final_review(self, texts: Dict[str, str]) -> Dict[str, str]:
         """
-        最終審查 - 檢查並修正遺漏的英文
-
-        即使 LLM 未啟用，也會使用字典翻譯
+        最終審查 - 檢查並修正遺漏的英文（純 LLM 模式）
         """
         # 找出仍有英文的欄位
         to_review = {}
@@ -478,12 +671,52 @@ class LLMTranslator:
             translated = self.translate_batch(values)
             for i, key in enumerate(keys):
                 result[key] = translated[i]
-        else:
-            # LLM 未啟用時，使用字典翻譯
-            for key, value in to_review.items():
-                result[key] = self.translate_with_glossary_only(value)
+        # LLM 未啟用時，保留原文（不使用字典）
 
         return result
+
+    def second_pass_translate(self, texts: List[str]) -> List[str]:
+        """
+        第二階段翻譯 - 掃描並翻譯殘留的英文
+
+        用於文件翻譯後的細部檢查，找出仍含有英文的文本並重新翻譯。
+        採用更嚴格的英文檢測，確保不遺漏任何需要翻譯的內容。
+
+        Args:
+            texts: 已翻譯的文本列表
+
+        Returns:
+            經過二次翻譯的文本列表
+        """
+        if not texts:
+            return texts
+
+        # 找出仍有殘留英文的文本
+        to_retranslate = []
+        indices = []
+        results = list(texts)
+
+        for i, text in enumerate(texts):
+            if text and self._has_significant_english(text):
+                to_retranslate.append(text)
+                indices.append(i)
+
+        if not to_retranslate:
+            return results
+
+        print(f"[二次翻譯] 發現 {len(to_retranslate)} 個殘留英文文本")
+
+        if self.enabled:
+            # LLM 啟用時，批次翻譯
+            translated = self.translate_batch(to_retranslate)
+            for i, idx in enumerate(indices):
+                results[idx] = translated[i]
+            print(f"[二次翻譯] LLM 完成 {len(to_retranslate)} 個文本")
+        else:
+            # LLM 未啟用時，保留原文（不使用字典）
+            print(f"[二次翻譯] LLM 未啟用，保留原文")
+
+        return results
 
 
 # 全局翻譯器實例
@@ -516,6 +749,26 @@ def llm_translate_batch(texts: List[str]) -> List[str]:
 def llm_final_review(texts: Dict[str, str]) -> Dict[str, str]:
     """便捷函數：最終審查"""
     return get_translator().final_review(texts)
+
+
+def llm_second_pass(texts: List[str]) -> List[str]:
+    """便捷函數：第二階段翻譯（掃描殘留英文）"""
+    return get_translator().second_pass_translate(texts)
+
+
+def get_token_stats() -> Dict:
+    """便捷函數：獲取 token 統計"""
+    return get_translator().get_token_stats()
+
+
+def get_cost_estimate() -> Dict:
+    """便捷函數：獲取成本估算"""
+    return get_translator().get_cost_estimate()
+
+
+def reset_translator_stats():
+    """便捷函數：重置翻譯器統計"""
+    get_translator().reset_stats()
 
 
 # 導出術語表供其他模組使用

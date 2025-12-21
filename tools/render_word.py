@@ -12,7 +12,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # 導入 LLM 翻譯器
 try:
-    from core.llm_translator import llm_translate, get_translator
+    from core.llm_translator import (
+        llm_translate, get_translator, llm_second_pass,
+        get_cost_estimate, reset_translator_stats
+    )
     HAS_LLM = True
 except ImportError:
     HAS_LLM = False
@@ -20,6 +23,12 @@ except ImportError:
         return text
     def get_translator():
         return None
+    def llm_second_pass(texts: list) -> list:
+        return texts
+    def get_cost_estimate() -> dict:
+        return {'model': 'none', 'input_tokens': 0, 'output_tokens': 0, 'cached_tokens': 0, 'total_cost': 0.0}
+    def reset_translator_stats():
+        pass
 
 # 載入條款翻譯字典（若存在）
 CLAUSE_TRANSLATIONS = {}
@@ -3266,6 +3275,88 @@ def _apply_llm_translations(doc: Document, candidates: list):
         print(f"[LLM] 新翻譯已保存至: {new_trans_path}")
 
 
+def second_pass_translate_document(doc: Document):
+    """
+    第二階段翻譯 - 掃描並翻譯文件中殘留的英文
+
+    遍歷文件中的所有表格、段落、頁眉、頁尾，找出仍含有英文的文本，
+    使用 LLM 進行二次翻譯。
+
+    Args:
+        doc: Word 文件物件
+    """
+    print("\n=== 第二階段：細部翻譯 ===")
+
+    # 英文檢測正則（排除常見縮寫和專有名詞）
+    ENGLISH_WORD_PATTERN = re.compile(r'[A-Za-z]{4,}')
+    ENGLISH_EXCLUSIONS = {
+        'iec', 'en', 'ul', 'csa', 'vde', 'tuv', 'cb', 'ict', 'mosfet', 'pcb',
+        'ac', 'dc', 'led', 'usb', 'hdmi', 'wifi', 'http', 'https', 'api',
+        'pass', 'fail', 'max', 'min', 'typ', 'nom', 'ref', 'see',
+        'table', 'figure', 'note', 'page', 'item', 'model', 'type', 'class',
+        'vdc', 'vac', 'vrms', 'vpk', 'mhz', 'khz', 'ghz',
+    }
+
+    def contains_significant_english(text: str) -> bool:
+        """檢查是否包含需要翻譯的英文"""
+        if not text:
+            return False
+        words = ENGLISH_WORD_PATTERN.findall(text.lower())
+        significant = [w for w in words if w not in ENGLISH_EXCLUSIONS]
+        return len(significant) > 0
+
+    # 收集所有需要翻譯的文本
+    candidates = []  # [(location_type, location_indices, original_text)]
+
+    # 1. 掃描表格
+    for tbl_idx, table in enumerate(doc.tables):
+        for row_idx, row in enumerate(table.rows):
+            for cell_idx, cell in enumerate(row.cells):
+                text = cell.text.strip()
+                if text and contains_significant_english(text):
+                    candidates.append(('table', (tbl_idx, row_idx, cell_idx), text))
+
+    # 2. 掃描段落
+    for para_idx, paragraph in enumerate(doc.paragraphs):
+        text = paragraph.text.strip()
+        if text and contains_significant_english(text):
+            candidates.append(('paragraph', (para_idx,), text))
+
+    if not candidates:
+        print("[二次翻譯] 無殘留英文，跳過")
+        return
+
+    print(f"[二次翻譯] 發現 {len(candidates)} 個殘留英文文本")
+
+    # 批次翻譯
+    texts = [item[2] for item in candidates]
+    translated = llm_second_pass(texts)
+
+    # 回寫翻譯結果
+    updated_count = 0
+    for i, (loc_type, loc_indices, original) in enumerate(candidates):
+        new_text = translated[i]
+        if new_text != original:
+            if loc_type == 'table':
+                tbl_idx, row_idx, cell_idx = loc_indices
+                doc.tables[tbl_idx].rows[row_idx].cells[cell_idx].text = new_text
+                updated_count += 1
+            elif loc_type == 'paragraph':
+                para_idx = loc_indices[0]
+                # 保留段落格式，只更新文字
+                para = doc.paragraphs[para_idx]
+                if para.runs:
+                    # 清除所有 runs 並設置新文字
+                    for run in para.runs[1:]:
+                        run.text = ''
+                    para.runs[0].text = new_text
+                else:
+                    para.text = new_text
+                updated_count += 1
+
+    print(f"[二次翻譯] 已更新 {updated_count} 個文本")
+
+
 def translate_mass_of_equipment(mass_text: str) -> str:
     """
     翻譯設備質量文字
@@ -4411,12 +4502,33 @@ def main():
     # 此函數已整合 LLM 智能翻譯功能（當字典無法匹配時自動調用 LLM）
     translate_all_tables(docx)
 
+    # === 第二階段：細部翻譯（掃描殘留英文）===
+    if HAS_LLM:
+        second_pass_translate_document(docx)
+
     # 刪除模板末尾的多餘範例表格（含 Jinja2 標記）
     remove_template_example_tables(docx)
 
     # 保存
     docx.save(str(out_path))
     print("已完成特殊表格後處理")
+
+    # 輸出 LLM 翻譯統計
+    if HAS_LLM:
+        cost_stats = get_cost_estimate()
+        print("\n=== LLM 翻譯統計 ===")
+        print(f"Model: {cost_stats.get('model', 'unknown')}")
+        print(f"Input tokens: {cost_stats['input_tokens']:,}")
+        print(f"Output tokens: {cost_stats['output_tokens']:,}")
+        print(f"Cached tokens: {cost_stats['cached_tokens']:,}")
+        print(f"Total cost: ${cost_stats['total_cost']:.4f} USD")
+        print("====================\n")
+
+        # 輸出統計到 JSON 檔案供前端使用
+        llm_stats_path = out_path.parent / 'llm_stats.json'
+        with open(llm_stats_path, 'w', encoding='utf-8') as f:
+            json.dump(cost_stats, f, ensure_ascii=False, indent=2)
+        print(f"LLM 統計報告: {llm_stats_path}")
 
     print("OK")
     print("Rendered:", out_path)
