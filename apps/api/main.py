@@ -10,10 +10,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import APIKeyQuery
 from pydantic import BaseModel
 import redis
 
@@ -27,6 +28,28 @@ from core.storage import get_storage
 # 支援 Zeabur 自動注入的環境變數
 REDIS_URL = os.getenv("REDIS_URI") or os.getenv("REDIS_URL", "redis://localhost:6379")
 ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "")  # 空字串表示不啟用認證
+
+# ===== 認證 =====
+api_key_query = APIKeyQuery(name="p", auto_error=False)
+
+
+async def verify_password(api_key: str = Depends(api_key_query)) -> str:
+    """
+    驗證 API 密碼
+    - 若 SHARED_PASSWORD 未設定或為空，則跳過認證
+    - 若已設定，則必須提供正確的密碼
+    """
+    if not SHARED_PASSWORD:
+        # 未設定密碼，跳過認證
+        return ""
+
+    if not api_key or api_key != SHARED_PASSWORD:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid or missing password. Use ?p=<password> query parameter."
+        )
+    return api_key
 
 # ===== App =====
 app = FastAPI(
@@ -52,6 +75,25 @@ def get_redis() -> redis.Redis:
     if redis_client is None:
         redis_client = redis.from_url(REDIS_URL, decode_responses=True)
     return redis_client
+
+
+def get_job_or_404(job_id: str) -> Job:
+    """
+    從 Redis 取得 Job，若不存在則拋出 404
+    """
+    r = get_redis()
+    job_data = r.get(f"job:{job_id}")
+    if not job_data:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return Job.from_dict(json.loads(job_data))
+
+
+def safe_filename(filename: str) -> str:
+    """
+    過濾檔案名稱，防止路徑遍歷攻擊
+    """
+    # 只取最後的檔名部分，移除任何路徑
+    return Path(filename).name
 
 
 # ===== Models =====
@@ -97,12 +139,16 @@ async def health():
     }
 
 
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+
+
 @app.post("/api/jobs", response_model=JobResponse)
 async def create_job(
     file: UploadFile = File(...),
     report_no: Optional[str] = Form(None),
     applicant_name: Optional[str] = Form(None),
     applicant_address: Optional[str] = Form(None),
+    _: str = Depends(verify_password),
 ):
     """
     上傳 CB PDF 並建立轉換任務
@@ -111,16 +157,32 @@ async def create_job(
     - report_no: 報告編號
     - applicant_name: 申請者名稱
     - applicant_address: 申請者地址
+
+    認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
-    # 驗證檔案
-    if not file.filename.lower().endswith('.pdf'):
+    # 過濾檔案名稱，防止路徑遍歷
+    original_filename = safe_filename(file.filename or "unknown.pdf")
+
+    # 驗證副檔名
+    if not original_filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+
+    # 讀取並驗證檔案內容
+    content = await file.read()
+
+    # 驗證檔案大小
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (max 50MB)")
+
+    # 驗證 PDF 魔數（magic number）
+    if not content.startswith(b'%PDF'):
+        raise HTTPException(status_code=400, detail="Invalid PDF file format")
 
     # 建立 Job
     job_id = str(uuid.uuid4())[:8]
     job = Job(
         job_id=job_id,
-        pdf_filename=file.filename,
+        pdf_filename=original_filename,
         status=JobStatus.PENDING
     )
 
@@ -129,11 +191,9 @@ async def create_job(
     job.cover_applicant_name = applicant_name or ""
     job.cover_applicant_address = applicant_address or ""
 
-    # 上傳 PDF 到 Storage
+    # 上傳 PDF 到 Storage（content 已在前面讀取並驗證）
     storage = get_storage()
     pdf_key = f"jobs/{job_id}/original.pdf"
-
-    content = await file.read()
     storage.upload_bytes(content, pdf_key, content_type="application/pdf")
     job.original_pdf_key = pdf_key
 
@@ -152,17 +212,13 @@ async def create_job(
 
 
 @app.get("/api/jobs/{job_id}", response_model=JobDetailResponse)
-async def get_job(job_id: str):
+async def get_job(job_id: str, _: str = Depends(verify_password)):
     """
     查詢任務狀態
+
+    認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
-    r = get_redis()
-    job_data = r.get(f"job:{job_id}")
-
-    if not job_data:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    job = Job.from_dict(json.loads(job_data))
+    job = get_job_or_404(job_id)
     storage = get_storage()
 
     # 生成下載 URL
@@ -190,17 +246,13 @@ async def get_job(job_id: str):
 
 
 @app.get("/api/jobs/{job_id}/download/docx")
-async def download_docx(job_id: str):
+async def download_docx(job_id: str, _: str = Depends(verify_password)):
     """
     下載 DOCX 檔案
+
+    認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
-    r = get_redis()
-    job_data = r.get(f"job:{job_id}")
-
-    if not job_data:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    job = Job.from_dict(json.loads(job_data))
+    job = get_job_or_404(job_id)
 
     if not job.docx_key:
         raise HTTPException(status_code=404, detail="DOCX not available")
@@ -208,7 +260,10 @@ async def download_docx(job_id: str):
     storage = get_storage()
     content = storage.download_bytes(job.docx_key)
 
-    filename = f"{job.docx_type.lower()}_{job.pdf_filename.replace('.pdf', '.docx')}"
+    # 使用 safe_filename 防止路徑遍歷
+    safe_pdf_name = safe_filename(job.pdf_filename)
+    docx_type = (job.docx_type or "cns").lower()
+    filename = f"{docx_type}_{safe_pdf_name.replace('.pdf', '.docx')}"
 
     return StreamingResponse(
         iter([content]),
@@ -218,17 +273,13 @@ async def download_docx(job_id: str):
 
 
 @app.get("/api/jobs/{job_id}/download/qa")
-async def download_qa_report(job_id: str):
+async def download_qa_report(job_id: str, _: str = Depends(verify_password)):
     """
     下載 QA 報告
+
+    認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
-    r = get_redis()
-    job_data = r.get(f"job:{job_id}")
-
-    if not job_data:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    job = Job.from_dict(json.loads(job_data))
+    job = get_job_or_404(job_id)
 
     if not job.qa_report_key:
         raise HTTPException(status_code=404, detail="QA report not available")
@@ -244,17 +295,13 @@ async def download_qa_report(job_id: str):
 
 
 @app.get("/api/jobs/{job_id}/llm-stats")
-async def get_llm_stats(job_id: str):
+async def get_llm_stats(job_id: str, _: str = Depends(verify_password)):
     """
     取得 LLM 翻譯統計（token 使用量與成本）
+
+    認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
-    r = get_redis()
-    job_data = r.get(f"job:{job_id}")
-
-    if not job_data:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    job = Job.from_dict(json.loads(job_data))
+    job = get_job_or_404(job_id)
 
     # 從 Job 物件取得 llm_stats
     if job.llm_stats:
@@ -271,9 +318,11 @@ async def get_llm_stats(job_id: str):
 
 
 @app.get("/api/jobs")
-async def list_jobs(limit: int = Query(default=20, le=100)):
+async def list_jobs(limit: int = Query(default=20, le=100), _: str = Depends(verify_password)):
     """
     列出最近的任務
+
+    認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
     r = get_redis()
     job_ids = []
