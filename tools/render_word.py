@@ -3615,9 +3615,14 @@ def fill_remarks_section(doc: Document, meta: dict):
                     tbl_elem = nested_tbl._tbl
                     tbl_elem.getparent().remove(tbl_elem)
 
-                # 完全清除現有內容（包括所有段落）
-                for paragraph in target_cell.paragraphs:
-                    paragraph.clear()
+                # 刪除所有段落（保留第一個），徹底清除模板內容
+                while len(target_cell.paragraphs) > 1:
+                    p = target_cell.paragraphs[-1]
+                    p._element.getparent().remove(p._element)
+
+                # 清除第一個段落內容
+                if target_cell.paragraphs:
+                    target_cell.paragraphs[0].clear()
 
                 # 填入新內容
                 if target_cell.paragraphs:
@@ -3633,10 +3638,13 @@ def fill_remarks_section(doc: Document, meta: dict):
                     for nested_tbl in second_cell.tables[:]:
                         tbl_elem = nested_tbl._tbl
                         tbl_elem.getparent().remove(tbl_elem)
-                    # 清除內容
-                    for paragraph in second_cell.paragraphs:
-                        paragraph.clear()
+                    # 刪除所有段落（保留第一個）
+                    while len(second_cell.paragraphs) > 1:
+                        p = second_cell.paragraphs[-1]
+                        p._element.getparent().remove(p._element)
+                    # 清除並填入內容
                     if second_cell.paragraphs:
+                        second_cell.paragraphs[0].clear()
                         second_cell.paragraphs[0].add_run(remarks_text)
                     else:
                         second_cell.text = remarks_text
@@ -3666,10 +3674,7 @@ def _add_factory_nested_table(cell, factory_locations: list):
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
 
-    # 在儲存格末尾添加新段落，然後創建表格
-    p = cell.add_paragraph()
-
-    # 創建嵌套表格
+    # 直接創建嵌套表格，不添加額外空段落
     nested_table = cell.add_table(rows=len(factory_locations) + 1, cols=2)
 
     # 設定表格標題行
@@ -3693,6 +3698,13 @@ def _add_factory_nested_table(cell, factory_locations: list):
             row = nested_table.rows[i + 1]
             row.cells[0].text = company_name
             row.cells[1].text = address
+
+    # 刪除 add_table 產生的多餘空段落
+    # add_table 會在表格前添加一個空段落
+    for p in cell.paragraphs:
+        # 只刪除空段落（在 "生產廠資訊:" 之後）
+        if not p.text.strip():
+            p._element.getparent().remove(p._element)
 
 
 def translate_product_remarks(remarks: str) -> str:
