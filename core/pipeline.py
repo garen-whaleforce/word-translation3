@@ -20,7 +20,7 @@ from core.models import Job, JobStatus
 from core.storage import get_storage, StorageClient
 
 
-def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
+def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=None) -> Job:
     """
     處理一個 CB PDF 轉換任務
 
@@ -35,12 +35,22 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
     Args:
         job: Job 物件
         storage: StorageClient (預設使用全局實例)
+        redis_client: Redis client (用於即時更新進度)
 
     Returns:
         更新後的 Job 物件
     """
     if storage is None:
         storage = get_storage()
+
+    def update_progress(gate_name: str, status: str, message: str):
+        """更新進度到 Redis"""
+        job.add_qa_result(gate_name, status, message)
+        if redis_client:
+            try:
+                redis_client.set(f"job:{job.job_id}", job.to_json())
+            except:
+                pass
 
     # 建立暫存目錄
     work_dir = Path(tempfile.mkdtemp(prefix=f"cns_{job.job_id}_"))
@@ -49,12 +59,16 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
 
     try:
         job.update_status(JobStatus.RUNNING)
+        update_progress("start", "PASS", "開始處理任務")
 
         # ===== Step 1: 下載 PDF =====
+        update_progress("download_pdf", "PASS", "正在下載 PDF...")
         pdf_path = work_dir / job.pdf_filename
         storage.download_file(job.original_pdf_key, str(pdf_path))
+        update_progress("download_pdf_done", "PASS", "PDF 下載完成")
 
         # ===== Step 2: 抽取 PDF 資料 =====
+        update_progress("extract_pdf", "PASS", "正在解析 PDF 結構...")
         from tools.extract_cb_pdf import main as extract_cb_pdf_main, extract_annex_model_rows
         from tools.extract_pdf_clause_rows import extract_clause_rows, find_clause_start_page
         from tools.extract_special_tables import (
@@ -67,8 +81,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
 
         # 2a. 基本抽取
         _run_extract_cb_pdf(str(pdf_path), str(out_dir))
+        update_progress("extract_overview", "PASS", "抽取 Overview 表完成")
 
         # 2b. 條款列抽取
+        update_progress("extract_clause_rows", "PASS", "正在抽取條款列...")
         with pdfplumber.open(str(pdf_path)) as pdf:
             start_idx = find_clause_start_page(pdf)
             clause_rows = extract_clause_rows(pdf, start_idx)
@@ -76,8 +92,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
         clause_rows_path = out_dir / "pdf_clause_rows.json"
         with open(clause_rows_path, 'w', encoding='utf-8') as f:
             json.dump(clause_rows, f, ensure_ascii=False, indent=2)
+        update_progress("extract_clause_rows_done", "PASS", f"抽取 {len(clause_rows)} 條款列完成")
 
         # 2c. 特殊表格抽取
+        update_progress("extract_special_tables", "PASS", "正在抽取特殊表格...")
         with pdfplumber.open(str(pdf_path)) as pdf:
             try:
                 overview = extract_overview_energy_sources(pdf)
@@ -108,8 +126,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
         special_tables_path = out_dir / "cb_special_tables.json"
         with open(special_tables_path, 'w', encoding='utf-8') as f:
             json.dump(special_tables, f, ensure_ascii=False, indent=2, default=list)
+        update_progress("extract_special_tables_done", "PASS", "特殊表格抽取完成")
 
         # 2d. 附表 Model 行抽取
+        update_progress("extract_annex_model", "PASS", "正在抽取附表 Model 行...")
         cb_tables_path = out_dir / "cb_tables_text.json"
         if cb_tables_path.exists():
             with open(cb_tables_path, 'r', encoding='utf-8') as f:
@@ -121,8 +141,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
         annex_model_rows_path = out_dir / "cb_annex_model_rows.json"
         with open(annex_model_rows_path, 'w', encoding='utf-8') as f:
             json.dump(annex_model_rows, f, ensure_ascii=False, indent=2)
+        update_progress("extract_annex_model_done", "PASS", f"抽取 {len(annex_model_rows)} 附表 Model 行完成")
 
         # ===== Step 3: 生成 CNS JSON =====
+        update_progress("generate_cns_json", "PASS", "正在生成 CNS JSON...")
         from tools.generate_cns_json import (
             load_json,
             extract_meta_from_chunks,
@@ -152,8 +174,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
         cns_json_path = out_dir / "cns_report_data.json"
         with open(cns_json_path, 'w', encoding='utf-8') as f:
             json.dump(cns_data, f, ensure_ascii=False, indent=2)
+        update_progress("generate_cns_json_done", "PASS", f"CNS JSON 生成完成 ({len(clauses)} 條款)")
 
         # ===== Step 4: 渲染 Word =====
+        update_progress("render_word", "PASS", "正在渲染 Word 報告（含 LLM 翻譯）...")
         template_path = PROJECT_ROOT / "templates" / "CNS_15598_1_109_template_clean.docx"
         docx_path = out_dir / "cns_report.docx"
 
@@ -173,8 +197,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
             cover_fields=cover_fields,
             annex_model_rows_path=str(annex_model_rows_path)
         )
+        update_progress("render_word_done", "PASS", "Word 報告渲染完成")
 
         # ===== Step 5: 設定狀態並上傳 =====
+        update_progress("upload_results", "PASS", "正在上傳結果...")
         job.update_status(JobStatus.PASS)
         job.docx_type = "FINAL"
 
@@ -201,6 +227,8 @@ def process_job(job: Job, storage: Optional[StorageClient] = None) -> Job:
         if llm_stats_path.exists():
             with open(llm_stats_path, 'r', encoding='utf-8') as f:
                 job.llm_stats = json.load(f)
+
+        update_progress("final_qa", "PASS", "任務完成")
 
     except Exception as e:
         job.update_status(JobStatus.ERROR)

@@ -81,9 +81,9 @@ def process_queue_item(r: redis.Redis, job_id: str) -> bool:
 
         print(f"[Worker] 開始處理 PDF: {job.pdf_filename}")
 
-        # 執行 Pipeline
+        # 執行 Pipeline（傳入 redis_client 以即時更新進度）
         storage = get_storage()
-        job = process_job(job, storage)
+        job = process_job(job, storage, redis_client=r)
 
         # 儲存最終狀態
         r.set(f"job:{job_id}", job.to_json())
