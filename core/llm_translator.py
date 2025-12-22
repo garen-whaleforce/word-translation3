@@ -3,6 +3,7 @@
 LLM 翻譯模組 - 使用 Azure OpenAI 進行專業安規術語翻譯
 支援 IEC 62368-1 & CNS 15598-1 標準術語
 支援併發翻譯加速處理
+支援 Redis 快取持久化
 
 翻譯策略（純 LLM 模式）:
 1. 特殊映射（P, N/A, --）→ 直接映射
@@ -13,10 +14,15 @@ LLM 翻譯模組 - 使用 Azure OpenAI 進行專業安規術語翻譯
 - 第一階段：大片翻譯（分 chunk + 併發）
 - 第二階段：掃描殘留英文並重新翻譯
 
+快取機制:
+- Redis 可用時：持久化快取（30 天過期）
+- Redis 不可用時：記憶體快取（程序重啟後消失）
+
 翻譯規則參考: LLM翻譯術語表.md
 """
 import os
 import re
+import hashlib
 from typing import Optional, List, Dict
 from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -28,6 +34,13 @@ try:
     HAS_OPENAI = True
 except ImportError:
     HAS_OPENAI = False
+
+# 嘗試導入 Redis
+try:
+    import redis
+    HAS_REDIS = True
+except ImportError:
+    HAS_REDIS = False
 
 
 # ============================================================
@@ -220,6 +233,8 @@ CHUNK_SIZE = 1500           # 每個 chunk 的最大字符數
 MAX_RETRIES = 3             # API 呼叫最大重試次數
 RETRY_DELAY = 2             # 重試間隔時間（秒）
 MAX_CONCURRENT_CHUNKS = 20  # 每個文件最大併發 API 呼叫數
+CACHE_TTL = 30 * 24 * 3600  # 快取過期時間：30 天（秒）
+CACHE_KEY_PREFIX = "llm:translate:"  # Redis 快取 key 前綴
 
 # Token 價格（USD per 1M tokens）
 TOKEN_PRICES = {
@@ -229,14 +244,15 @@ TOKEN_PRICES = {
 
 
 class LLMTranslator:
-    """LLM 翻譯器 - Azure OpenAI（支援併發）"""
+    """LLM 翻譯器 - Azure OpenAI（支援併發、Redis 快取持久化）"""
 
     def __init__(self, max_workers: int = MAX_CONCURRENT_CHUNKS):
         self.enabled = False
         self.client = None
         self.deployment = None
-        self._cache: Dict[str, str] = {}
+        self._memory_cache: Dict[str, str] = {}  # 記憶體快取（fallback）
         self._cache_lock = threading.Lock()
+        self._redis_client = None  # Redis 快取
         self.max_workers = max_workers  # 併發數量
 
         # Token 統計
@@ -245,12 +261,19 @@ class LLMTranslator:
         self.total_cached_tokens = 0
         self._stats_lock = threading.Lock()
 
+        # 快取統計
+        self.cache_hits = 0
+        self.cache_misses = 0
+
         # 建立按長度排序的術語表（優先匹配最長詞組）
         self._sorted_glossary = sorted(
             MANDATORY_GLOSSARY.items(),
             key=lambda x: len(x[0]),
             reverse=True
         )
+
+        # 初始化 Redis 連接
+        self._init_redis()
 
         if not HAS_OPENAI:
             print("[LLM] openai 套件未安裝，LLM 翻譯功能停用")
@@ -276,6 +299,98 @@ class LLMTranslator:
             print(f"[LLM] Azure OpenAI 翻譯已啟用 (deployment: {self.deployment})")
         except Exception as e:
             print(f"[LLM] Azure OpenAI 初始化失敗: {e}")
+
+    def _init_redis(self):
+        """初始化 Redis 連接（用於快取持久化）"""
+        if not HAS_REDIS:
+            print("[LLM] redis 套件未安裝，使用記憶體快取")
+            return
+
+        redis_url = os.getenv("REDIS_URI") or os.getenv("REDIS_URL")
+        if not redis_url:
+            print("[LLM] 未設定 REDIS_URL，使用記憶體快取")
+            return
+
+        try:
+            self._redis_client = redis.from_url(redis_url, decode_responses=True)
+            self._redis_client.ping()  # 測試連接
+            print(f"[LLM] Redis 快取已啟用")
+        except Exception as e:
+            print(f"[LLM] Redis 連接失敗，使用記憶體快取: {e}")
+            self._redis_client = None
+
+    def _get_cache_key(self, text: str) -> str:
+        """生成快取 key（使用 hash 避免 key 過長）"""
+        text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
+        return f"{CACHE_KEY_PREFIX}{text_hash}"
+
+    def _get_from_cache(self, text: str) -> Optional[str]:
+        """從快取取得翻譯結果"""
+        cache_key = self._get_cache_key(text)
+
+        # 優先使用 Redis
+        if self._redis_client:
+            try:
+                result = self._redis_client.get(cache_key)
+                if result:
+                    self.cache_hits += 1
+                    return result
+            except Exception:
+                pass  # Redis 失敗時 fallback 到記憶體
+
+        # Fallback 到記憶體快取
+        with self._cache_lock:
+            if text.strip() in self._memory_cache:
+                self.cache_hits += 1
+                return self._memory_cache[text.strip()]
+
+        self.cache_misses += 1
+        return None
+
+    def _set_to_cache(self, text: str, translation: str):
+        """將翻譯結果存入快取"""
+        cache_key = self._get_cache_key(text)
+
+        # 優先存入 Redis
+        if self._redis_client:
+            try:
+                self._redis_client.setex(cache_key, CACHE_TTL, translation)
+            except Exception:
+                pass  # Redis 失敗時仍存入記憶體
+
+        # 同時存入記憶體快取（加速本次執行）
+        with self._cache_lock:
+            self._memory_cache[text.strip()] = translation
+
+    def get_cache_stats(self) -> dict:
+        """取得快取統計資訊"""
+        total = self.cache_hits + self.cache_misses
+        hit_rate = (self.cache_hits / total * 100) if total > 0 else 0
+
+        stats = {
+            'cache_hits': self.cache_hits,
+            'cache_misses': self.cache_misses,
+            'hit_rate': f"{hit_rate:.1f}%",
+            'redis_enabled': self._redis_client is not None,
+            'memory_cache_size': len(self._memory_cache),
+        }
+
+        # 如果 Redis 可用，取得 Redis 快取數量
+        if self._redis_client:
+            try:
+                # 使用 SCAN 計算符合 prefix 的 key 數量（避免 KEYS 命令阻塞）
+                cursor = 0
+                redis_count = 0
+                while True:
+                    cursor, keys = self._redis_client.scan(cursor, match=f"{CACHE_KEY_PREFIX}*", count=1000)
+                    redis_count += len(keys)
+                    if cursor == 0:
+                        break
+                stats['redis_cache_size'] = redis_count
+            except Exception:
+                stats['redis_cache_size'] = 'unknown'
+
+        return stats
 
     def _is_chinese(self, text: str) -> bool:
         """檢查文本是否主要為中文"""
@@ -388,6 +503,9 @@ class LLMTranslator:
         output_cost = stats['output_tokens'] * prices['output'] / 1_000_000
         total_cost = input_cost + cached_cost + output_cost
 
+        # 加入快取統計
+        cache_stats = self.get_cache_stats()
+
         return {
             'model': model,
             'input_tokens': stats['input_tokens'],
@@ -397,6 +515,10 @@ class LLMTranslator:
             'cached_cost': round(cached_cost, 4),
             'output_cost': round(output_cost, 4),
             'total_cost': round(total_cost, 4),
+            'cache_hits': cache_stats['cache_hits'],
+            'cache_misses': cache_stats['cache_misses'],
+            'cache_hit_rate': cache_stats['hit_rate'],
+            'redis_enabled': cache_stats['redis_enabled'],
         }
 
     def reset_stats(self):
@@ -405,15 +527,19 @@ class LLMTranslator:
             self.total_input_tokens = 0
             self.total_output_tokens = 0
             self.total_cached_tokens = 0
+        # 重置快取統計（但不清除快取內容）
+        self.cache_hits = 0
+        self.cache_misses = 0
 
     def translate(self, text: str) -> str:
         """
-        翻譯單個文本（純 LLM 模式）
+        翻譯單個文本（純 LLM 模式，支援 Redis 快取持久化）
 
         流程:
         1. 檢查特殊翻譯映射 (P, N/A, --)
-        2. 如果 LLM 啟用且有英文，呼叫 LLM
-        3. LLM 失敗或未啟用時，保留原文
+        2. 檢查快取（Redis → 記憶體）
+        3. 如果 LLM 啟用且有英文，呼叫 LLM
+        4. LLM 失敗或未啟用時，保留原文
         """
         if not text or len(text.strip()) < 1:
             return text
@@ -427,14 +553,13 @@ class LLMTranslator:
         if self._is_chinese(text):
             return text
 
-        # Step 2: 純 LLM 翻譯
-        if self.enabled and self._has_significant_english(text):
-            # 檢查快取（thread-safe）
-            cache_key = text.strip()
-            with self._cache_lock:
-                if cache_key in self._cache:
-                    return self._cache[cache_key]
+        # Step 2: 檢查快取（Redis 優先，記憶體 fallback）
+        cached = self._get_from_cache(text)
+        if cached:
+            return cached
 
+        # Step 3: 純 LLM 翻譯
+        if self.enabled and self._has_significant_english(text):
             try:
                 response = self.client.chat.completions.create(
                     model=self.deployment,
@@ -454,8 +579,8 @@ class LLMTranslator:
                 # 過濾拒絕消息
                 llm_result = self._filter_refusal(llm_result)
 
-                with self._cache_lock:
-                    self._cache[cache_key] = llm_result
+                # 存入快取（Redis + 記憶體）
+                self._set_to_cache(text, llm_result)
                 return llm_result
             except Exception as e:
                 print(f"[LLM] 翻譯失敗，保留原文: {e}")
@@ -577,18 +702,18 @@ class LLMTranslator:
             # LLM 未啟用時，保留原文（不使用字典）
             return texts
 
-        # 過濾出需要翻譯的文本
+        # 過濾出需要翻譯的文本（先檢查快取）
         to_translate = []
         indices = []
         results = list(texts)
 
         for i, text in enumerate(texts):
             if self._should_translate(text):
-                cache_key = text.strip()
-                with self._cache_lock:
-                    if cache_key in self._cache:
-                        results[i] = self._cache[cache_key]
-                        continue
+                # 檢查快取（Redis + 記憶體）
+                cached = self._get_from_cache(text)
+                if cached:
+                    results[i] = cached
+                    continue
                 to_translate.append(text)
                 indices.append(i)
 
@@ -613,9 +738,8 @@ class LLMTranslator:
                     for batch_idx, translated in chunk_results.items():
                         original_idx = indices[batch_idx]
                         results[original_idx] = translated
-                        # 更新快取
-                        with self._cache_lock:
-                            self._cache[to_translate[batch_idx].strip()] = translated
+                        # 更新快取（Redis + 記憶體）
+                        self._set_to_cache(to_translate[batch_idx], translated)
                     completed += 1
                     if completed % 5 == 0 or completed == len(chunks):
                         print(f"[LLM] Chunk 進度: {completed}/{len(chunks)}")
