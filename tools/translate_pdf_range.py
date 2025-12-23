@@ -262,42 +262,58 @@ def _analyze_row_backgrounds(table_obj, rows: List[List[str]], col_count: int, f
 
 def _analyze_merged_cells(table_obj, rows: List[List[str]], col_count: int) -> List[Dict]:
     """
-    分析表格的合併儲存格
+    分析表格的合併儲存格 - 基於 PDF cell 座標精確計算
 
-    使用內容模式來判斷合併：
-    如果一個 cell 有內容，且後面連續多個 cell 都是空的，可能是合併
-    但只在 row 0（標題行）才應用橫跨整行的合併
+    透過分析 pdfplumber 的 cell 座標來判斷每個 cell 跨越了幾欄幾行
 
     Returns:
-        list of dict: [{'row': 0, 'col': 0, 'colspan': 5}, ...]
+        list of dict: [
+            {'row': 0, 'col': 0, 'colspan': 5, 'rowspan': 1},
+            {'row': 3, 'col': 2, 'colspan': 3, 'rowspan': 2},
+            ...
+        ]
     """
     merge_info = []
 
     if not rows or col_count == 0:
         return merge_info
 
-    # 分析每行的合併模式
-    for r_idx, row in enumerate(rows):
-        if not row:
+    cells = table_obj.cells
+    if not cells:
+        return merge_info
+
+    # 找出所有 X 和 Y 座標邊界
+    x_coords = sorted(set(round(c[0], 0) for c in cells) | set(round(c[2], 0) for c in cells))
+    y_coords = sorted(set(round(c[1], 0) for c in cells) | set(round(c[3], 0) for c in cells))
+
+    if len(x_coords) < 2 or len(y_coords) < 2:
+        return merge_info
+
+    # 分析每個 cell 的合併情況
+    for cell in cells:
+        x0, top, x1, bottom = cell
+
+        try:
+            start_col = x_coords.index(round(x0, 0))
+            end_col = x_coords.index(round(x1, 0))
+            start_row = y_coords.index(round(top, 0))
+            end_row = y_coords.index(round(bottom, 0))
+        except ValueError:
             continue
 
-        # 只對第一行（標題行）進行特殊處理
-        if r_idx == 0:
-            # 檢查是否整行只有一個有內容的 cell
-            non_empty = [(c_idx, cell) for c_idx, cell in enumerate(row) if cell and cell.strip()]
-            if len(non_empty) == 1 and non_empty[0][0] == 0:
-                # 第一行只有 Col 0 有內容，且是標題類型 → 整行合併
-                first_content = non_empty[0][1]
-                if any(kw in first_content.upper() for kw in ['OVERVIEW', 'ENERGY', 'DIAGRAM', 'SOURCE']):
-                    merge_info.append({
-                        'row': r_idx,
-                        'col': 0,
-                        'colspan': col_count
-                    })
-                    continue
+        colspan = end_col - start_col
+        rowspan = end_row - start_row
 
-        # 對其他行不做合併處理
-        # PDF 中的「空白 cell」不代表合併，只是沒有內容
+        # 只記錄有合併的 cell（colspan > 1 或 rowspan > 1）
+        if colspan > 1 or rowspan > 1:
+            # 確保 row 在 rows 範圍內
+            if start_row < len(rows):
+                merge_info.append({
+                    'row': start_row,
+                    'col': start_col,
+                    'colspan': colspan,
+                    'rowspan': rowspan
+                })
 
     return merge_info
 
@@ -370,6 +386,30 @@ def _set_table_borders(table):
         tbl.insert(0, tblPr)
 
 
+def _set_cell_shading(cell, color: str):
+    """
+    設定儲存格背景色
+
+    Args:
+        cell: Word 儲存格物件
+        color: 16 進位顏色碼 (如 "D9D9D9")
+    """
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+
+    # 移除現有的 shading
+    existing_shd = tcPr.find(qn('w:shd'))
+    if existing_shd is not None:
+        tcPr.remove(existing_shd)
+
+    # 建立新的 shading
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:val'), 'clear')
+    shd.set(qn('w:color'), 'auto')
+    shd.set(qn('w:fill'), color)
+    tcPr.append(shd)
+
+
 def _needs_translation(text: str) -> bool:
     """判斷文本是否需要翻譯（包含英文）"""
     if not text:
@@ -433,7 +473,8 @@ def insert_tables_to_template(
     for t_idx, table_data in enumerate(translated_tables):
         rows = table_data['rows']
         col_count = table_data['col_count']
-        page = table_data['page']
+        merge_info = table_data.get('merge_info', [])
+        row_backgrounds = table_data.get('row_backgrounds', [])
 
         if not rows:
             continue
@@ -447,9 +488,50 @@ def insert_tables_to_template(
             # 樣式不存在，手動設定框線
             _set_table_borders(new_table)
 
+        # 建立合併查詢表（用於跳過已被合併的 cell）
+        merged_cells = set()  # (row, col) 已被合併覆蓋的 cell
+        for m in merge_info:
+            r = m['row']
+            c = m['col']
+            colspan = m.get('colspan', 1)
+            rowspan = m.get('rowspan', 1)
+            # 記錄被合併覆蓋的所有 cell（排除起始 cell）
+            for dr in range(rowspan):
+                for dc in range(colspan):
+                    if dr > 0 or dc > 0:
+                        merged_cells.add((r + dr, c + dc))
+
+        # 先執行合併操作
+        for m in merge_info:
+            r_idx = m['row']
+            c_idx = m['col']
+            colspan = m.get('colspan', 1)
+            rowspan = m.get('rowspan', 1)
+
+            if r_idx >= len(new_table.rows) or c_idx >= len(new_table.rows[r_idx].cells):
+                continue
+
+            try:
+                start_cell = new_table.rows[r_idx].cells[c_idx]
+                end_row = min(r_idx + rowspan - 1, len(new_table.rows) - 1)
+                end_col = min(c_idx + colspan - 1, len(new_table.rows[r_idx].cells) - 1)
+
+                if end_row > r_idx or end_col > c_idx:
+                    end_cell = new_table.rows[end_row].cells[end_col]
+                    start_cell.merge(end_cell)
+            except Exception:
+                pass
+
         # 填入資料
         for r_idx, row in enumerate(rows):
+            # 判斷此行是否需要灰色背景
+            needs_gray_bg = row_backgrounds[r_idx] if r_idx < len(row_backgrounds) else False
+
             for c_idx, cell_text in enumerate(row):
+                # 跳過已被合併覆蓋的 cell
+                if (r_idx, c_idx) in merged_cells:
+                    continue
+
                 if c_idx < len(new_table.rows[r_idx].cells):
                     cell = new_table.rows[r_idx].cells[c_idx]
                     cell.text = cell_text or ""
@@ -461,16 +543,13 @@ def insert_tables_to_template(
                             run.font.name = '標楷體'
                             run._element.rPr.rFonts.set(qn('w:eastAsia'), '標楷體')
 
+                    # 套用灰色背景
+                    if needs_gray_bg:
+                        _set_cell_shading(cell, "D9D9D9")
+
         # 移動表格到正確位置
         insert_element.addnext(new_table._tbl)
         insert_element = new_table._tbl
-
-        # 加入分頁符（每幾個表格一個，或根據原始頁碼）
-        if t_idx > 0 and t_idx % 5 == 0:
-            # 加入段落分隔
-            p = doc.add_paragraph()
-            insert_element.addnext(p._element)
-            insert_element = p._element
 
         if (t_idx + 1) % 10 == 0:
             print(f"  已插入 {t_idx + 1}/{len(translated_tables)} 個表格...")

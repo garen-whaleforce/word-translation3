@@ -341,29 +341,39 @@ def _render_word_v2(
         # 設定表格框線
         _set_table_borders(new_table)
 
-        # 建立合併資訊的快速查詢表
-        merge_lookup = {}
+        # 建立合併查詢表（用於跳過已被合併的 cell）
+        merged_cells = set()  # (row, col) 已被合併覆蓋的 cell
         for m in merge_info:
-            key = (m['row'], m['col'])
-            merge_lookup[key] = m['colspan']
+            r = m['row']
+            c = m['col']
+            colspan = m.get('colspan', 1)
+            rowspan = m.get('rowspan', 1)
+            # 記錄被合併覆蓋的所有 cell（排除起始 cell）
+            for dr in range(rowspan):
+                for dc in range(colspan):
+                    if dr > 0 or dc > 0:
+                        merged_cells.add((r + dr, c + dc))
 
-        # 先處理合併儲存格（完全按照 PDF）
+        # 先執行合併操作（包含 colspan 和 rowspan）
         for m in merge_info:
             r_idx = m['row']
             c_idx = m['col']
-            colspan = m['colspan']
+            colspan = m.get('colspan', 1)
+            rowspan = m.get('rowspan', 1)
 
-            if r_idx < len(new_table.rows) and c_idx < len(new_table.rows[r_idx].cells):
-                try:
-                    # 合併儲存格：從 c_idx 到 c_idx + colspan - 1
-                    start_cell = new_table.rows[r_idx].cells[c_idx]
-                    end_col = min(c_idx + colspan - 1, len(new_table.rows[r_idx].cells) - 1)
-                    if end_col > c_idx:
-                        end_cell = new_table.rows[r_idx].cells[end_col]
-                        start_cell.merge(end_cell)
-                except Exception as e:
-                    # 合併失敗時繼續（可能是範圍超出）
-                    pass
+            if r_idx >= len(new_table.rows) or c_idx >= len(new_table.rows[r_idx].cells):
+                continue
+
+            try:
+                start_cell = new_table.rows[r_idx].cells[c_idx]
+                end_row = min(r_idx + rowspan - 1, len(new_table.rows) - 1)
+                end_col = min(c_idx + colspan - 1, len(new_table.rows[r_idx].cells) - 1)
+
+                if end_row > r_idx or end_col > c_idx:
+                    end_cell = new_table.rows[end_row].cells[end_col]
+                    start_cell.merge(end_cell)
+            except Exception:
+                pass
 
         # 填入資料
         for r_idx, row in enumerate(rows):
@@ -371,6 +381,10 @@ def _render_word_v2(
             needs_gray_bg = row_backgrounds[r_idx] if r_idx < len(row_backgrounds) else False
 
             for c_idx, cell_text in enumerate(row):
+                # 跳過已被合併覆蓋的 cell
+                if (r_idx, c_idx) in merged_cells:
+                    continue
+
                 if c_idx < len(new_table.rows[r_idx].cells):
                     cell = new_table.rows[r_idx].cells[c_idx]
 
