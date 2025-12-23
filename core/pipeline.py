@@ -142,7 +142,7 @@ def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=
         # 讀取 LLM 統計
         from core.llm_translator import get_translator
         translator = get_translator()
-        job.llm_stats = translator.get_stats()
+        job.llm_stats = translator.get_cost_estimate()
 
         update_progress("final_qa", "PASS", "任務完成")
 
