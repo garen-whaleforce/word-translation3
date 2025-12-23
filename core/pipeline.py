@@ -354,62 +354,54 @@ def _render_word_v2(
                     if dr > 0 or dc > 0:
                         merged_cells.add((r + dr, c + dc))
 
-        # 先執行合併操作（包含 colspan 和 rowspan）
-        for m in merge_info:
-            r_idx = m['row']
-            c_idx = m['col']
-            colspan = m.get('colspan', 1)
-            rowspan = m.get('rowspan', 1)
+        # 先填入資料（在合併前），使用直接 XML 存取避免 python-docx 的 bug
+        from docx.table import _Cell
+        tbl = new_table._tbl
+        tr_list = tbl.findall(qn('w:tr'))
 
-            if r_idx >= len(new_table.rows) or c_idx >= len(new_table.rows[r_idx].cells):
+        for r_idx, row in enumerate(rows):
+            if r_idx >= len(tr_list):
                 continue
 
-            try:
-                start_cell = new_table.rows[r_idx].cells[c_idx]
-                end_row = min(r_idx + rowspan - 1, len(new_table.rows) - 1)
-                end_col = min(c_idx + colspan - 1, len(new_table.rows[r_idx].cells) - 1)
+            tr = tr_list[r_idx]
+            tc_list = tr.findall(qn('w:tc'))
 
-                if end_row > r_idx or end_col > c_idx:
-                    end_cell = new_table.rows[end_row].cells[end_col]
-                    start_cell.merge(end_cell)
-            except Exception:
-                pass
-
-        # 填入資料
-        for r_idx, row in enumerate(rows):
             # 從 PDF 抽取的背景色資訊判斷是否需要灰色背景
             needs_gray_bg = row_backgrounds[r_idx] if r_idx < len(row_backgrounds) else False
 
             for c_idx, cell_text in enumerate(row):
-                # 跳過已被合併覆蓋的 cell
-                if (r_idx, c_idx) in merged_cells:
+                if c_idx >= len(tc_list):
                     continue
 
-                if c_idx < len(new_table.rows[r_idx].cells):
-                    cell = new_table.rows[r_idx].cells[c_idx]
+                # 使用 python-docx 的 _Cell 包裝來設定文字和格式
+                tc = tc_list[c_idx]
+                cell = _Cell(tc, new_table)
 
-                    # 判定欄（最後一欄或內容為判定值）轉換
-                    if cell_text and is_verdict_cell(cell_text):
-                        cell_text = VERDICT_MAP.get(cell_text.strip().upper(), cell_text)
+                # 判定欄（最後一欄或內容為判定值）轉換
+                if cell_text and is_verdict_cell(cell_text):
+                    cell_text = VERDICT_MAP.get(cell_text.strip().upper(), cell_text)
 
-                    # 欄位標題翻譯（B→基本, S→補充, R→強化）
-                    if cell_text and cell_text.strip() in HEADER_MAP:
-                        cell_text = HEADER_MAP.get(cell_text.strip(), cell_text)
+                # 欄位標題翻譯（B→基本, S→補充, R→強化）
+                if cell_text and cell_text.strip() in HEADER_MAP:
+                    cell_text = HEADER_MAP.get(cell_text.strip(), cell_text)
 
-                    # 填入內容
-                    if cell_text:
-                        cell.text = cell_text
+                # 填入內容
+                if cell_text:
+                    cell.text = cell_text
 
-                    # 設定字型
-                    for paragraph in cell.paragraphs:
-                        for run in paragraph.runs:
-                            run.font.size = Pt(11)
-                            run.font.name = '標楷體'
-                            run._element.rPr.rFonts.set(qn('w:eastAsia'), '標楷體')
+                # 設定字型
+                for paragraph in cell.paragraphs:
+                    for run in paragraph.runs:
+                        run.font.size = Pt(11)
+                        run.font.name = '標楷體'
+                        run._element.rPr.rFonts.set(qn('w:eastAsia'), '標楷體')
 
-                    # 按照 PDF 原始格式套用灰色背景
-                    if needs_gray_bg:
-                        _set_cell_shading(cell, "D9D9D9")
+                # 按照 PDF 原始格式套用灰色背景
+                if needs_gray_bg:
+                    _set_cell_shading(cell, "D9D9D9")
+
+        # 最後才套用合併（避免影響資料填入）
+        _apply_merge_to_table(new_table, merge_info, merged_cells)
 
         # 移動表格到正確位置
         insert_element.addnext(new_table._tbl)
@@ -588,6 +580,87 @@ def _set_cell_shading(cell, color: str):
     shd.set(qn('w:color'), 'auto')
     shd.set(qn('w:fill'), color)
     tcPr.append(shd)
+
+
+def _apply_merge_to_table(table, merge_info: list, merged_cells: set = None):
+    """
+    手動設定表格的合併儲存格（正確處理垂直合併）
+
+    python-docx 的 merge() 方法有 bug，垂直合併時會錯誤地設定 vMerge
+    這個函數直接操作 XML 來正確處理
+
+    Word 合併邏輯（colspan=3, rowspan=2 的例子）：
+    - 第一行 cell: gridSpan=3, vMerge=restart
+    - 第二行 cell: gridSpan=3, vMerge（無 val = 繼續）
+    - 每行只需要設定起始 column 的 cell，其餘被 gridSpan 覆蓋
+    """
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    if merged_cells is None:
+        merged_cells = set()
+
+    # 直接從 XML 取得所有 tr (行) 元素
+    tbl = table._tbl
+    tr_list = tbl.findall(qn('w:tr'))
+
+    for m in merge_info:
+        r_idx = m['row']
+        c_idx = m['col']
+        colspan = m.get('colspan', 1)
+        rowspan = m.get('rowspan', 1)
+
+        # 處理每個受影響的行
+        for dr in range(rowspan):
+            row_idx = r_idx + dr
+            if row_idx >= len(tr_list):
+                continue
+
+            tr = tr_list[row_idx]
+            tc_list = tr.findall(qn('w:tc'))
+
+            # 只處理起始 column，水平合併的其他 column 不需要特別處理
+            col_idx = c_idx
+            if col_idx >= len(tc_list):
+                continue
+
+            tc = tc_list[col_idx]
+
+            # 如果是被覆蓋的 cell（非起始行），清空內容
+            if (row_idx, col_idx) in merged_cells:
+                for p in tc.findall(qn('w:p')):
+                    for r in list(p):
+                        if r.tag != qn('w:pPr'):
+                            p.remove(r)
+
+            # 取得或建立 tcPr
+            tcPr = tc.find(qn('w:tcPr'))
+            if tcPr is None:
+                tcPr = OxmlElement('w:tcPr')
+                tc.insert(0, tcPr)
+
+            # 設定 gridSpan（水平合併）- 每一行都需要設定
+            if colspan > 1:
+                grid_span = tcPr.find(qn('w:gridSpan'))
+                if grid_span is None:
+                    grid_span = OxmlElement('w:gridSpan')
+                    tcPr.append(grid_span)
+                grid_span.set(qn('w:val'), str(colspan))
+
+            # 設定 vMerge（垂直合併）
+            if rowspan > 1:
+                # 移除現有的 vMerge
+                existing_vmerge = tcPr.find(qn('w:vMerge'))
+                if existing_vmerge is not None:
+                    tcPr.remove(existing_vmerge)
+
+                # 建立新的 vMerge
+                v_merge = OxmlElement('w:vMerge')
+                if dr == 0:
+                    # 第一行：restart（開始合併）
+                    v_merge.set(qn('w:val'), 'restart')
+                # 其他行：不設定 val 屬性（繼續合併）
+                tcPr.append(v_merge)
 
 
 # ============================================================
