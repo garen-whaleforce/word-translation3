@@ -248,15 +248,16 @@ def _render_word_v2(
     3. 插入翻譯後的表格 (page 5 開始)
     4. 儲存
 
-    表格格式對齊人工版：
-    - 固定 4 欄: 條款 | 要求 | 結果/備註 | 判定
-    - 欄寬比例: 1330:4790:2559:910 twips
+    表格格式：
+    - 保留 PDF 原有的欄位結構（不強制 4 欄）
     - 判定欄: P→符合, N/A→不適用, F→不符合
+    - 章節標題行（第一欄為數字如 4, 5, 6）加灰色背景 #D9D9D9
     """
     from docx import Document
-    from docx.shared import Pt, Twips
+    from docx.shared import Pt, Twips, Inches
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
+    import re
 
     doc = Document(template_path)
 
@@ -273,9 +274,8 @@ def _render_word_v2(
     else:
         insert_element = doc.element.body[-1]
 
-    # 標準 4 欄寬度 (twips) - 對齊人工版
-    STANDARD_COL_WIDTHS = [1330, 4790, 2559, 910]  # 條款, 要求, 結果, 判定
-    TOTAL_WIDTH = sum(STANDARD_COL_WIDTHS)  # 9589 twips
+    # 總寬度 (twips) - A4 紙張內容區域約 9589 twips
+    TOTAL_WIDTH = 9589
 
     # 判定值映射
     VERDICT_MAP = {
@@ -287,6 +287,26 @@ def _render_word_v2(
         'FAIL': '不符合',
     }
 
+    # 章節標題判斷：第一欄為純數字（如 4, 5, 6, 7, 8, 9, 10）或帶附錄字母（如 B, G, M）
+    def is_section_header(first_col_text: str) -> bool:
+        if not first_col_text:
+            return False
+        text = first_col_text.strip()
+        # 主章節：純數字（4, 5, 6...）
+        if re.match(r'^[4-9]$|^10$|^[1-9][0-9]$', text):
+            return True
+        # 附錄章節：單一大寫字母（B, G, M, etc.）
+        if re.match(r'^[A-Z]$', text):
+            return True
+        return False
+
+    # 判定欄判斷：檢查內容是否為判定值
+    def is_verdict_cell(cell_text: str) -> bool:
+        if not cell_text:
+            return False
+        text = cell_text.strip().upper()
+        return text in VERDICT_MAP
+
     # 逐個插入表格
     for t_idx, table_data in enumerate(translated_tables):
         rows = table_data['rows']
@@ -295,29 +315,35 @@ def _render_word_v2(
         if not rows:
             continue
 
-        # 標準化為 4 欄（如果原本不是 4 欄）
-        target_cols = 4
-        normalized_rows = _normalize_table_rows(rows, col_count, target_cols)
+        # 保留原始欄位數
+        actual_cols = col_count
 
-        # 建立新表格（固定 4 欄）
-        new_table = doc.add_table(rows=len(normalized_rows), cols=target_cols)
+        # 建立新表格（使用 PDF 原有的欄位數）
+        new_table = doc.add_table(rows=len(rows), cols=actual_cols)
+
+        # 計算平均欄寬
+        col_widths = [TOTAL_WIDTH // actual_cols] * actual_cols
 
         # 設定表格寬度和欄寬
         _set_table_width(new_table, TOTAL_WIDTH)
-        _set_column_widths(new_table, STANDARD_COL_WIDTHS)
+        _set_column_widths(new_table, col_widths)
 
         # 設定表格框線
         _set_table_borders(new_table)
 
         # 填入資料
-        for r_idx, row in enumerate(normalized_rows):
+        for r_idx, row in enumerate(rows):
+            # 判斷是否為章節標題行
+            first_col = row[0] if row else ""
+            is_header_row = is_section_header(first_col)
+
             for c_idx, cell_text in enumerate(row):
                 if c_idx < len(new_table.rows[r_idx].cells):
                     cell = new_table.rows[r_idx].cells[c_idx]
 
-                    # 判定欄（最後一欄）轉換
-                    if c_idx == target_cols - 1:
-                        cell_text = VERDICT_MAP.get(cell_text.strip().upper(), cell_text) if cell_text else ""
+                    # 判定欄（最後一欄或內容為判定值）轉換
+                    if cell_text and is_verdict_cell(cell_text):
+                        cell_text = VERDICT_MAP.get(cell_text.strip().upper(), cell_text)
 
                     cell.text = cell_text or ""
 
@@ -327,6 +353,10 @@ def _render_word_v2(
                             run.font.size = Pt(11)
                             run.font.name = '標楷體'
                             run._element.rPr.rFonts.set(qn('w:eastAsia'), '標楷體')
+
+                    # 章節標題行：除了最後一欄（判定欄）外都加灰色背景
+                    if is_header_row and c_idx < actual_cols - 1:
+                        _set_cell_shading(cell, "D9D9D9")
 
         # 移動表格到正確位置
         insert_element.addnext(new_table._tbl)
@@ -478,6 +508,33 @@ def _set_table_borders(table):
     tblPr.append(tblBorders)
     if tbl.tblPr is None:
         tbl.insert(0, tblPr)
+
+
+def _set_cell_shading(cell, color: str):
+    """
+    設定儲存格背景色
+
+    Args:
+        cell: Word 儲存格物件
+        color: 16 進位顏色碼 (如 "D9D9D9")
+    """
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+
+    # 移除現有的 shading
+    existing_shd = tcPr.find(qn('w:shd'))
+    if existing_shd is not None:
+        tcPr.remove(existing_shd)
+
+    # 建立新的 shading
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:val'), 'clear')
+    shd.set(qn('w:color'), 'auto')
+    shd.set(qn('w:fill'), color)
+    tcPr.append(shd)
 
 
 # ============================================================
