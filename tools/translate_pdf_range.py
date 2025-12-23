@@ -414,6 +414,17 @@ def insert_tables_to_template(
         last_table = doc.tables[insert_after_table_idx]
         # 在表格後面插入新內容
         insert_element = last_table._tbl
+
+        # 在 Table 3 之後插入分頁符，讓翻譯內容從第 5 頁開始
+        from docx.oxml import OxmlElement
+        page_break_para = OxmlElement('w:p')
+        page_break_run = OxmlElement('w:r')
+        page_break = OxmlElement('w:br')
+        page_break.set(qn('w:type'), 'page')
+        page_break_run.append(page_break)
+        page_break_para.append(page_break_run)
+        insert_element.addnext(page_break_para)
+        insert_element = page_break_para
     else:
         # 如果表格不夠，在文件末尾插入
         insert_element = doc.element.body[-1]

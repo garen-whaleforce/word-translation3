@@ -265,12 +265,22 @@ def _render_word_v2(
     _fill_cover_fields(doc, meta, cover_fields)
 
     # ===== 插入翻譯後的表格 =====
-    # 找到插入位置（表格 3 之後）
+    # 找到插入位置（表格 3 之後，並加入分頁符讓內容從第 5 頁開始）
     insert_after_table_idx = 3
 
     if insert_after_table_idx < len(doc.tables):
         last_table = doc.tables[insert_after_table_idx]
         insert_element = last_table._tbl
+
+        # 在 Table 3 之後插入分頁符，讓翻譯內容從第 5 頁開始
+        page_break_para = OxmlElement('w:p')
+        page_break_run = OxmlElement('w:r')
+        page_break = OxmlElement('w:br')
+        page_break.set(qn('w:type'), 'page')
+        page_break_run.append(page_break)
+        page_break_para.append(page_break_run)
+        insert_element.addnext(page_break_para)
+        insert_element = page_break_para
     else:
         insert_element = doc.element.body[-1]
 
