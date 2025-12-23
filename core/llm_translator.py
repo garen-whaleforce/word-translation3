@@ -20,9 +20,12 @@ LLM 翻譯模組 - 使用 Azure OpenAI 進行專業安規術語翻譯
 
 翻譯規則參考: LLM翻譯術語表.md
 """
+import csv
+import json
 import os
 import re
 import hashlib
+from pathlib import Path
 from typing import Optional, List, Dict
 from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -42,6 +45,13 @@ try:
     HAS_REDIS = True
 except ImportError:
     HAS_REDIS = False
+
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RULES_DIR = PROJECT_ROOT / "rules"
+GLOSSARY_PATH = RULES_DIR / "en_zh_glossary_preferred.json"
+TM_PATH = RULES_DIR / "en_zh_translation_memory.csv"
+GUIDELINE_PATH = RULES_DIR / "IEC62368_EN2ZH_translation_guideline.md"
 
 
 # ============================================================
@@ -112,6 +122,107 @@ MANDATORY_GLOSSARY = {
     'power supply': '電源供應器',
 }
 
+
+def _normalize_tm_key(text: str) -> str:
+    """標準化 TM key（大小寫與空白差異）"""
+    return re.sub(r'\s+', ' ', text.strip()).casefold()
+
+
+def _load_translation_memory(path: Path) -> tuple[Dict[str, str], Dict[str, str]]:
+    """載入翻譯記憶庫（完全匹配）"""
+    raw_map: Dict[str, str] = {}
+    norm_map: Dict[str, str] = {}
+    if not path.exists():
+        return raw_map, norm_map
+
+    try:
+        with path.open('r', encoding='utf-8-sig', newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                en_raw = (row.get('en_raw') or '').strip()
+                zh_raw = (row.get('zh_raw') or '').strip()
+                en_norm = (row.get('en_norm') or '').strip()
+                zh_norm = (row.get('zh_norm') or '').strip()
+                if en_raw and zh_raw and en_raw not in raw_map:
+                    raw_map[en_raw] = zh_raw
+                if en_norm and zh_norm:
+                    key = _normalize_tm_key(en_norm)
+                    if key not in norm_map:
+                        norm_map[key] = zh_norm
+    except Exception as exc:
+        print(f"[LLM] 載入翻譯記憶庫失敗: {exc}")
+
+    return raw_map, norm_map
+
+
+def _load_glossary_from_rules(path: Path) -> Dict[str, str]:
+    """載入偏好詞彙表"""
+    if not path.exists():
+        return {}
+    try:
+        with path.open('r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as exc:
+        print(f"[LLM] 載入詞彙表失敗: {exc}")
+        return {}
+
+    glossary = {}
+    if isinstance(data, list):
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            en_norm = (item.get('en_norm') or '').strip()
+            zh_pref = (item.get('zh_pref') or '').strip()
+            if en_norm and zh_pref:
+                glossary[en_norm] = zh_pref
+    elif isinstance(data, dict):
+        for key, value in data.items():
+            if key and value:
+                glossary[str(key)] = str(value)
+
+    return glossary
+
+
+def _load_guideline_bullets(path: Path) -> List[str]:
+    """抽取翻譯準則重點"""
+    if not path.exists():
+        return []
+    try:
+        content = path.read_text(encoding='utf-8')
+    except Exception as exc:
+        print(f"[LLM] 載入翻譯準則失敗: {exc}")
+        return []
+
+    bullets = []
+    in_section = False
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("## 一、翻譯風格與格式規則"):
+            in_section = True
+            continue
+        if in_section and stripped.startswith("## "):
+            break
+        if in_section and stripped.startswith("- "):
+            bullet = stripped[2:].strip()
+            bullet = re.sub(r"\*\*(.*?)\*\*", r"\1", bullet)
+            bullets.append(bullet)
+    return bullets
+
+
+def _build_system_prompt(bullets: List[str]) -> str:
+    """依準則建立精簡系統提示"""
+    guideline_text = "\n".join([f"- {b}" for b in bullets]) if bullets else ""
+    return (
+        "You are a senior bilingual technical translator.\n"
+        "Translate English to Traditional Chinese (Taiwan) for IEC 62368-1 CB test reports.\n"
+        "Follow the guideline rules below:\n"
+        f"{guideline_text}\n"
+        "- Preserve existing Chinese text; do not translate it back to English.\n"
+        "- Keep paragraph breaks and separators such as \"|||\".\n"
+        "- Use preferred translations from the glossary/translation memory when applicable.\n"
+        "Output ONLY the translated Traditional Chinese text."
+    )
+
 # 特殊翻譯映射 - 直接映射不經過 LLM
 SPECIAL_TRANSLATIONS = {
     'P': '符合',
@@ -144,88 +255,8 @@ ENGLISH_EXCLUDE_LIST = {
 
 
 # 系統提示詞 - 專業安規工程師角色（一次翻譯和二次翻譯共用）
-SYSTEM_PROMPT = """You are a senior bilingual technical translator. Your ONLY task is to translate from **English to Traditional Chinese (Taiwan)**.
-
-The documents are CB / IEC safety test reports and power electronics specifications. Your translation MUST sound like it was written by an experienced compliance engineer familiar with IEC/EN standards and safety reports used in Taiwan.
-
-### Core rules
-1. **Direction:** Always translate **from English to Traditional Chinese**. Never translate Chinese back to English.
-2. **Style:**
-   - Use formal, concise wording suitable for test reports, specifications, and certification documents.
-   - Use clear engineering wording, not marketing language.
-   - Keep sentence structure close to the source when it improves traceability in audits or cross-checking.
-3. **Formatting & layout:**
-   - Preserve tables, item numbers, headings, clause numbers, units, symbols, and values.
-   - Do NOT change numbers, limits, dates, test results, verdicts, or standard identifiers.
-   - Keep IEC / EN / UL standard codes (e.g., "IEC 62368-1") in English.
-   - If the input contains multiple paragraphs separated by special markers like "|||", preserve these markers in your output.
-
-4. **What must remain in English:**
-   - Standard names and numbers (IEC/EN/UL/CSA, etc.).
-   - Trade names, model names, company names, PCB designators (R1, C2, T1, etc.).
-   - Keep abbreviations like "CB", "ICT", "AV" if they are part of standard terminology in the report.
-
-5. **Do NOT leave English untranslated**
-   - Except for items listed above, **everything else must be translated into Traditional Chinese**.
-   - If you must keep a term in English for technical accuracy, add a clear Traditional Chinese explanation on first occurrence.
-
-### Terminology – MANDATORY glossary (English ➜ Traditional Chinese)
-When these English terms or phrases appear, you MUST use EXACTLY the following translations.
-Always match the **longest phrase first** (e.g., match "primary winding" before the single word "primary").
-
-Parts / components:
-- Bleeding resistor ➜ 洩放電阻
-- Electrolytic capacitor ➜ 電解電容
-- MOSFET ➜ 電晶體
-- Current limit resistor ➜ 限流電阻
-- Varistor / MOV ➜ 突波吸收器
-- Primary wire ➜ 一次側引線
-- Line choke / Line chock ➜ 電感
-- Bobbin ➜ 線架
-- Plug holder ➜ 刃片插座塑膠材質
-- AC connector ➜ AC 連接器
-- Fuse ➜ 保險絲
-- Triple insulated wire ➜ 三層絕緣線
-- Trace (PCB) ➜ 銅箔
-
-Circuit sides & windings:
-- primary winding ➜ 一次側繞線
-- primary circuit ➜ 一次側電路
-- primary (alone, referring to primary side) ➜ 一次側
-- secondary ➜ 二次側
-- Sec. (abbreviation) ➜ 二次側
-- winding (general) ➜ 繞線
-- core (magnetic core) ➜ 鐵芯
-
-Test conditions, environment, status:
-- Unit shutdown immediately ➜ 設備立即中斷
-- Unit shutdown ➜ 設備中斷
-- Ambient (temperature, condition) ➜ 室溫
-- Plastic enclosure outside near ➜ 塑膠外殼內側靠近
-- For model ➜ 適用型號
-- Optional ➜ 可選
-- Interchangeable ➜ 不限
-- Minimum / at least ➜ 至少
-
-Additional wording constraints:
-- NEVER translate "primary" as "初級" or "一次測" or "一次"; always use **一次側**.
-- NEVER translate "secondary" as "次級"; always use **二次側**.
-- Use **Traditional Chinese** characters only.
-
-### Table cell formatting rules
-- Flammability rating cells: When you see "UL 94, UL 746C" or similar, output ONLY "UL 94" (remove UL 746C)
-- Empty or blank cells: Keep them empty/blank, do NOT add any content
-- Certification/approval cells with file numbers: Remove file numbers, keep ONLY the certification standard names
-  Example: "VDE↓40029550↓UL E249609" → "VDE" (remove all file numbers like 40029550, E249609, E121562, etc.)
-
-### Quality checks
-Before finalizing each answer, mentally check:
-1. All English technical content (except standard names, model names, etc.) has been translated into Traditional Chinese.
-2. All glossary terms above are applied consistently, prioritizing the longest phrase match.
-3. Numbers, units, limits, clause numbers, table structures, and verdicts are preserved exactly.
-4. The overall tone is that of a professional safety/compliance report used in Taiwan.
-
-Output ONLY the translated Traditional Chinese text (with the preserved structure), without explanations."""
+GUIDELINE_BULLETS = _load_guideline_bullets(GUIDELINE_PATH)
+SYSTEM_PROMPT = _build_system_prompt(GUIDELINE_BULLETS)
 
 
 # ============================================================
@@ -268,12 +299,21 @@ class LLMTranslator:
         self.cache_hits = 0
         self.cache_misses = 0
 
-        # 建立按長度排序的術語表（優先匹配最長詞組）
+        # 載入翻譯記憶庫與詞彙表
+        self._tm_raw, self._tm_norm = _load_translation_memory(TM_PATH)
+        glossary = _load_glossary_from_rules(GLOSSARY_PATH)
+        if glossary:
+            for key, value in MANDATORY_GLOSSARY.items():
+                glossary.setdefault(key, value)
+        else:
+            glossary = dict(MANDATORY_GLOSSARY)
+        self._glossary = glossary
         self._sorted_glossary = sorted(
-            MANDATORY_GLOSSARY.items(),
+            self._glossary.items(),
             key=lambda x: len(x[0]),
             reverse=True
         )
+        self._system_prompt = SYSTEM_PROMPT
 
         # 初始化 Redis 連接
         self._init_redis()
@@ -451,6 +491,18 @@ class LLMTranslator:
             return SPECIAL_TRANSLATIONS[text_stripped]
         return None
 
+    def _lookup_tm(self, text: str) -> Optional[str]:
+        """翻譯記憶庫完全匹配"""
+        if not text:
+            return None
+        raw_key = text.strip()
+        if raw_key in self._tm_raw:
+            return self._tm_raw[raw_key]
+        norm_key = _normalize_tm_key(text)
+        if norm_key in self._tm_norm:
+            return self._tm_norm[norm_key]
+        return None
+
     def _apply_glossary(self, text: str) -> str:
         """
         套用強制術語表進行預翻譯
@@ -541,9 +593,11 @@ class LLMTranslator:
 
         流程:
         1. 檢查特殊翻譯映射 (P, N/A, --)
-        2. 檢查快取（Redis → 記憶體）
-        3. 如果 LLM 啟用且有英文，呼叫 LLM
-        4. LLM 失敗或未啟用時，保留原文
+        2. 翻譯記憶庫完全匹配
+        3. 檢查快取（Redis → 記憶體）
+        4. 詞彙表預替換（最長詞組優先）
+        5. 如果 LLM 啟用且有英文，呼叫 LLM
+        6. LLM 失敗或未啟用時，保留原文或詞彙表結果
         """
         if not text or len(text.strip()) < 1:
             return text
@@ -553,24 +607,35 @@ class LLMTranslator:
         if special is not None:
             return special
 
+        # Step 2: 翻譯記憶庫完全匹配
+        tm_hit = self._lookup_tm(text)
+        if tm_hit is not None:
+            return tm_hit
+
         # 如果已經是中文為主，直接返回
         if self._is_chinese(text):
             return text
 
-        # Step 2: 檢查快取（Redis 優先，記憶體 fallback）
+        # Step 3: 檢查快取（Redis 優先，記憶體 fallback）
         cached = self._get_from_cache(text)
         if cached:
             return cached
 
-        # Step 3: 純 LLM 翻譯（含重試機制）
-        if self.enabled and self._has_significant_english(text):
+        prepared_text = self._apply_glossary(text)
+        if not self._has_significant_english(prepared_text):
+            if prepared_text != text:
+                self._set_to_cache(text, prepared_text)
+            return prepared_text
+
+        # Step 4: 純 LLM 翻譯（含重試機制）
+        if self.enabled and self._has_significant_english(prepared_text):
             for retry in range(MAX_RETRIES):
                 try:
                     response = self.client.chat.completions.create(
                         model=self.deployment,
                         messages=[
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            {"role": "user", "content": f"翻譯以下內容：\n{text}"}
+                            {"role": "system", "content": self._system_prompt},
+                            {"role": "user", "content": f"翻譯以下內容：\n{prepared_text}"}
                         ],
                         max_completion_tokens=500,
                         temperature=0.1,  # 低溫度確保一致性
@@ -594,10 +659,10 @@ class LLMTranslator:
                     else:
                         print(f"[LLM] 翻譯失敗，保留原文: {e}")
                         # LLM 失敗時，保留原文（不使用字典）
-                        return text
+                        return prepared_text
 
         # LLM 未啟用時，保留原文（不使用字典）
-        return text
+        return prepared_text
 
     def translate_no_cache(self, text: str) -> str:
         """
@@ -611,17 +676,25 @@ class LLMTranslator:
         if special is not None:
             return special
 
+        tm_hit = self._lookup_tm(text)
+        if tm_hit is not None:
+            return tm_hit
+
         if self._is_chinese(text):
             return text
 
-        if self.enabled and self._has_significant_english(text):
+        prepared_text = self._apply_glossary(text)
+        if not self._has_significant_english(prepared_text):
+            return prepared_text
+
+        if self.enabled and self._has_significant_english(prepared_text):
             for retry in range(MAX_RETRIES):
                 try:
                     response = self.client.chat.completions.create(
                         model=self.deployment,
                         messages=[
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            {"role": "user", "content": f"翻譯以下內容：\n{text}"}
+                            {"role": "system", "content": self._system_prompt},
+                            {"role": "user", "content": f"翻譯以下內容：\n{prepared_text}"}
                         ],
                         max_completion_tokens=500,
                         temperature=0.1,
@@ -635,9 +708,9 @@ class LLMTranslator:
                         time.sleep(RETRY_DELAY)
                     else:
                         print(f"[LLM] 翻譯失敗，保留原文: {e}")
-                        return text
+                        return prepared_text
 
-        return text
+        return prepared_text
 
     def _translate_single_for_batch(self, text: str, idx: int) -> tuple:
         """併發翻譯的單個任務"""
@@ -700,7 +773,7 @@ class LLMTranslator:
                 response = self.client.chat.completions.create(
                     model=self.deployment,
                     messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": self._system_prompt},
                         {"role": "user", "content": f"翻譯以下內容（保持 ||| 分隔符）：\n{combined_text}"}
                     ],
                     max_completion_tokens=2000,
@@ -721,7 +794,7 @@ class LLMTranslator:
                 if len(translated_texts) == len(chunk_indices):
                     result = {}
                     for i, idx in enumerate(chunk_indices):
-                        result[idx] = translated_texts[i].strip()
+                        result[idx] = self._apply_glossary(translated_texts[i].strip())
                     return result
 
                 # 分隔符不匹配，逐個翻譯
@@ -758,24 +831,49 @@ class LLMTranslator:
         2. 每個 chunk 內的文本合併用分隔符連接，一次 API 調用翻譯
         3. 使用 ThreadPoolExecutor 併發處理多個 chunks
         """
-        if not self.enabled:
-            # LLM 未啟用時，保留原文（不使用字典）
+        if not texts:
             return texts
 
         # 過濾出需要翻譯的文本（先檢查快取）
         to_translate = []
+        to_translate_orig = []
         indices = []
         results = list(texts)
 
         for i, text in enumerate(texts):
-            if self._should_translate(text):
-                # 檢查快取（Redis + 記憶體）
-                cached = self._get_from_cache(text)
-                if cached:
-                    results[i] = cached
-                    continue
-                to_translate.append(text)
-                indices.append(i)
+            if not text or len(text.strip()) < 1:
+                results[i] = text
+                continue
+
+            special = self._apply_special_translation(text)
+            if special is not None:
+                results[i] = special
+                continue
+
+            tm_hit = self._lookup_tm(text)
+            if tm_hit is not None:
+                results[i] = tm_hit
+                continue
+
+            if self._is_chinese(text):
+                results[i] = text
+                continue
+
+            cached = self._get_from_cache(text)
+            if cached:
+                results[i] = cached
+                continue
+
+            prepared_text = self._apply_glossary(text)
+            if not self._has_significant_english(prepared_text) or not self.enabled:
+                results[i] = prepared_text
+                if prepared_text != text:
+                    self._set_to_cache(text, prepared_text)
+                continue
+
+            to_translate.append(prepared_text)
+            to_translate_orig.append(text)
+            indices.append(i)
 
         if not to_translate:
             return results
@@ -799,7 +897,7 @@ class LLMTranslator:
                         original_idx = indices[batch_idx]
                         results[original_idx] = translated
                         # 更新快取（Redis + 記憶體）
-                        self._set_to_cache(to_translate[batch_idx], translated)
+                        self._set_to_cache(to_translate_orig[batch_idx], translated)
                     completed += 1
                     if completed % 5 == 0 or completed == len(chunks):
                         print(f"[LLM] Chunk 進度: {completed}/{len(chunks)}")
@@ -821,6 +919,10 @@ class LLMTranslator:
         special = self._apply_special_translation(text)
         if special is not None:
             return special
+
+        tm_hit = self._lookup_tm(text)
+        if tm_hit is not None:
+            return tm_hit
 
         # 套用強制術語表
         return self._apply_glossary(text)
