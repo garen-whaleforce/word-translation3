@@ -2396,19 +2396,43 @@ def fill_table_dynamic(doc: Document, clause_id: str, pdf_table_data: dict):
 
     print(f"找到 {clause_id} 表格，原有 {len(target_table.rows)} 行")
 
-    # 從 PDF 資料中分離：資料行、備註行
+    # 從 PDF 資料中分離：固定表頭行、資料行、備註行
     pdf_data_rows = []
     pdf_note_rows = []
+    pdf_fixed_header_rows = []  # 固定表頭行（如環境溫度、EUT電源）
     in_data_section = False
+
+    # 固定表頭行的識別模式（verdict 為 ⎯ 的描述性行）
+    fixed_header_patterns = [
+        'Ambient temperature',  # 環境溫度
+        'Power source for EUT',  # EUT電源
+        'Room temperature',  # 室溫
+        'T (C)',  # 溫度
+        'Tamb',  # 環境溫度
+    ]
 
     for i, row in enumerate(pdf_rows):
         if not row:
             continue
         first_cell = str(row[0]).strip() if row else ''
         row_text = ' '.join(str(c) for c in row if c)
+        last_cell = str(row[-1]).strip() if row else ''
 
         # 跳過 TABLE: 標題行
         if 'TABLE:' in row_text:
+            continue
+
+        # 檢查是否是固定表頭行（verdict 為 ⎯ 且包含特定關鍵字）
+        is_fixed_header = False
+        if last_cell in ['⎯', '-', '—', '']:
+            for pattern in fixed_header_patterns:
+                if pattern.lower() in first_cell.lower():
+                    is_fixed_header = True
+                    break
+
+        if is_fixed_header:
+            pdf_fixed_header_rows.append(row)
+            print(f"  [DEBUG] 識別為固定表頭行: {first_cell[:50]}...")
             continue
 
         # 跳過欄位標題行
@@ -2469,6 +2493,44 @@ def fill_table_dynamic(doc: Document, clause_id: str, pdf_table_data: dict):
             target_table._tbl.remove(target_table.rows[i]._tr)
 
     print(f"刪除 {rows_to_delete} 行舊資料")
+
+    # 處理固定表頭行：將 PDF 固定表頭資料填入模板的對應固定表頭欄位
+    if pdf_fixed_header_rows:
+        print(f"  處理 {len(pdf_fixed_header_rows)} 個固定表頭行")
+        for fh_row in pdf_fixed_header_rows:
+            first_cell = str(fh_row[0]).strip() if fh_row else ''
+            # 找到對應的值欄位（通常在倒數第二或第三個非空欄位）
+            value = ''
+            for cell in reversed(fh_row[:-1]):  # 跳過最後一個欄位（verdict）
+                cell_text = str(cell).strip() if cell else ''
+                if cell_text and cell_text not in ['⎯', '-', '—', '']:
+                    value = cell_text
+                    break
+
+            # 在模板中找到對應的固定表頭行並填入值
+            for row in target_table.rows[1:delete_start]:  # 跳過標題行
+                row_first_cell = row.cells[0].text.strip()
+                # 匹配環境溫度
+                if ('環境溫度' in row_first_cell or '溫度' in row_first_cell) and \
+                   ('ambient temperature' in first_cell.lower() or 't (' in first_cell.lower()):
+                    # 找到值欄位（通常是合併儲存格的最後幾個欄位）
+                    for cell in row.cells[-3:-1]:  # 填入倒數第2、3個儲存格
+                        if '25' in cell.text or '--' in cell.text or '或見如下' in cell.text:
+                            if value:
+                                translated_value = translate_appendix_cell(value)
+                                cell.text = translated_value
+                                print(f"    環境溫度: {value} → {translated_value}")
+                    break
+                # 匹配 EUT 電源
+                elif ('EUT' in row_first_cell and '電源' in row_first_cell) and \
+                     'power source for eut' in first_cell.lower():
+                    for cell in row.cells[-3:-1]:
+                        if '--' in cell.text:
+                            if value:
+                                translated_value = translate_appendix_cell(value)
+                                cell.text = translated_value
+                                print(f"    EUT電源: {value} → {translated_value}")
+                    break
 
     # 確定目標表格的欄數
     target_cols = len(target_table.rows[0].cells) if target_table.rows else 7

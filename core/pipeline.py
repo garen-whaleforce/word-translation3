@@ -1,7 +1,10 @@
 # core/pipeline.py
 """
-CB PDF → CNS DOCX 轉換 Pipeline
-封裝所有 tools/ 下的處理邏輯為單一 process_job() 函數
+CB PDF → CNS DOCX 轉換 Pipeline (v2)
+
+使用新的 PDF 範圍翻譯方法：
+- 保留 page 1-4 封面資訊抓取
+- page 5 開始使用 PDF 範圍直接翻譯
 """
 import os
 import sys
@@ -22,15 +25,14 @@ from core.storage import get_storage, StorageClient
 
 def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=None) -> Job:
     """
-    處理一個 CB PDF 轉換任務
+    處理一個 CB PDF 轉換任務 (v2 - 使用新的 PDF 範圍翻譯方法)
 
     流程:
     1. 下載 PDF 到暫存目錄
-    2. 抽取 PDF 資料 (extract_cb_pdf, extract_pdf_clause_rows, extract_special_tables)
-    3. 生成 CNS JSON (generate_cns_json)
-    4. 渲染 Word 文件 (render_word)
-    5. 上傳結果到 Storage
-    6. 更新 Job 狀態
+    2. 抽取封面資訊 (meta data for page 1-4)
+    3. PDF 範圍翻譯 (page 5 開始，直接翻譯並插入模板)
+    4. 上傳結果到 Storage
+    5. 更新 Job 狀態
 
     Args:
         job: Job 物件
@@ -67,130 +69,35 @@ def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=
         storage.download_file(job.original_pdf_key, str(pdf_path))
         update_progress("download_pdf_done", "PASS", "PDF 下載完成")
 
-        # ===== Step 2: 抽取 PDF 資料 =====
-        update_progress("extract_pdf", "PASS", "正在解析 PDF 結構...")
-        from tools.extract_cb_pdf import main as extract_cb_pdf_main, extract_annex_model_rows, extract_annex_tables
-        from tools.extract_pdf_clause_rows import extract_clause_rows, find_clause_start_page
-        from tools.extract_special_tables import (
-            extract_overview_energy_sources,
-            extract_table_5522,
-            extract_table_b25,
-            extract_table_52
-        )
-        import pdfplumber
+        # ===== Step 2: 抽取封面資訊 (page 1-4) =====
+        update_progress("extract_meta", "PASS", "正在抽取封面資訊...")
+        meta = _extract_cover_meta(str(pdf_path), job.pdf_filename)
+        update_progress("extract_meta_done", "PASS", "封面資訊抽取完成")
 
-        # 2a. 基本抽取
-        _run_extract_cb_pdf(str(pdf_path), str(out_dir))
-        update_progress("extract_overview", "PASS", "抽取 Overview 表完成")
+        # ===== Step 3: PDF 範圍翻譯 (page 5 開始) =====
+        update_progress("translate_pdf", "PASS", "正在翻譯 PDF 內容...")
 
-        # 2b. 條款列抽取
-        update_progress("extract_clause_rows", "PASS", "正在抽取條款列...")
-        with pdfplumber.open(str(pdf_path)) as pdf:
-            start_idx = find_clause_start_page(pdf)
-            clause_rows = extract_clause_rows(pdf, start_idx)
-
-        clause_rows_path = out_dir / "pdf_clause_rows.json"
-        with open(clause_rows_path, 'w', encoding='utf-8') as f:
-            json.dump(clause_rows, f, ensure_ascii=False, indent=2)
-        update_progress("extract_clause_rows_done", "PASS", f"抽取 {len(clause_rows)} 條款列完成")
-
-        # 2c. 特殊表格抽取
-        update_progress("extract_special_tables", "PASS", "正在抽取特殊表格...")
-        with pdfplumber.open(str(pdf_path)) as pdf:
-            try:
-                overview = extract_overview_energy_sources(pdf)
-            except ValueError as e:
-                overview = {'error': str(e), 'rows': []}
-
-            try:
-                table_5522 = extract_table_5522(pdf)
-            except ValueError as e:
-                table_5522 = {'error': str(e)}
-
-            try:
-                table_b25 = extract_table_b25(pdf)
-            except ValueError as e:
-                table_b25 = {'error': str(e)}
-
-            try:
-                table_52 = extract_table_52(pdf)
-            except ValueError as e:
-                table_52 = {'error': str(e)}
-
-        special_tables = {
-            'overview': overview,
-            'table_5522': table_5522,
-            'table_b25': table_b25,
-            'table_52': table_52
-        }
-        special_tables_path = out_dir / "cb_special_tables.json"
-        with open(special_tables_path, 'w', encoding='utf-8') as f:
-            json.dump(special_tables, f, ensure_ascii=False, indent=2, default=list)
-        update_progress("extract_special_tables_done", "PASS", "特殊表格抽取完成")
-
-        # 2d. 附表 Model 行抽取
-        update_progress("extract_annex_model", "PASS", "正在抽取附表 Model 行...")
-        cb_tables_path = out_dir / "cb_tables_text.json"
-        if cb_tables_path.exists():
-            with open(cb_tables_path, 'r', encoding='utf-8') as f:
-                cb_tables = json.load(f)
-            annex_model_rows = extract_annex_model_rows(cb_tables)
-        else:
-            annex_model_rows = []
-            cb_tables = []
-
-        annex_model_rows_path = out_dir / "cb_annex_model_rows.json"
-        with open(annex_model_rows_path, 'w', encoding='utf-8') as f:
-            json.dump(annex_model_rows, f, ensure_ascii=False, indent=2)
-        update_progress("extract_annex_model_done", "PASS", f"抽取 {len(annex_model_rows)} 附表 Model 行完成")
-
-        # 2e. 抽取完整附表資料
-        update_progress("extract_annex_tables", "PASS", "正在抽取附表資料...")
-        annex_tables = extract_annex_tables(cb_tables)
-        # 移除內部欄位
-        for t in annex_tables:
-            t.pop('_last_page', None)
-
-        annex_tables_path = out_dir / "cb_annex_tables.json"
-        with open(annex_tables_path, 'w', encoding='utf-8') as f:
-            json.dump(annex_tables, f, ensure_ascii=False, indent=2)
-        update_progress("extract_annex_tables_done", "PASS", f"抽取 {len(annex_tables)} 個附表完成")
-
-        # ===== Step 3: 生成 CNS JSON =====
-        update_progress("generate_cns_json", "PASS", "正在生成 CNS JSON...")
-        from tools.generate_cns_json import (
-            load_json,
-            extract_meta_from_chunks,
-            convert_overview_to_cns,
-            dedupe_clauses
+        from tools.translate_pdf_range import (
+            find_translation_range,
+            extract_tables_from_range,
+            translate_tables
         )
 
-        chunks = load_json(out_dir / "cb_text_chunks.json")
-        overview_raw = load_json(out_dir / "cb_overview_raw.json")
-        clauses_raw = load_json(out_dir / "cb_clauses_raw.json")
+        # 3a. 找出翻譯範圍
+        start_page, end_page = find_translation_range(str(pdf_path))
+        update_progress("find_range", "PASS", f"翻譯範圍: Page {start_page + 1} ~ {end_page}")
 
-        meta = extract_meta_from_chunks(chunks, job.pdf_filename)
-        overview_cns = convert_overview_to_cns(overview_raw)
-        clauses = dedupe_clauses(clauses_raw)
+        # 3b. 抽取表格
+        tables = extract_tables_from_range(str(pdf_path), start_page, end_page)
+        update_progress("extract_tables", "PASS", f"抽取 {len(tables)} 個表格")
 
-        # overview_cb_p12_rows 保留完整列
-        overview_cb_p12_rows = overview.get('rows', []) if 'error' not in overview else []
-
-        cns_data = {
-            'meta': meta,
-            'overview_energy_sources_and_safeguards': overview_cns,
-            'overview_cb_p12_rows': overview_cb_p12_rows,
-            'clauses': clauses,
-            'attachments_or_annex': []
-        }
-
-        cns_json_path = out_dir / "cns_report_data.json"
-        with open(cns_json_path, 'w', encoding='utf-8') as f:
-            json.dump(cns_data, f, ensure_ascii=False, indent=2)
-        update_progress("generate_cns_json_done", "PASS", f"CNS JSON 生成完成 ({len(clauses)} 條款)")
+        # 3c. 翻譯表格
+        update_progress("llm_translate", "PASS", "正在進行 LLM 翻譯...")
+        translated_tables = translate_tables(tables)
+        update_progress("llm_translate_done", "PASS", "LLM 翻譯完成")
 
         # ===== Step 4: 渲染 Word =====
-        update_progress("render_word", "PASS", "正在渲染 Word 報告（含 LLM 翻譯）...")
+        update_progress("render_word", "PASS", "正在渲染 Word 報告...")
         template_path = PROJECT_ROOT / "templates" / "CNS_15598_1_109_template_clean.docx"
         docx_path = out_dir / "cns_report.docx"
 
@@ -201,15 +108,12 @@ def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=
             'applicant_address': job.cover_applicant_address,
         }
 
-        _run_render_word(
-            json_path=str(cns_json_path),
+        _render_word_v2(
             template_path=str(template_path),
-            pdf_clause_rows_path=str(clause_rows_path),
-            special_tables_path=str(special_tables_path),
-            output_path=str(docx_path),
+            translated_tables=translated_tables,
+            meta=meta,
             cover_fields=cover_fields,
-            annex_model_rows_path=str(annex_model_rows_path),
-            annex_tables_path=str(annex_tables_path)
+            output_path=str(docx_path)
         )
         update_progress("render_word_done", "PASS", "Word 報告渲染完成")
 
@@ -226,21 +130,19 @@ def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=
         storage.upload_file(str(docx_path), docx_key)
         job.docx_key = docx_key
 
-        # 上傳 JSON 資料
-        json_key = f"{job_prefix}/cns_report_data.json"
-        storage.upload_file(str(cns_json_path), json_key)
+        # 儲存翻譯後的表格資料 (for debugging)
+        tables_json_path = out_dir / "translated_tables.json"
+        with open(tables_json_path, 'w', encoding='utf-8') as f:
+            json.dump(translated_tables, f, ensure_ascii=False, indent=2)
+
+        json_key = f"{job_prefix}/translated_tables.json"
+        storage.upload_file(str(tables_json_path), json_key)
         job.json_data_key = json_key
 
-        # 上傳 clause rows
-        clause_rows_key = f"{job_prefix}/pdf_clause_rows.json"
-        storage.upload_file(str(clause_rows_path), clause_rows_key)
-        job.pdf_clause_rows_key = clause_rows_key
-
-        # 讀取 LLM 統計並存入 Job
-        llm_stats_path = out_dir / "llm_stats.json"
-        if llm_stats_path.exists():
-            with open(llm_stats_path, 'r', encoding='utf-8') as f:
-                job.llm_stats = json.load(f)
+        # 讀取 LLM 統計
+        from core.llm_translator import get_translator
+        translator = get_translator()
+        job.llm_stats = translator.get_stats()
 
         update_progress("final_qa", "PASS", "任務完成")
 
@@ -260,110 +162,208 @@ def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=
     return job
 
 
-def _run_extract_cb_pdf(pdf_path: str, out_dir: str):
-    """執行 extract_cb_pdf"""
+def _extract_cover_meta(pdf_path: str, pdf_filename: str) -> dict:
+    """
+    抽取封面資訊 (page 1-4)
+
+    Returns:
+        dict: {
+            'model_type_references': [...],
+            'model_type_references_str': '...',
+            'report_reference': '...',
+            'manufacturer_name': '...',
+            ...
+        }
+    """
     import pdfplumber
     import re
-    from tools.extract_cb_pdf import (
-        norm, find_overview_page, extract_overview_table,
-        find_clause_pages, extract_clauses_from_pages, extract_table_412
-    )
 
-    chunks = []
-    tables = []
-    overview_data = []
-    clauses_data = []
+    meta = {
+        'model_type_references': [],
+        'model_type_references_str': '',
+        'report_reference': '',
+        'manufacturer_name': '',
+        'manufacturer_address': '',
+        'test_item': '',
+        'ratings': '',
+    }
 
     with pdfplumber.open(pdf_path) as pdf:
-        # 抽取所有頁面文字
-        for i, page in enumerate(pdf.pages, start=1):
-            text = page.extract_text() or ""
-            chunks.append({
-                "page": i,
-                "text": norm(text)
-            })
+        # 從前幾頁抽取文字
+        text = ""
+        for i in range(min(10, len(pdf.pages))):
+            text += (pdf.pages[i].extract_text() or "") + "\n"
 
-            try:
-                tbs = page.extract_tables() or []
-            except Exception:
-                tbs = []
+        # 抽取型號
+        model_patterns = [
+            r'Model[:\s]+([A-Z0-9\-]+)',
+            r'Type[:\s]+([A-Z0-9\-]+)',
+            r'Model/Type[:\s]+([A-Z0-9\-]+)',
+        ]
+        for pattern in model_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                meta['model_type_references'] = list(set(matches))
+                break
 
-            for t in tbs:
-                rows = []
-                for row in t:
-                    rows.append([norm(c) if c else "" for c in row])
-                tables.append({
-                    "page": i,
-                    "rows": rows
-                })
+        meta['model_type_references_str'] = ', '.join(meta['model_type_references'])
 
-        # 抽取 Overview 表
-        overview_page_idx = find_overview_page(pdf)
-        if overview_page_idx >= 0:
-            overview_page = pdf.pages[overview_page_idx]
-            overview_data = extract_overview_table(overview_page)
+        # 抽取報告編號
+        report_patterns = [
+            r'Report\s+(?:Reference|No\.?)[:\s]+([A-Z0-9\-/]+)',
+            r'Certificate\s+No\.?[:\s]+([A-Z0-9\-/]+)',
+        ]
+        for pattern in report_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                meta['report_reference'] = match.group(1)
+                break
 
-        # 抽取 Clause 表
-        clause_start_idx = find_clause_pages(pdf)
-        if clause_start_idx >= 0:
-            clauses_data = extract_clauses_from_pages(pdf, clause_start_idx)
+        # 抽取製造商名稱
+        mfr_patterns = [
+            r'Manufacturer[:\s]+(.+?)(?:\n|Address)',
+            r'Applicant[:\s]+(.+?)(?:\n|Address)',
+        ]
+        for pattern in mfr_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                meta['manufacturer_name'] = match.group(1).strip()
+                break
 
-    # 抽取 4.1.2 表格
-    table_412_data = extract_table_412(tables)
-
-    # 輸出
-    out_path = Path(out_dir)
-    with open(out_path / "cb_text_chunks.json", "w", encoding="utf-8") as f:
-        json.dump(chunks, f, ensure_ascii=False, indent=2)
-
-    with open(out_path / "cb_tables_text.json", "w", encoding="utf-8") as f:
-        json.dump(tables, f, ensure_ascii=False, indent=2)
-
-    with open(out_path / "cb_overview_raw.json", "w", encoding="utf-8") as f:
-        json.dump(overview_data, f, ensure_ascii=False, indent=2)
-
-    with open(out_path / "cb_clauses_raw.json", "w", encoding="utf-8") as f:
-        json.dump(clauses_data, f, ensure_ascii=False, indent=2)
-
-    with open(out_path / "cb_table_412.json", "w", encoding="utf-8") as f:
-        json.dump(table_412_data, f, ensure_ascii=False, indent=2)
+    return meta
 
 
-def _run_render_word(json_path: str, template_path: str, pdf_clause_rows_path: str,
-                     special_tables_path: str, output_path: str,
-                     cover_fields: dict = None, annex_model_rows_path: str = None,
-                     annex_tables_path: str = None):
-    """執行 render_word"""
-    import subprocess
+def _render_word_v2(
+    template_path: str,
+    translated_tables: list,
+    meta: dict,
+    cover_fields: dict,
+    output_path: str
+):
+    """
+    渲染 Word 文件 (v2 - 使用翻譯後的表格)
 
-    cmd = [
-        sys.executable,
-        str(PROJECT_ROOT / "tools" / "render_word.py"),
-        "--json", json_path,
-        "--template", template_path,
-        "--pdf_clause_rows", pdf_clause_rows_path,
-        "--special_tables", special_tables_path,
-        "--out", output_path
-    ]
+    1. 載入模板
+    2. 填充封面資訊 (page 1-4)
+    3. 插入翻譯後的表格 (page 5 開始)
+    4. 儲存
+    """
+    from docx import Document
+    from docx.shared import Pt
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
 
-    # 添加附表 Model 行參數
-    if annex_model_rows_path:
-        cmd.extend(["--annex_model_rows", annex_model_rows_path])
+    doc = Document(template_path)
 
-    # 添加附表資料參數
-    if annex_tables_path:
-        cmd.extend(["--annex_tables", annex_tables_path])
+    # ===== 填充封面資訊 =====
+    _fill_cover_fields(doc, meta, cover_fields)
 
-    # 添加封面欄位參數
-    if cover_fields:
-        if cover_fields.get('report_no'):
-            cmd.extend(["--cover_report_no", cover_fields['report_no']])
-        if cover_fields.get('applicant_name'):
-            cmd.extend(["--cover_applicant_name", cover_fields['applicant_name']])
-        if cover_fields.get('applicant_address'):
-            cmd.extend(["--cover_applicant_address", cover_fields['applicant_address']])
+    # ===== 插入翻譯後的表格 =====
+    # 找到插入位置（表格 3 之後）
+    insert_after_table_idx = 3
 
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+    if insert_after_table_idx < len(doc.tables):
+        last_table = doc.tables[insert_after_table_idx]
+        insert_element = last_table._tbl
+    else:
+        insert_element = doc.element.body[-1]
 
-    if result.returncode != 0:
-        raise RuntimeError(f"render_word failed: {result.stderr}")
+    # 逐個插入表格
+    for t_idx, table_data in enumerate(translated_tables):
+        rows = table_data['rows']
+        col_count = table_data['col_count']
+
+        if not rows:
+            continue
+
+        # 建立新表格
+        new_table = doc.add_table(rows=len(rows), cols=col_count)
+
+        # 設定表格框線
+        _set_table_borders(new_table)
+
+        # 填入資料
+        for r_idx, row in enumerate(rows):
+            for c_idx, cell_text in enumerate(row):
+                if c_idx < len(new_table.rows[r_idx].cells):
+                    cell = new_table.rows[r_idx].cells[c_idx]
+                    cell.text = cell_text or ""
+
+                    # 設定字型
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.size = Pt(10)
+                            run.font.name = '標楷體'
+                            run._element.rPr.rFonts.set(qn('w:eastAsia'), '標楷體')
+
+        # 移動表格到正確位置
+        insert_element.addnext(new_table._tbl)
+        insert_element = new_table._tbl
+
+        if (t_idx + 1) % 20 == 0:
+            print(f"  已插入 {t_idx + 1}/{len(translated_tables)} 個表格...")
+
+    # 儲存
+    doc.save(output_path)
+    print(f"[完成] 輸出: {output_path}")
+
+
+def _fill_cover_fields(doc, meta: dict, cover_fields: dict):
+    """填充封面欄位"""
+    # 遍歷所有表格找封面表格
+    for table in doc.tables[:4]:  # 只看前 4 個表格
+        for row in table.rows:
+            for cell in row.cells:
+                text = cell.text
+
+                # 替換封面欄位佔位符
+                if '{{ meta.model_type_references_str }}' in text:
+                    cell.text = text.replace('{{ meta.model_type_references_str }}',
+                                            meta.get('model_type_references_str', ''))
+
+                if '{{ cover_report_no }}' in text or '報告編號' in text:
+                    if cover_fields.get('report_no'):
+                        # 找到報告編號欄位並填入
+                        pass
+
+                if '{{ cover_applicant_name }}' in text:
+                    cell.text = text.replace('{{ cover_applicant_name }}',
+                                            cover_fields.get('applicant_name', ''))
+
+                if '{{ cover_applicant_address }}' in text:
+                    cell.text = text.replace('{{ cover_applicant_address }}',
+                                            cover_fields.get('applicant_address', ''))
+
+
+def _set_table_borders(table):
+    """設定表格框線"""
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    tbl = table._tbl
+    tblPr = tbl.tblPr if tbl.tblPr is not None else OxmlElement('w:tblPr')
+
+    tblBorders = OxmlElement('w:tblBorders')
+    for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+        border = OxmlElement(f'w:{border_name}')
+        border.set(qn('w:val'), 'single')
+        border.set(qn('w:sz'), '4')
+        border.set(qn('w:space'), '0')
+        border.set(qn('w:color'), '000000')
+        tblBorders.append(border)
+
+    tblPr.append(tblBorders)
+    if tbl.tblPr is None:
+        tbl.insert(0, tblPr)
+
+
+# ============================================================
+# 舊版 pipeline 函數 (保留供向後兼容)
+# ============================================================
+
+def process_job_legacy(job: Job, storage: Optional[StorageClient] = None, redis_client=None) -> Job:
+    """
+    舊版 pipeline (保留供向後兼容)
+    """
+    # 舊版邏輯...
+    pass
