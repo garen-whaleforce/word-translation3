@@ -146,8 +146,6 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 async def create_job(
     file: UploadFile = File(...),
     report_no: Optional[str] = Form(None),
-    applicant_name: Optional[str] = Form(None),
-    applicant_address: Optional[str] = Form(None),
     _: str = Depends(verify_password),
 ):
     """
@@ -155,8 +153,6 @@ async def create_job(
 
     封面欄位（選填）：
     - report_no: 報告編號
-    - applicant_name: 申請者名稱
-    - applicant_address: 申請者地址
 
     認證：若已設定 SHARED_PASSWORD，需在 query string 提供 ?p=<password>
     """
@@ -188,8 +184,8 @@ async def create_job(
 
     # 設定封面欄位
     job.cover_report_no = report_no or ""
-    job.cover_applicant_name = applicant_name or ""
-    job.cover_applicant_address = applicant_address or ""
+    job.cover_applicant_name = ""
+    job.cover_applicant_address = ""
 
     # 上傳 PDF 到 Storage（content 已在前面讀取並驗證）
     storage = get_storage()

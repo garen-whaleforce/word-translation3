@@ -399,16 +399,6 @@
                 <input type="text" id="reportNo" placeholder="例：CNS-2024-001">
             </div>
 
-            <div class="form-group">
-                <label for="applicantName">申請者名稱</label>
-                <input type="text" id="applicantName" placeholder="例：台灣電子股份有限公司">
-            </div>
-
-            <div class="form-group">
-                <label for="applicantAddress">申請者地址</label>
-                <textarea id="applicantAddress" placeholder="例：台北市信義區信義路五段7號"></textarea>
-            </div>
-
             <button class="btn" id="submitBtn" disabled>
                 上傳並開始轉換
             </button>
@@ -544,12 +534,8 @@
 
                 // 封面資訊（選填）
                 const reportNo = document.getElementById('reportNo').value.trim();
-                const applicantName = document.getElementById('applicantName').value.trim();
-                const applicantAddress = document.getElementById('applicantAddress').value.trim();
 
                 if (reportNo) formData.append('report_no', reportNo);
-                if (applicantName) formData.append('applicant_name', applicantName);
-                if (applicantAddress) formData.append('applicant_address', applicantAddress);
 
                 const response = await fetch(`${API_BASE}/api/jobs`, {
                     method: 'POST',

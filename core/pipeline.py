@@ -107,6 +107,10 @@ def process_job(job: Job, storage: Optional[StorageClient] = None, redis_client=
             'applicant_name': job.cover_applicant_name,
             'applicant_address': job.cover_applicant_address,
         }
+        if cover_fields.get('report_no'):
+            meta['cb_report_no'] = cover_fields['report_no']
+        else:
+            meta['cb_report_no'] = ""
 
         _render_word_v2(
             template_path=str(template_path),
@@ -182,6 +186,7 @@ def _extract_cover_meta(pdf_path: str, pdf_filename: str) -> dict:
         'model_type_references': [],
         'model_type_references_str': '',
         'report_reference': '',
+        'cb_report_no': '',
         'manufacturer_name': '',
         'manufacturer_address': '',
         'test_item': '',
@@ -217,6 +222,7 @@ def _extract_cover_meta(pdf_path: str, pdf_filename: str) -> dict:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
                 meta['report_reference'] = match.group(1)
+                meta['cb_report_no'] = match.group(1)
                 break
 
         # 抽取製造商名稱
@@ -578,10 +584,13 @@ def _fill_cover_fields(doc, meta: dict, cover_fields: dict):
                     cell.text = text.replace('{{ meta.model_type_references_str }}',
                                             meta.get('model_type_references_str', ''))
 
-                if '{{ cover_report_no }}' in text or '報告編號' in text:
-                    if cover_fields.get('report_no'):
-                        # 找到報告編號欄位並填入
-                        pass
+                if '{{ meta.cb_report_no }}' in text:
+                    cell.text = text.replace('{{ meta.cb_report_no }}',
+                                            meta.get('cb_report_no', ''))
+
+                if '{{ cover_report_no }}' in text:
+                    cell.text = text.replace('{{ cover_report_no }}',
+                                            cover_fields.get('report_no', ''))
 
                 if '{{ cover_applicant_name }}' in text:
                     cell.text = text.replace('{{ cover_applicant_name }}',
